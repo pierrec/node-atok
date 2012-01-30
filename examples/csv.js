@@ -13,11 +13,7 @@ var toNumber = true
 var quotedData = true
 var linesToDisplay = 10
 
-toNumber = false
-quotedData = false
-sep = '\t'
-linesToDisplay = 0
-
+//-----------------------------------------------------------------------------
 var fs = require('fs')
 var fileName = process.argv[2]
 var file = fs.createReadStream(fileName)
