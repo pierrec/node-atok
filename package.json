@@ -2,7 +2,7 @@
   "author": "Pierre Curto"
 , "name": "atok"
 , "description": "Fast, easy and flexible tokenizer for Node Streams"
-, "version": "0.1.0"
+, "version": "0.1.1"
 , "homepage": "http://github.com/pierrec/node-atok"
 , "repository": {
     "type": "git"
