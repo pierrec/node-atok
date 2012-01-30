@@ -49,7 +49,7 @@ describe('Tokenizer Properties Methods', function () {
   })
 
   describe('#escaped', function () {
-    describe('on unescaped char', function () {
+    describe('on unescaped char with default escape char', function () {
       var p = new Tokenizer(options)
       it('should apply', function (done) {
         p.escaped(true)
@@ -61,7 +61,7 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
-    describe('on escaped char', function () {
+    describe('on escaped char with default escape char', function () {
       var p = new Tokenizer(options)
       it('should apply', function (done) {
         p.escaped(true)
@@ -70,6 +70,30 @@ describe('Tokenizer Properties Methods', function () {
           done()
         })
         p.write( '"b\\""' )
+      })
+    })
+
+    describe('on unescaped char with custom escape char', function () {
+      var p = new Tokenizer(options)
+      it('should apply', function (done) {
+        p.escaped('~')
+        p.addRule('"', '"', function (token, idx, type) {
+          assert.equal(token, 'b')
+          done()
+        })
+        p.write('"b"')
+      })
+    })
+
+    describe('on escaped char with custom escape char', function () {
+      var p = new Tokenizer(options)
+      it('should apply', function (done) {
+        p.escaped('~')
+        p.addRule('"', '"', function (token, idx, type) {
+          assert.equal(token, 'b~"')
+          done()
+        })
+        p.write( '"b~""' )
       })
     })
   })

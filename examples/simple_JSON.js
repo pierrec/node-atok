@@ -1,28 +1,8 @@
-# ATOK - async tokenizer
-
-## Overview
-
-Atok is a fast, easy and flexible tokenizer designed for use with [node.js](http://nodejs.org). It is based around the [Stream](http://nodejs.org/docs/latest/api/streams.html) concept and is implemented as one.
-
-It was originally inspired by [node-tokenizer](https://github.com/floby/node-tokenizer), but quickly grew into its own form as I wanted it to be RegExp agnostic so it could be used on node Buffer intances and more importantly *faster*. As of the first release, it does not support Buffer instances (yet!) but it is planned to be the next major feature.
-
-
-## Download
-
-It is published on node package manager (npm). To install, do:
-
-    npm install atok
-
-
-## Quick example
-
-Given the following json to be parsed:
-
-    ["Hello world!"]
-
-The following code would be a very simple JSON parser for it.
-
-``` javascript
+/*
+    Simple JSON parser (only supports an Array of strings!)
+    Illustrates how to define basic rules
+    The tokenizer is defined as a Stream emitter
+**/
 var Tokenizer = require('..')
 var tok = new Tokenizer
 
@@ -87,29 +67,3 @@ tok.on('data', function (token, idx, type) {
 
 // Send some data to be parsed!
 tok.write('[ "Hello", "world!" ]')
-```
-
-__Output__
-
-    results is object with 1 item(s)
-    results: [ 'Hello world!' ]
-
-## Documentation
-
-Cf. the doc folder. More to come.
-
-## Testing
-
-Atok has a fairly extended set of tests written for [mocha](https://github.com/visionmedia/mocha).
-
-## Performance
-
-Atok performance was tested by writing a JSON parser and comparing its results to the excellent Douglas Crockford's [](). It currently scores slower on data sets containing small items, but much faster on large ones.
-
-The JSON parser based on atok will be published soon as well as the benchmarks for it.
-
-There are plans to increase performance, as listed in the TODO document.
-
-## License
-
-[Here](LICENSE)

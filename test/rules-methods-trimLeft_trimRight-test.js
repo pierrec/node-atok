@@ -439,6 +439,7 @@ describe('Tokenizer Rules Methods', function () {
     })
 /*
 1, {firstOf: ['a','b']}
+'', {firstOf: ['a','b']}
 'a', {firstOf: ['a','b']}
 ['a','b'], {firstOf: ['a','b']}
 **/
@@ -453,13 +454,23 @@ describe('Tokenizer Rules Methods', function () {
         })
       })
 
-      describe('#addRule("a", { firstOf: ["a","b"] })', function () {
+      describe('#addRule("", { firstOf: ["a","b"] })', function () {
         it('should return 01', function (done) {
-          p.addRule('a', { firstOf: ['a','b'] }, function (token, idx, type) {
+          p.addRule('', { firstOf: ['a','b'] }, function (token, idx, type) {
             assert.equal(token, '01')
             done()
           })
-          .write('a01ab')
+          .write('01a')
+        })
+      })
+
+      describe('#addRule("~", { firstOf: ["a","b"] })', function () {
+        it('should return 01', function (done) {
+          p.addRule('~', { firstOf: ['a','b'] }, function (token, idx, type) {
+            assert.equal(token, '01')
+            done()
+          })
+          .write('~01ab')
         })
       })
 

@@ -2,6 +2,7 @@
  * Stream methods tests
 **/
 var assert = require('assert')
+var fs = require('fs')
 
 var Tokenizer = require('..')
 var options = {}
@@ -62,6 +63,26 @@ describe('Tokenizer Stream Methods', function () {
         }
       })
       p.write('ab')
+    })
+  })
+
+  describe('#pipe', function () {
+    var p = new Tokenizer(options)
+    it('should pipe the input data to a file', function (done) {
+      var input = 'abc123'
+      var outputFile = './pipe-test-output'
+      var output = fs.createWriteStream(outputFile)
+      output.on('close', function () {
+        var content = fs.readFileSync(outputFile).toString()
+        assert.equal(content, input)
+        done()
+      })
+      p.addRule(1, 'data')
+      p.addRule(0, function () {
+        p.end()
+      })
+      p.pipe(output)
+      p.write(input)
     })
   })
 

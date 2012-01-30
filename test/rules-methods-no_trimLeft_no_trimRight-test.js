@@ -491,13 +491,23 @@ describe('Tokenizer Rules Methods with trimLeft and trimRight disabled', functio
         })
       })
 
-      describe('#addRule("a", { firstOf: ["a","b"] })', function () {
-        it('should return a01a', function (done) {
-          p.addRule('a', { firstOf: ['a','b'] }, function (token, idx, type) {
-            assert.equal(token, 'a01a')
+      describe('#addRule("", { firstOf: ["a","b"] })', function () {
+        it('should return 01a', function (done) {
+          p.addRule('', { firstOf: ['a','b'] }, function (token, idx, type) {
+            assert.equal(token, '01a')
             done()
           })
-          .write('a01ab')
+          .write('01a')
+        })
+      })
+
+      describe('#addRule("~", { firstOf: ["a","b"] })', function () {
+        it('should return ~01a', function (done) {
+          p.addRule('~', { firstOf: ['a','b'] }, function (token, idx, type) {
+            assert.equal(token, '~01a')
+            done()
+          })
+          .write('~01ab')
         })
       })
 
