@@ -96,5 +96,22 @@ describe('Tokenizer Properties Methods', function () {
         p.write( '"b~""' )
       })
     })
+
+  describe('#continue', function () {
+    var p = new Tokenizer(options)
+    it('should upon match continue at the indexed rule', function (done) {
+      var i = 0
+      p.continue(0)
+      p.addRule('a', function (token, idx, type) {
+        i++
+      })
+      p.continue()
+      p.addRule('b', function (token, idx, type) {
+        assert(i, 1)
+        done()
+      })
+      p.write('ab')
+    })
+  })
   })
 })

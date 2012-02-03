@@ -72,6 +72,34 @@ describe('Tokenizer RuleSet Methods', function () {
     })
   })
 
+  // Add a rule before all existing ones
+  describe('#addRuleFirst', function () {
+    describe('with existing rules', function () {
+      var p = new Tokenizer(options)
+      it('should run it first', function (done) {
+        p.setDefaultHandler(function (token, idx, type) {
+          assert.equal(type, 'second')
+          done()
+        })
+        p.addRule('a', 'first')
+        p.addRuleFirst('a', 'second')
+        p.write('a')
+      })
+    })
+
+    describe('with non-existing rule', function () {
+      var p = new Tokenizer(options)
+      it('should run it first', function (done) {
+        p.setDefaultHandler(function (token, idx, type) {
+          assert.equal(type, 'first')
+          done()
+        })
+        p.addRuleFirst('a', 'first')
+        p.write('a')
+      })
+    })
+  })
+
   // Add a rule before an existing one
   describe('#addRuleBefore', function () {
     describe('with existing rule', function () {
@@ -138,7 +166,7 @@ describe('Tokenizer RuleSet Methods', function () {
 
   // Remove a rule
   describe('#removeRule', function () {
-    describe('an existing rule', function () {
+    describe('an existing rule referenced by a String', function () {
       var p = new Tokenizer(options)
       it('should remove it', function (done) {
         p.addRule('a', 'first')
@@ -146,6 +174,41 @@ describe('Tokenizer RuleSet Methods', function () {
         assert.throws(
           function () {
             p.addRuleAfter('first', 'a', 'second')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
+    describe('an existing rule referenced by a Number', function () {
+      var p = new Tokenizer(options)
+      it('should remove it', function (done) {
+        p.addRule('a', 123)
+        p.removeRule(123)
+        assert.throws(
+          function () {
+            p.addRuleAfter(123, 'a', 'second')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
+    describe('an existing rule referenced by a Function', function () {
+      var p = new Tokenizer(options)
+      it('should remove it', function (done) {
+        function handler () {}
+        p.addRule('a', handler)
+        p.removeRule(handler)
+        assert.throws(
+          function () {
+            p.addRuleAfter(handler, 'a', 'second')
           }
         , function (err) {
             if (err instanceof Error) return true

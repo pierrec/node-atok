@@ -1,6 +1,7 @@
 # TODO
 
 ## API
+- better utf-8 support - use a decoding stream upfront of atok? (also applies to other encodings)
 - Buffer support
 - allow token to be split per subrule 2 to n
 	i.e. addRule('a', 'b', 'c') on 'a123b456c' emits/calls handler with: ['123','456'] instead of '123b456'
@@ -11,7 +12,7 @@
 - #includeRuleSet(rule set)
 
 ## Features
-- additional encodings (currently=utf-8)
+- additional encodings (currently=UTF-8)
 
 ## Performance
 - ruleString: cache charCodes for use in subsequent rules -> slower!

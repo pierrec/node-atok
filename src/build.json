@@ -1,0 +1,13 @@
+[
+	{
+		"input": {
+			"include": "**/*.js"
+		, "exclude": "*.json"
+		}
+	,	"output": {
+			"path": "../lib"
+		, "mode": "0755"
+		, "clean": true
+		}
+	}
+]

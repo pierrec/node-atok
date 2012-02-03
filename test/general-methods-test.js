@@ -15,7 +15,7 @@ describe('Tokenizer General Methods', function () {
     it('should return the tokenizer buffer size', function (done) {
       var data = '123'
       p.write(data)
-      assert.equal(p.length(), data.length)
+      assert.equal(p.length, data.length)
       done()
     })
   })
@@ -37,7 +37,7 @@ describe('Tokenizer General Methods', function () {
         p.addRule('a', 'data')
         p.saveRuleSet('myRules')
         p.clear()
-        assert.equal(p.length(), 0)
+        assert.equal(p.length, 0)
         assert.deepEqual(p.saved, {})
         done()
       })
@@ -49,7 +49,7 @@ describe('Tokenizer General Methods', function () {
         p.addRule('a', 'data')
         p.saveRuleSet('myRules')
         p.clear(true)
-        assert.equal(p.length(), 0)
+        assert.equal(p.length, 0)
         assert.notDeepEqual(p.saved, {})
         done()
       })

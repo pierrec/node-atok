@@ -1,0 +1,24 @@
+[
+	{
+		"input": {
+			"include": "src/*.js"
+		, "exclude": "*.json"
+		}
+	,	"output": {
+			"path": "lib"
+		, "mode": "0755"
+		, "clean": true
+		}
+	}
+,	{
+		"input": {
+			"include": "src/string/*.js"
+		, "exclude": "*.json"
+		}
+	,	"output": {
+			"path": "lib/string"
+		, "mode": "0755"
+		, "clean": true
+		}
+	}
+]
