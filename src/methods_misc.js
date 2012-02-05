@@ -16,7 +16,7 @@ Tknzr.prototype.clear = function (keepRules) {
   this._clearRuleProp()
 
   if (!keepRules) {
-    this.currentRule = ''     // Name of the current rule  
+    this.currentRule = null   // Name of the current rule  
     this.emptyHandler = null  // Handler to trigger when the buffer becomes empty
     this.rules = []           // Rules to be checked against
     this.handler = null       // Matched token default handler
@@ -66,7 +66,7 @@ Tknzr.prototype.setEncoding = function (enc) {
  * Positive buffer overrun supported (will offset on the next data chunk)
 **/
 Tknzr.prototype.seek = function (i) {
-  this.bytesRead += i > 0 ? i : -i // Bytes read always increase!
+  this.bytesRead += i
   this.offset += i
   if (this.offset < 0)
     return this._error( new Error('Tokenizer#seek: negative offset: ' + this.offset + ' from ' + i) )

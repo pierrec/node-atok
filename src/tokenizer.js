@@ -221,6 +221,6 @@ Tknzr.prototype._tokenize = function () {
   
   return this._done()
 }
-//import(methods_misc.js)
-//import(methods_ruleprops.js)
-//import(methods_ruleset.js)
+//include(methods_misc.js)
+//include(methods_ruleprops.js)
+//include(methods_ruleset.js)

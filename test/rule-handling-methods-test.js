@@ -333,4 +333,79 @@ describe('Tokenizer RuleSet Methods', function () {
       p.write('ab')
     })
   })
+
+  // Check the existence of a rule
+  describe('#existsRule', function () {
+    describe('does exist', function () {
+      var p = new Tokenizer(options)
+      it('should return true', function (done) {
+        p.addRule('a', 'first')
+        assert.equal(p.existsRule('first'), true)
+        done()
+      })
+    })
+
+    describe('does not exist', function () {
+      var p = new Tokenizer(options)
+      it('should return false', function (done) {
+        p.addRule('a', 'first')
+        assert.equal(p.existsRule('second'), false)
+        done()
+      })
+    })
+  })
+
+  // Delete a rule set
+  describe('#deleteRuleSet', function () {
+    var p = new Tokenizer(options)
+    it('should remove it', function (done) {
+      p.addRule('a', 'first')
+      p.saveRuleSet('myRules')
+      p.deleteRuleSet('myRules')
+      assert.throws(
+        function () {
+          p.loadRuleSet('myRules')
+        }
+      , function (err) {
+          if (err instanceof Error) return true
+        }
+      )
+      done()
+    })
+  })
+
+  // Get the currently loaded rule set
+  describe('#getRuleSet', function () {
+    describe('does exist', function () {
+      var p = new Tokenizer(options)
+      it('should return myRules', function (done) {
+        p.addRule('a', 'first')
+        p.saveRuleSet('myRules')
+        assert.equal(p.getRuleSet(), 'myRules')
+        done()
+      })
+    })
+
+    describe('does not exist', function () {
+      var p = new Tokenizer(options)
+      it('should return false', function (done) {
+        p.addRule('a', 'first')
+        assert.equal(p.getRuleSet(), null)
+        done()
+      })
+    })
+  })
+
+  // Get all rule sets
+  describe('#getAllRuleSet', function () {
+    var p = new Tokenizer(options)
+    it('should return rule sets: myRules and myRules2', function (done) {
+      p.addRule('a', 'first')
+      p.saveRuleSet('myRules')
+      p.addRule('b', 'second')
+      p.saveRuleSet('myRules2')
+      assert.deepEqual(Object.keys( p.getAllRuleSet() ), ['myRules','myRules2'])
+      done()
+    })
+  })
 })

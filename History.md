@@ -1,3 +1,12 @@
+0.1.3 / 2012-02-05
+==================
+
+  * `seek()` decreases bytes on negative seek
+  * Added `existsRule()`
+  * Added `deleteRuleSet()`
+  * Added `getRuleSet()`
+  * Added `getAllRuleSet()`
+
 0.1.2 / 2012-02-03
 ==================
 

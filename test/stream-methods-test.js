@@ -3,6 +3,7 @@
 **/
 var assert = require('assert')
 var fs = require('fs')
+var path = require('path')
 
 var Tokenizer = require('..')
 var options = {}
@@ -70,7 +71,7 @@ describe('Tokenizer Stream Methods', function () {
     var p = new Tokenizer(options)
     it('should pipe the input data to a file', function (done) {
       var input = 'abc123'
-      var outputFile = './pipe-test-output'
+      var outputFile = path.join( __dirname, 'pipe-test-output' )
       var output = fs.createWriteStream(outputFile)
       output.on('close', function () {
         var content = fs.readFileSync(outputFile).toString()

@@ -161,10 +161,50 @@ Tknzr.prototype.loadRuleSet = function (name) {
   return this
 }
 /** chainable
- * Tokenizer#getRuleSets()
+ * Tokenizer#deleteRuleSet(name)
+ * - name (String): name of the rule set
+ *
+ * Delete a rule set
+**/
+Tknzr.prototype.deleteRuleSet = function (name) {
+  delete this.saved[name]
+
+  return this
+}
+/**
+ * Tokenizer#getRuleSet()
+ *
+ * Get the current rule set
+**/
+Tknzr.prototype.getRuleSet = function () {
+  return this.currentRule
+}
+/**
+ * Tokenizer#getAllRuleSet()
  *
  * Get the list of rule sets
 **/
-Tknzr.prototype.getRuleSets = function () {
+Tknzr.prototype.getAllRuleSet = function () {
   return this.saved
+}
+/**
+ * Tokenizer#existsRule(name[, name2]) -> Boolean
+ * - name (String): name of the rule to check
+ *
+ * Check the existence of a rule
+**/
+Tknzr.prototype.existsRule = function (/* name ... */) {
+  var args = slice.call(arguments, 0)
+  var rules = this.rules
+  var n = rules.length
+
+  var res = args.map(function (rule) {
+    for (var i = 0; i < n; i++) {
+      var type = rules[i].type !== null ? rules[i].type : rules[i].handler
+      if (type === rule) return true
+    }
+    return false
+  })
+
+  return args.length == 1 ? res[0] : res
 }

@@ -6,7 +6,7 @@
 		}
 	,	"output": {
 			"path": "../lib"
-		, "mode": "0755"
+		, "mode": "0644"
 		, "clean": true
 		}
 	}

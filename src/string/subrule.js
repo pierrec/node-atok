@@ -12,31 +12,31 @@ var isArray = require('util').isArray
 
 var emptyRule = { exec: null }
 
-var numberRULE = require('./number')
-var numberArrayRULE = require('./numberArray')
+//include(number_SubRule.js)
+//include(numberArray_SubRule.js)
 
-var firstCharRULE = require('./firstChar')
-var firstStringRULE = require('./firstString')
+//include(firstChar_SubRule.js)
+//include(firstString_SubRule.js)
 
-var stringRULE = require('./string')
-var stringArrayRULE = require('./stringArray')
-var firstSingleArrayRULE = require('./firstSingleArray')
-var firstArrayRULE = require('./firstArray')
-var escapedStringRULE = require('./escapedString')
+//include(string_SubRule.js)
+//include(stringArray_SubRule.js)
+//include(firstSingleArray_SubRule.js)
+//include(firstArray_SubRule.js)
+//include(escapedString_SubRule.js)
 
-var startendNumberSingleRangeRULE = require('./startendNumberSingleRange')
-var startendSingleRangeRULE = require('./startendSingleRange')
-var startSingleRangeRULE = require('./startSingleRange')
-var startNumberSingleRangeRULE = require('./startNumberSingleRange')
-var endNumberSingleRangeRULE = require('./endNumberSingleRange')
-var endSingleRangeRULE = require('./endSingleRange')
+//include(startendNumberSingleRange_SubRule.js)
+//include(startendSingleRange_SubRule.js)
+//include(startSingleRange_SubRule.js)
+//include(startNumberSingleRange_SubRule.js)
+//include(endNumberSingleRange_SubRule.js)
+//include(endSingleRange_SubRule.js)
 
-var tokenizedFirstOfRULE = require('./tokenizedFirstOf')
-var tokenizedNoTrimFirstOfRULE = require('./tokenizedNoTrimFirstOf')
+//include(tokenizedFirstOf_SubRule.js)
+//include(tokenizedNoTrimFirstOf_SubRule.js)
 
-var firstOfRULE = require('./firstOf')
+//include(firstOf_SubRule.js)
 
-var stringToCharCodes = require('./utils').stringToCharCodes
+//include(utils.js)
 
 function toCharCodes (v) {
   var res
@@ -79,17 +79,17 @@ function SubRule (rule, i, n, mainRule) {
     case 'number':
       if (rule <= 0)
         throw new Error('SubRule: Number cannot be negative: ' + rule)
-      return new numberRULE(rule)
+      return new number_SubRule(rule)
     case 'string':
       if (rule.length == 0)
         return emptyRule
       if (rule.length == 1 && i == 0)
-        return new firstCharRULE(rule)
+        return new firstChar_SubRule(rule)
       if (i == 0)
-        return new firstStringRULE(rule)
+        return new firstString_SubRule(rule)
       if (mainRule.escape === false)
-        return new stringRULE(rule)
-      return new escapedStringRULE(rule, mainRule.escape)
+        return new string_SubRule(rule)
+      return new escapedString_SubRule(rule, mainRule.escape)
     case 'object':
       if ( isArray(rule) ) {
         if (rule.length == 0)
@@ -102,19 +102,19 @@ function SubRule (rule, i, n, mainRule) {
         switch( type ) {
           case 'number':
             if (i == 0)
-              return new numberArrayRULE(rule)
+              return new numberArray_SubRule(rule)
             throw new Error('SubRule: unsupported number list as nth ' + i + ' rule: ' + rule)
           case 'string':
             if (i > 0)
-              return new stringArrayRULE(rule)
+              return new stringArray_SubRule(rule)
             // All items of same size?
             switch ( getArrayItemsSize(rule) ) {
               case 0:
                 return emptyRule
               case 1:
-                return new firstSingleArrayRULE(rule)
+                return new firstSingleArray_SubRule(rule)
               default:
-                return new firstArrayRULE(rule)
+                return new firstArray_SubRule(rule)
             }
         }
       } else if ( i == 0 && rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
@@ -123,32 +123,32 @@ function SubRule (rule, i, n, mainRule) {
 
         return typeof rule.start === 'number'
             || (typeof rule.start === 'string' && rule.start.length == 1)
-          ? new startendNumberSingleRangeRULE(rule.start, rule.end)
-          : new startendSingleRangeRULE(rule.start, rule.end)
+          ? new startendNumberSingleRange_SubRule(rule.start, rule.end)
+          : new startendSingleRange_SubRule(rule.start, rule.end)
 
       } else if ( i == 0 && rule.hasOwnProperty('start') && !rule.hasOwnProperty('end') ) {
         return typeof rule.start === 'number'
             || (typeof rule.start === 'string' && rule.start.length == 1)
-          ? new startNumberSingleRangeRULE(rule.start)
-          : new startSingleRangeRULE(rule.start)
+          ? new startNumberSingleRange_SubRule(rule.start)
+          : new startSingleRange_SubRule(rule.start)
 
       } else if ( i == 0 && !rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
         return typeof rule.end === 'number'
             || (typeof rule.end === 'string' && rule.end.length == 1)
-          ? new endNumberSingleRangeRULE(rule.end)
-          : new endSingleRangeRULE(rule.end)
+          ? new endNumberSingleRange_SubRule(rule.end)
+          : new endSingleRange_SubRule(rule.end)
 
       } else if ( rule.hasOwnProperty('firstOf') && isArray( rule.firstOf ) ) {
         if (rule.firstOf.length < 2)
           throw new Error('Tokenizer#addRule: Invalid Array size for firstOf (must be >= 2): ' + rule.firstOf.length)
 
         if (i !== (n-1))
-          return new firstOfRULE(rule.firstOf)
+          return new firstOf_SubRule(rule.firstOf)
 
         if (mainRule.trimRight)
-          return new tokenizedFirstOfRULE(rule.firstOf)
+          return new tokenizedFirstOf_SubRule(rule.firstOf)
 
-        return new tokenizedNoTrimFirstOfRULE(rule.firstOf)
+        return new tokenizedNoTrimFirstOf_SubRule(rule.firstOf)
       }
   }
   
