@@ -1,6 +1,11 @@
+0.1.4 / 2012-02-05
+==================
+
+
 0.1.3 / 2012-02-05
 ==================
 
+  * When `quiet()`, the token is set to the would be token length
   * `seek()` decreases bytes on negative seek
   * Added `existsRule()`
   * Added `deleteRuleSet()`

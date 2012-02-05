@@ -19,7 +19,7 @@ tok
     // Rule definition:
     // first argument: always an exact match. To match anything, use ''
     // next arguments: array of possible matches (first match wins)
-    .addRule('', [ sep ].concat(eol), function (token, idx) {
+    .addRule('', { firstOf: [ sep ].concat(eol) }, function (token, idx) {
         // token=the matched data
         // idx=when using array of patterns, the index of the matched pattern
         // Newline?

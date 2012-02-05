@@ -116,12 +116,13 @@ Rule.prototype.test = function (data, offset) {
   this.idx = lastRule.idx
   // 1 rule || no token extraction || ignore token -> nothing else to do
 
-  if (!this.noToken && !token) {
-    // By default, the token is stripped out from the left and last right patterns
-    this.token = data.substr(
-      offset + trimLeftSize
-    , matchedTotal - ( trimLeftSize + (this.trimRight ? lastRule.size : 0) )
-    )
+  if (!token) {
+    var tokenLength = matchedTotal - ( trimLeftSize + (this.trimRight ? lastRule.size : 0) )
+    this.token = this.noToken
+      // Set the token to the size of what would have been extracted
+      ? tokenLength
+      // By default, the token is stripped out from the left and last right patterns
+      : data.substr( offset + trimLeftSize, tokenLength )
   }
 
   this.countStat++
