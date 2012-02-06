@@ -11,6 +11,7 @@ Tknzr.prototype.clear = function (keepRules) {
   this.lastByte = -1
   this.bytesRead = 0
   this.offset = 0
+  this.matchEventHandler = null
 
   // Rule flags
   this._clearRuleProp()
@@ -18,6 +19,7 @@ Tknzr.prototype.clear = function (keepRules) {
   if (!keepRules) {
     this.currentRule = null   // Name of the current rule  
     this.emptyHandler = null  // Handler to trigger when the buffer becomes empty
+    this.endHandler = null    // Handler to trigger when the tokenizer ends
     this.rules = []           // Rules to be checked against
     this.handler = null       // Matched token default handler
     this.saved = {}           // Saved rules
@@ -32,7 +34,14 @@ Tknzr.prototype._clearRuleProp = function () {
   this._trimLeft = true    // Remove the left pattern from the token
   this._trimRight = true   // Remove the right pattern from the token
   this._next = null        // Next rule to load
-  this._continue = -1      // Next rule index to load
+  this._continue = null    // Next rule index to load
+}
+Tknzr.prototype._slice = function (start, end) {
+  if (arguments.length === 0) start = this.offset
+  if (arguments.length <= 1) end = this.length
+  return this._bufferMode
+    ? this.buffer.slice(start, end)
+    : this.buffer.substr(start, end - start)
 }
 /**
  * Tokenizer#flush()
@@ -40,13 +49,11 @@ Tknzr.prototype._clearRuleProp = function () {
  * Terminate the current tokenizing and return the current buffer
 **/
 Tknzr.prototype.flush = function () {
-  var buf = this.buffer
-    , offset = this.offset
-    , mode = this._bufferMode
+  var data = this._slice()
   
   this.clear(true) // Keep rules!
 
-  return mode ? buf.slice(offset) : buf.substr(offset)
+  return data
 }
 /** chainable
  * Tokenizer#setEncoding(encoding)

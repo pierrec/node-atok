@@ -1,6 +1,10 @@
-0.1.4 / 2012-02-05
+0.1.4 / 2012-02-06
 ==================
 
+  * New matchEventHandler property (Function): triggered upon a rule match with
+    arguments: <offset>, <matched length>, <rule object>
+  * `continue()` accepts negative input
+  * `addRule(-1, handler)` triggers [handler] when tokenizer has ended
 
 0.1.3 / 2012-02-05
 ==================

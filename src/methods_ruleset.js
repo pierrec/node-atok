@@ -76,15 +76,17 @@ Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
       type = last
       break
     default:
-      return this._error( new Error('Tokenizer#addRule: invalid type/handler, must be String/Function') )
+      return this._error( new Error('Tokenizer#addRule: invalid type/handler, must be Number/String/Function') )
   }
 
-  // first===0: following arguments are ignored
+  // first <= 0: following arguments are ignored
   if ( first === 0 ) { // Empty buffer rule
     var self = this
     this.emptyHandler = handler || function () {
       self.emit('data', null, -1, type)
     }
+  } else if ( first < 0 ) { // Ending rule
+    this.endHandler = handler
   } else {
     this.rules.push(
       RuleString(

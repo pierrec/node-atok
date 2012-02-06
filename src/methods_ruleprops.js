@@ -93,10 +93,12 @@ Tknzr.prototype.escaped = function (flag) {
  * Continue the rules flow if rule matches at the specified rule index
 **/
 Tknzr.prototype.continue = function (jump) {
-  if (arguments.length === 0) jump = -1
-
+  if (arguments.length === 0) {
+    this._continue = null
+    return this
+  }
   if (typeof jump !== 'number')
-    this._error( new Error('Tokenizer#continue: Invalid jump (must be an integer):' + jump) )
+    this._error( new Error('Tokenizer#continue: Invalid jump (must be an integer): ' + jump) )
   
   this._continue = jump
   return this

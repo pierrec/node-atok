@@ -153,6 +153,7 @@ Tknzr.prototype._done = function () {
   }
 
   if (this.ended) {
+    if (this.endHandler) endHandler()
     this._end()
     return false
   }
@@ -173,11 +174,16 @@ Tknzr.prototype._tokenize = function () {
       matched = p.test(this.buffer, this.offset)
       // console.log('tokenize:', p, this.offset, matched)
       if ( matched >= 0 ) {
+        if (this.matchEventHandler)
+          this.matchEventHandler(this.offset, matched, p)
+        
         this.offset += matched
+        this.bytesRead += matched
         // Is the token to be processed?
         if ( !p.ignore ) {
           // Emit the data by default, unless the handler is set
           if (p.handler) p.handler(p.token, p.idx, p.type)
+          // NB. args > 2 -> slower emit()
           else this.emit('data', p.token, p.idx, p.type)
         }
         // Load a new set of rules
@@ -188,13 +194,12 @@ Tknzr.prototype._tokenize = function () {
           return false
         }
         // Continue?
-        if (p.continue >= 0) {
-          i += p.continue
-        } else {
+        if (p.continue === null) {
           // Skip the token and keep going, unless rule returned 0
           if (matched > 0) i = -1
+        } else {
+          i += p.continue
         }
-        this.bytesRead += matched
       }
     }
   }
@@ -211,9 +216,7 @@ Tknzr.prototype._tokenize = function () {
       this.buffer = this._bufferMode ? new Buffer : ''
       this.length = 0
     } else {
-      this.buffer = this._bufferMode
-        ? this.buffer.splice( this.offset )
-        : this.buffer.substr( this.offset )
+      this.buffer = this._slice()
       this.length -= this.offset
       this.offset = 0
     }
