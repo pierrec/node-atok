@@ -81,12 +81,9 @@ Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
 
   // first <= 0: following arguments are ignored
   if ( first === 0 ) { // Empty buffer rule
-    var self = this
-    this.emptyHandler = handler || function () {
-      self.emit('data', null, -1, type)
-    }
-  } else if ( first < 0 ) { // Ending rule
-    this.endHandler = handler
+    this.emptyHandler = handler || (function () {
+          this.emit('data', this.ending, -1, type)
+        }).bind(this)
   } else {
     this.rules.push(
       RuleString(
@@ -142,6 +139,7 @@ Tknzr.prototype.saveRuleSet = function (name) {
   
   this.saved[name] = {
     rules: this.rules
+  , emptyHandler: this.emptyHandler
   }
   this.currentRule = name
   return this
@@ -159,6 +157,7 @@ Tknzr.prototype.loadRuleSet = function (name) {
 
   this.currentRule = name
   this.rules = ruleSet.rules
+  this.emptyHandler = ruleSet.emptyHandler
 
   return this
 }

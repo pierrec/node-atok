@@ -1,6 +1,7 @@
 # TODO
 
 ## API
+
 	* better utf-8 support - use a decoding stream upfront of atok? (also applies to other encodings)
 	* Buffer support
 	* allow token to be split per subrule 2 to n
@@ -12,9 +13,15 @@
 	* #includeRuleSet(rule set)
 
 ## Features
-	* additional encodings (currently=UTF-8)
+
+	* additional encodings (currently=UTF-8): binary? base64? ...
+
+## Documentation
+
+	* Rewrite: API / Methods / Members
 
 ## Performance
+
 	* faster EventEmitter ?
 	* handler signature: token idx, type => rule object ?
 	* ruleString: cache charCodes for use in subsequent rules -> slower!
@@ -23,4 +30,6 @@
 	* turn string typed handler into smaller handlers using Uglify parser
 
 ## Known issues
-	* 0 or -1 are ignored in `addRule([0,-1,123])`
+
+	* rules with 0 are ignored in arrays (i.e. `addRule([0,123])`)
+	* When listeners are attached, emitting the match event introduces a major performance penalty using node's default EventEmitter. This will be fixed in the next revision.

@@ -23,7 +23,7 @@ Given the following json to be parsed:
 The following code would be a very simple JSON parser for it.
 
 ``` javascript
-var Tokenizer = require('..')
+var Tokenizer = require('atok')
 var tok = new Tokenizer
 
 // Define the parser rules

@@ -35,12 +35,24 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
-    describe('on non Number rule', function () {
+    describe('on Empty rule', function () {
       var p = new Tokenizer(options)
-      it('should trigger but not set the token', function (done) {
+      it('should give the token size', function (done) {
+        p.quiet(true)
+        p.addRule('', function (token, idx, type) {
+          assert.equal(token, 3)
+          done()
+        })
+        p.write('abc')
+      })
+    })
+
+    describe('on non Number/non Empty rule', function () {
+      var p = new Tokenizer(options)
+      it('should give the token size', function (done) {
         p.quiet(true)
         p.addRule('a', 'c', function (token, idx, type) {
-          assert.notEqual(token, 'b')
+          assert.equal(token, 1)
           done()
         })
         p.write('abc')

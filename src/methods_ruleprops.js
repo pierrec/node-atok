@@ -16,7 +16,7 @@ Tknzr.prototype.setDefaultHandler = function (handler) {
  * Skip matched data silently for all subsequent rules
 **/
 Tknzr.prototype.next = function (ruleSet) {
-  this._next = ruleSet
+  this._p_next = ruleSet
   return this
 }
 /** chainable
@@ -26,7 +26,7 @@ Tknzr.prototype.next = function (ruleSet) {
  * Skip matched data silently for all subsequent rules
 **/
 Tknzr.prototype.ignore = function (flag) {
-  this._ignore = (flag === true)
+  this._p_ignore = (flag === true)
   return this
 }
 /** chainable
@@ -38,7 +38,7 @@ Tknzr.prototype.ignore = function (flag) {
  * still needs to be called. Faster than standard handler call.
 **/
 Tknzr.prototype.quiet = function (flag) {
-  this._quiet = (flag === true)
+  this._p_quiet = (flag === true)
   return this
 }
 /** chainable
@@ -48,7 +48,7 @@ Tknzr.prototype.quiet = function (flag) {
  * Remove the left matched pattern for all subsequent rules
 **/
 Tknzr.prototype.trimLeft = function (flag) {
-  this._trimLeft = (flag === true)
+  this._p_trimLeft = (flag === true)
   return this
 }
 /** chainable
@@ -59,7 +59,7 @@ Tknzr.prototype.trimLeft = function (flag) {
  * If only 1 pattern, it is ignored
 **/
 Tknzr.prototype.trimRight = function (flag) {
-  this._trimRight = (flag === true)
+  this._p_trimRight = (flag === true)
   return this
 }
 /** chainable
@@ -79,7 +79,7 @@ Tknzr.prototype.trim = function (flag) {
  * The default escape character is \, can be changed by specifying it instead of a Boolean
 **/
 Tknzr.prototype.escaped = function (flag) {
-  this._escape = typeof flag === 'string' && flag.length > 0
+  this._p_escape = typeof flag === 'string' && flag.length > 0
     ? flag[0]
     : flag === true
       ? '\\'
@@ -94,12 +94,44 @@ Tknzr.prototype.escaped = function (flag) {
 **/
 Tknzr.prototype.continue = function (jump) {
   if (arguments.length === 0) {
-    this._continue = null
+    this._p_continue = null
     return this
   }
   if (typeof jump !== 'number')
     this._error( new Error('Tokenizer#continue: Invalid jump (must be an integer): ' + jump) )
   
-  this._continue = jump
+  this._p_continue = jump
+  return this
+}
+/** chainable
+ * Tokenizer#saveProps()
+ *
+ * Save all properties
+**/
+Tknzr.prototype.saveProps = function () {
+  var rex = /^_p_/
+  var p = {}
+
+  for (var prop in this)
+    if ( this.hasOwnProperty(prop) && rex.test(prop) )
+      p[prop] = this[prop]
+  
+  this.savedProps = p
+
+  return this
+}
+/** chainable
+ * Tokenizer#loadProps()
+ *
+ * Restore saved proterties
+**/
+Tknzr.prototype.loadProps = function () {
+  var p = this.savedProps
+
+  if (p) {
+    for (var prop in p)
+      this[prop] = p[prop]
+  }
+
   return this
 }

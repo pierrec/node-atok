@@ -11,30 +11,29 @@ Tknzr.prototype.clear = function (keepRules) {
   this.lastByte = -1
   this.bytesRead = 0
   this.offset = 0
-  this.matchEventHandler = null
 
   // Rule flags
   this._clearRuleProp()
 
   if (!keepRules) {
     this.currentRule = null   // Name of the current rule  
-    this.emptyHandler = null  // Handler to trigger when the buffer becomes empty
-    this.endHandler = null    // Handler to trigger when the tokenizer ends
+    this.emptyHandler = noop  // Handler to trigger when the buffer becomes empty
     this.rules = []           // Rules to be checked against
     this.handler = null       // Matched token default handler
     this.saved = {}           // Saved rules
+    this.savedProps = {}      // Saved rules properties
   }
 
   return this
 }
 Tknzr.prototype._clearRuleProp = function () {
-  this._ignore = false     // Get the token size and skip
-  this._quiet = false      // Get the token size and call the handler with no data
-  this._escape = false     // Pattern must not be escaped
-  this._trimLeft = true    // Remove the left pattern from the token
-  this._trimRight = true   // Remove the right pattern from the token
-  this._next = null        // Next rule to load
-  this._continue = null    // Next rule index to load
+  this._p_ignore = false     // Get the token size and skip
+  this._p_quiet = false      // Get the token size and call the handler with no data
+  this._p_escape = false     // Pattern must not be escaped
+  this._p_trimLeft = true    // Remove the left pattern from the token
+  this._p_trimRight = true   // Remove the right pattern from the token
+  this._p_next = null        // Next rule to load
+  this._p_continue = null    // Next rule index to load
 }
 Tknzr.prototype._slice = function (start, end) {
   if (arguments.length === 0) start = this.offset
@@ -62,7 +61,13 @@ Tknzr.prototype.flush = function () {
  * Set the string encoding
 **/
 Tknzr.prototype.setEncoding = function (enc) {
-  this._encoding = enc || defaultEncoding
+  switch (enc) {
+    case 'UTF-8':
+    case 'utf-8':
+    case 'utf8':
+    default:
+      this._encoding = 'UTF-8'
+  }
   return this
 }
 /** chainable

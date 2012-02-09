@@ -155,8 +155,7 @@ describe('Tokenizer Rules Methods', function () {
 
       describe('#addRule("a", 0)', function () {
         it('should trigger on empty buffer', function (done) {
-          p.addRule('a', 'consume data')
-          p.addRule(0, function (token, idx, type) {
+          p.addRule('a', 0, function (token, idx, type) {
             done()
           })
           .write('a')

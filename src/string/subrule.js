@@ -10,8 +10,9 @@ module.exports = SubRule
 
 var isArray = require('util').isArray
 
-var emptyRule = { exec: null }
+var emptyRule = { token: true, exec: null }
 
+//include(zero_SubRule.js)
 //include(number_SubRule.js)
 //include(numberArray_SubRule.js)
 
@@ -77,9 +78,11 @@ function getArrayItemsSize (arr) {
 function SubRule (rule, i, n, mainRule) {
   switch ( typeof rule ) {
     case 'number':
-      if (rule <= 0)
+      if (rule < 0)
         throw new Error('SubRule: Number cannot be negative: ' + rule)
-      return new number_SubRule(rule)
+      return rule > 0
+        ? new number_SubRule(rule)
+        : new zero_SubRule(rule)
     case 'string':
       if (rule.length == 0)
         return emptyRule

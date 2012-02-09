@@ -22,13 +22,13 @@ function Rule (subrules, type, handler, options) {
   options = options || {}
 
   // Rule options
-  this.trimLeft = options._trimLeft
-  this.trimRight = options._trimRight
-  this.ignore = options._ignore
-  this.quiet = options._quiet
-  this.escape = options._escape
-  this.next = (typeof options._next === 'string') ? options._next : null
-  this.continue = options._continue
+  this.trimLeft = options._p_trimLeft
+  this.trimRight = options._p_trimRight
+  this.ignore = options._p_ignore
+  this.quiet = options._p_quiet
+  this.escape = options._p_escape
+  this.next = (typeof options._p_next === 'string') ? options._p_next : null
+  this.continue = options._p_continue
 
   this.bufferMode = (options._bufferMode === true)
 
@@ -67,6 +67,10 @@ function Rule (subrules, type, handler, options) {
 }
 
 Rule.prototype.all = function (data, offset) {
+  if (this.noToken) {
+    this.token = data.length - offset
+    return this.token
+  }
   this.token = data.substr(offset)
   return this.token.length
 }

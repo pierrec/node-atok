@@ -1,3 +1,16 @@
+0.1.5 / 2012-02-09
+==================
+
+  * new property: Atok.ending (Boolean): indicates if `end()` was called
+  * new events:
+    * match (replaces matchEventHandler): rule match (current offset, matched size, matched rule object)
+    * empty: empty buffer (ending flag)
+    cf. TODO about the performance impact when listeners are attached
+  * `addRule([rules], 0)` fixed
+  * `addRule('', handler)` now honors `quiet()`
+  * handlers triggered in `quiet()` mode gives the non extracted token size as the first argument (actually introduced in the previous release)
+  * emptyHandler now triggered on a per rule set basis
+
 0.1.4 / 2012-02-06
 ==================
 

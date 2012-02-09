@@ -9,10 +9,7 @@
  * MIT Licensed
 **/
 var assert = require('assert')
-  , Stream = require('stream').Stream
-  , fs = require('fs')
-  , path = require('path')
-  , vm = require('vm')
+  , Stream = require('stream')
 
 var inherits = require('inherits')
   // , Buffers = require('buffers')
@@ -22,8 +19,7 @@ var RuleString = require('./string/rule')
 
 var slice = Array.prototype.slice
 var isArray = require('util').isArray
-var defaultEncoding = 'UTF-8'
-function noOp () {}
+function noop () {}
 
 module.exports = Tknzr
 
@@ -34,6 +30,12 @@ module.exports = Tknzr
  * - options.encoding (String): encoding to be used (utf8)
  *
 **/
+function error (err) {
+  if (err instanceof Error)
+    throw err
+  else
+    throw new Error("Uncaught, unspecified 'error' event.")
+}
 function Tknzr (options) {
   if (!(this instanceof Tknzr))
     return new Tknzr(options)
@@ -45,17 +47,42 @@ function Tknzr (options) {
   // Options
   options = options || {}
   this._bufferMode = (options.bufferMode === true)
-  this._encoding = options.encoding || defaultEncoding
+  this._encoding = options.encoding
+  // Apply the default encoding value
+  this.setEncoding(options.encoding)
+
+  this.buffer = this._bufferMode ? new Buffer : ''
+  this.length = 0
+  this.lastByte = -1
+  this.bytesRead = 0
+  this.offset = 0
 
   // Initializations
   // Status flags
   this.ended = false      // Flag indicating stream has ended
+  this.ending = false     // Set when end() invokes write()
   this.paused = false     // Flag indicating stream is paused
   this.needDrain = false  // Flag indicating stream needs drain
 
-  this.clear()
+  // // Rules flags
+  this._p_ignore = false     // Get the token size and skip
+  this._p_quiet = false      // Get the token size and call the handler with no data
+  this._p_escape = false     // Pattern must not be escaped
+  this._p_trimLeft = true    // Remove the left pattern from the token
+  this._p_trimRight = true   // Remove the right pattern from the token
+  this._p_next = null        // Next rule to load
+  this._p_continue = null
+
+  // Rules properties
+  this.currentRule = null   // Name of the current rule  
+  this.emptyHandler = null  // Handler to trigger when the buffer becomes empty
+  this.rules = []           // Rules to be checked against
+  this.handler = null       // Matched token default handler
+  this.saved = {}           // Saved rules
+  this.savedProps = {}      // Saved rules properties
 }
 inherits(Tknzr, Stream)
+
 Tknzr.prototype._error = function (err) {
   this.emit('error', err)
   return this
@@ -87,8 +114,6 @@ Tknzr.prototype.write = function (data) {
     // Check for cut off UTF-8 characters
     switch (this._encoding) {
       case 'UTF-8':
-      case 'utf-8':
-      case 'utf8':
         if (this.lastByte >= 0) { // Process the missing utf8 character
           this.buffer += new Buffer([ this.lastByte, data[0] ]).toString('UTF-8')
           this.length++
@@ -118,6 +143,7 @@ Tknzr.prototype.write = function (data) {
   return this._tokenize()
 }
 Tknzr.prototype.end = function (data) {
+  this.ending = true
   this.write(data)
   this.ended = true
   return this._end()
@@ -130,7 +156,7 @@ Tknzr.prototype.resume = function () {
   this.paused = false
   return this._tokenize()
 }
-Tknzr.prototype.destroy = noOp
+Tknzr.prototype.destroy = noop
 /*
  * Tokenizer private methods
  */
@@ -174,8 +200,7 @@ Tknzr.prototype._tokenize = function () {
       matched = p.test(this.buffer, this.offset)
       // console.log('tokenize:', p, this.offset, matched)
       if ( matched >= 0 ) {
-        if (this.matchEventHandler)
-          this.matchEventHandler(this.offset, matched, p)
+        this.emit('match', this.offset, matched, p)
         
         this.offset += matched
         this.bytesRead += matched
@@ -194,12 +219,10 @@ Tknzr.prototype._tokenize = function () {
           return false
         }
         // Continue?
-        if (p.continue === null) {
-          // Skip the token and keep going, unless rule returned 0
-          if (matched > 0) i = -1
-        } else {
+        if (p.continue !== null) {
           i += p.continue
-        }
+          // Skip the token and keep going, unless rule returned 0
+        } else if (matched > 0) i = -1
       }
     }
   }
@@ -209,7 +232,8 @@ Tknzr.prototype._tokenize = function () {
       this.offset = 0
       this.buffer = this._bufferMode ? new Buffer : ''
       this.length = 0
-      if (this.emptyHandler) this.emptyHandler()
+      this.emit('empty', this.ending)
+      if (this.emptyHandler) this.emptyHandler(this.ending)
     } else if (this.offset > this.length) {
       // Can only occurs after #seek was called
       this.offset = this.offset - this.length
