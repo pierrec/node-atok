@@ -1,9 +1,9 @@
 function firstOf_SubRule (list) {
 	this.size = 0
 	this.idx = -1
-	this.token = true
 	this.n = list.length
 	this.list = list
+	this.token = false
 }
 
 firstOf_SubRule.prototype.exec = function (s, start) {

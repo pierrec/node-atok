@@ -3,6 +3,7 @@ function numberArray_SubRule (list) {
 	this.idx = -1
 	this.n = list.length
 	this.list = list
+	this.token = false
 }
 
 numberArray_SubRule.prototype.exec = function (s, start) {

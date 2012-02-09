@@ -3,6 +3,7 @@ function firstString_SubRule (s) {
 	this.idx = -1
 	this.n = s.length
 	this.str = s
+	this.token = false
 }
 
 firstString_SubRule.prototype.exec = function (s, start) {

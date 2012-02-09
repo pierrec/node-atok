@@ -25,10 +25,10 @@ describe('Tokenizer Properties Methods', function () {
   describe('#quiet', function () {
     describe('on Number rule', function () {
       var p = new Tokenizer(options)
-      it('should not apply', function (done) {
+      it('should also apply', function (done) {
         p.quiet(true)
         p.addRule(1, function (token, idx, type) {
-          assert.equal(token, 'a')
+          assert.equal(token, 1)
           done()
         })
         p.write('a')

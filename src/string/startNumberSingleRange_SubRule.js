@@ -2,6 +2,7 @@ function startNumberSingleRange_SubRule (start) {
 	this.size = 1
 	this.idx = -1
 	this.start = toCharCodes(start)
+	this.token = false
 }
 
 startNumberSingleRange_SubRule.prototype.exec = function (s, start) {

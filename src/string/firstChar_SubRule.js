@@ -4,6 +4,7 @@ function firstChar_SubRule (c) {
 	this.idx = -1
 	// Specific properties
 	this.c = c.charCodeAt(0)
+	this.token = false
 }
 
 firstChar_SubRule.prototype.exec = function (s, start) {

@@ -4,6 +4,7 @@ function escapedString_SubRule (s, esc) {
 	this.n = s.length
 	this.str = s
 	this.esc = esc.charCodeAt(0)
+	this.token = false
 }
 
 escapedString_SubRule.prototype.exec = function (s, start) {

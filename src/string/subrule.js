@@ -14,6 +14,7 @@ var emptyRule = { token: true, exec: null }
 
 //include(zero_SubRule.js)
 //include(number_SubRule.js)
+//include(numberNoToken_SubRule.js)
 //include(numberArray_SubRule.js)
 
 //include(firstChar_SubRule.js)
@@ -80,9 +81,11 @@ function SubRule (rule, i, n, mainRule) {
     case 'number':
       if (rule < 0)
         throw new Error('SubRule: Number cannot be negative: ' + rule)
-      return rule > 0
-        ? new number_SubRule(rule)
-        : new zero_SubRule(rule)
+      return rule === 0
+        ? new zero_SubRule(rule)
+        : mainRule.noToken
+          ? new numberNoToken_SubRule(rule)
+          : new number_SubRule(rule)
     case 'string':
       if (rule.length == 0)
         return emptyRule

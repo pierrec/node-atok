@@ -38,6 +38,7 @@ function Rule (subrules, type, handler, options) {
   this.countStat = 0
   this.idx = -1
   this.token = ''
+  this.noToken = this.quiet || this.ignore
 
   // Instantiate all sub rules
   // var ctr = this.bufferMode ? SubRuleBuffer: SubRuleString
@@ -48,7 +49,7 @@ function Rule (subrules, type, handler, options) {
   }
   
   // Does the rule generate any token?
-  this.noToken = (n == 1 && this.trimLeft && !this.rules[0].token) || this.quiet || this.ignore
+  this.noToken = (n == 1 && this.trimLeft && !this.rules[0].token) || this.noToken
 
   // Disable trimRight if only 1 rule
   if (this.rules.length == 1)
@@ -96,10 +97,10 @@ Rule.prototype.test = function (data, offset) {
     // Reminder: size is dynamic!
     // console.log('subrule['+(i+1)+'/'+n+']', start, matched)
     matched = rule[i].exec(s, start + matched, matched - trimLeftSize)
-    if (typeof matched !== 'number') { // Token was returned
+    if (rule[i].token && matched !== -1) { // Set the token
       // console.log('=> TOKEN', matched)
       token = true
-      matchedTotal += matched.length + rule[i].size
+      matchedTotal += (matched.length || matched) + rule[i].size
        // Once a token is set, following rules are applied to it
       this.token = s = matched // Set the token and apply rules to it
       matched = 0

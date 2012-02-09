@@ -3,6 +3,7 @@ function firstArray_SubRule (list) {
 	this.idx = -1
 	this.n = list.length
 	this.list = stringToCharCodes(list, true)
+	this.token = false
 }
 
 firstArray_SubRule.prototype.exec = function (s, start) {
