@@ -40,8 +40,15 @@ function Rule (subrules, type, handler, options) {
   this.token = ''
   this.noToken = this.quiet || this.ignore
 
+  // Special case: addRule(0)
+  if (subrules === 0) {
+    this.handler = handler || function () {
+      options.emit('data', options.ending, -1, type)
+    }
+    return this
+  }
+
   // Instantiate all sub rules
-  // var ctr = this.bufferMode ? SubRuleBuffer: SubRuleString
   this.rules = []
   for (var r, i = 0, n = subrules.length; i < n; i++) {
     r = SubRuleString(subrules[i], i, n, this)

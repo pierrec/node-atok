@@ -81,9 +81,15 @@ Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
 
   // first <= 0: following arguments are ignored
   if ( first === 0 ) { // Empty buffer rule
-    this.emptyHandler = handler || (function () {
-          this.emit('data', this.ending, -1, type)
-        }).bind(this)
+    // this.emptyHandler = handler || (function () {
+    //       this.emit('data', this.ending, -1, type)
+    //     }).bind(this)
+    this.emptyHandler = RuleString(
+        first
+      , type
+      , handler
+      , this
+      )
   } else {
     this.rules.push(
       RuleString(
@@ -155,9 +161,12 @@ Tknzr.prototype.loadRuleSet = function (name) {
   if (!ruleSet)
     return this._error( new Error('Tokenizer#loadRuleSet: Rule set ' + name + ' not found') )
 
+  this.emit('loadruleset', name)
   this.currentRule = name
   this.rules = ruleSet.rules
   this.emptyHandler = ruleSet.emptyHandler
+  // Reset the rule index...
+  this.ruleIndex = 0
 
   return this
 }

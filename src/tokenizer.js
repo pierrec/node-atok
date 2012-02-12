@@ -56,6 +56,7 @@ function Tknzr (options) {
   this.lastByte = -1
   this.bytesRead = 0
   this.offset = 0
+  this.ruleIndex = 0
 
   // Initializations
   // Status flags
@@ -71,7 +72,7 @@ function Tknzr (options) {
   this._p_trimLeft = true    // Remove the left pattern from the token
   this._p_trimRight = true   // Remove the right pattern from the token
   this._p_next = null        // Next rule to load
-  this._p_continue = null
+  this._p_continue = null    // Next rule index to load
 
   // Rules properties
   this.currentRule = null   // Name of the current rule  
@@ -188,9 +189,9 @@ Tknzr.prototype._done = function () {
 }
 Tknzr.prototype._tokenize = function () {
   // NB. Rules and buffer can be reset by the token handler
-  if (this.offset < this.length) {
+  if (this.offset < this.length && this.ruleIndex <= this.rules.length) {
     for (
-        var i = 0, p, matched
+        var i = this.ruleIndex, p, matched
       ; this.offset < this.length && i < this.rules.length
       ; i++
       )
@@ -213,16 +214,20 @@ Tknzr.prototype._tokenize = function () {
         }
         // Load a new set of rules
         if (p.next) this.loadRuleSet(p.next)
-        // Hold on if the stream was paused
-        if (this.paused) {
-          this.needDrain = true
-          return false
-        }
         // Continue?
         if (p.continue !== null) {
           i += p.continue
+          // Keep track of the rule index we are at
+          this.ruleIndex = i + 1
           // Skip the token and keep going, unless rule returned 0
         } else if (matched > 0) i = -1
+        // Hold on if the stream was paused
+        if (this.paused) {
+          // Keep track of the rule index we are at
+          this.ruleIndex = i + 1
+          this.needDrain = true
+          return false
+        }
       }
     }
   }
@@ -233,7 +238,14 @@ Tknzr.prototype._tokenize = function () {
       this.buffer = this._bufferMode ? new Buffer : ''
       this.length = 0
       this.emit('empty', this.ending)
-      if (this.emptyHandler) this.emptyHandler(this.ending)
+      var p = this.emptyHandler
+      if (p) {
+        if ( !p.ignore ) {
+          if (p.handler) p.handler(this.ending)
+          else this.emit('data', this.ending)
+        }
+        if (p.next) this.loadRuleSet(p.next)
+      }
     } else if (this.offset > this.length) {
       // Can only occurs after #seek was called
       this.offset = this.offset - this.length

@@ -312,25 +312,52 @@ describe('Tokenizer RuleSet Methods', function () {
 
   // Set the next rule
   describe('#next', function () {
-    var p = new Tokenizer(options)
-    it('should set the next rule', function (done) {
-      p.setDefaultHandler(function (token, idx, type) {
-        switch(type) {
-          case 'first':
-          break
-          case 'second':
-            done()
-          break
-          default:
-            done( new Error('unexpected type') )
-        }
+    describe('on non empty buffer', function () {
+      var p = new Tokenizer(options)
+      it('should set the next rule', function (done) {
+        p.setDefaultHandler(function (token, idx, type) {
+          switch(type) {
+            case 'first':
+            break
+            case 'second':
+              done()
+            break
+            default:
+              done( new Error('unexpected type') )
+          }
+        })
+        p.addRule('b', 'second')
+        p.saveRuleSet('myRules')
+        p.clearRule()
+        p.next('myRules')
+        p.addRule('a', 'first')
+        p.write('ab')
       })
-      p.addRule('b', 'second')
-      p.saveRuleSet('myRules')
-      p.clearRule()
-      p.next('myRules')
-      p.addRule('a', 'first')
-      p.write('ab')
+    })
+
+    describe('on empty buffer', function () {
+      var p = new Tokenizer(options)
+      it('should set the next rule', function (done) {
+        p.setDefaultHandler(function (token, idx, type) {
+          switch(type) {
+            case 'first':
+            break
+            case 'second':
+              done()
+            break
+            default:
+              done( new Error('unexpected type') )
+          }
+        })
+        p.addRule('b', 'second')
+        p.saveRuleSet('myRules')
+        p.clearRule()
+        p.addRule('a', 'first')
+        p.next('myRules')
+        p.addRule(0, 'set next rule set')
+        p.write('a')
+        p.write('b')
+      })
     })
   })
 

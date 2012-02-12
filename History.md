@@ -1,3 +1,12 @@
+0.1.7 / 2012-02-12
+==================
+
+  * `addRule(rule, 123)` fixed when used with `quiet(true)`
+  * `continue()` applied when a handler uses `pause()`
+  * `write()` will continue at the last rule index if the last successful rule was subject to `continue()`
+  * `next()` and `ignore()` can now be applied to `addRule(0)` - note that `continue()` cannot
+  * [loadruleset] and [seek] events
+
 0.1.6 / 2012-02-09
 ==================
   * `addRule(123)` now honors `quiet()`

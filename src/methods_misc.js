@@ -11,6 +11,7 @@ Tknzr.prototype.clear = function (keepRules) {
   this.lastByte = -1
   this.bytesRead = 0
   this.offset = 0
+  this.ruleIndex = 0
 
   // Rule flags
   this._clearRuleProp()
@@ -78,6 +79,7 @@ Tknzr.prototype.setEncoding = function (enc) {
  * Positive buffer overrun supported (will offset on the next data chunk)
 **/
 Tknzr.prototype.seek = function (i) {
+  this.emit('seek', i)
   this.bytesRead += i
   this.offset += i
   if (this.offset < 0)

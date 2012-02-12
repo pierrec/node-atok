@@ -109,29 +109,34 @@ Tknzr.prototype.continue = function (jump) {
  * Save all properties
 **/
 Tknzr.prototype.saveProps = function () {
-  var rex = /^_p_/
-  var p = {}
-
-  for (var prop in this)
-    if ( this.hasOwnProperty(prop) && rex.test(prop) )
-      p[prop] = this[prop]
+  this.savedProps = {
+    ignore: this._p_ignore
+  , quiet: this._p_quiet
+  , escape: this._p_escape
+  , trimLeft: this._p_trimLeft
+  , trimRight: this._p_trimRight
+  , next: this._p_next
+  , continue: this._p_continue
+  }
   
-  this.savedProps = p
-
   return this
 }
 /** chainable
- * Tokenizer#loadProps()
+ * Tokenizer#loadProps(prop[, prop])
+ * - prop (String): name of the property
  *
  * Restore saved proterties
 **/
 Tknzr.prototype.loadProps = function () {
   var p = this.savedProps
 
-  if (p) {
-    for (var prop in p)
-      this[prop] = p[prop]
-  }
+  this._p_ignore = p.ignore
+  this._p_quiet = p.quiet
+  this._p_escape = p.escape
+  this._p_trimLeft = p.trimLeft
+  this._p_trimRight = p.trimRight
+  this._p_next = p.next
+  this._p_continue = p.continue
 
   return this
 }
