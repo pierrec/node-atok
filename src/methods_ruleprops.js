@@ -104,12 +104,13 @@ Tknzr.prototype.continue = function (jump) {
   return this
 }
 /** chainable
- * Tokenizer#saveProps()
+ * Tokenizer#saveProps(name)
+ * - name (String): saved properties id
  *
  * Save all properties
 **/
-Tknzr.prototype.saveProps = function () {
-  this.savedProps = {
+Tknzr.prototype.saveProps = function (name) {
+  this.savedProps[name || 'default'] = {
     ignore: this._p_ignore
   , quiet: this._p_quiet
   , escape: this._p_escape
@@ -122,13 +123,15 @@ Tknzr.prototype.saveProps = function () {
   return this
 }
 /** chainable
- * Tokenizer#loadProps(prop[, prop])
- * - prop (String): name of the property
+ * Tokenizer#loadProps(name)
+ * - name (String): saved properties id
  *
  * Restore saved proterties
 **/
-Tknzr.prototype.loadProps = function () {
-  var p = this.savedProps
+Tknzr.prototype.loadProps = function (name) {
+  name = name || 'default'
+  var p = this.savedProps[name]
+  delete this.savedProps[name]
 
   this._p_ignore = p.ignore
   this._p_quiet = p.quiet
@@ -139,4 +142,18 @@ Tknzr.prototype.loadProps = function () {
   this._p_continue = p.continue
 
   return this
+}
+/** chainable
+ * Tokenizer#clearProps()
+ *
+ * Reset properties to their default values
+**/
+Tknzr.prototype.clearProps = function () {
+  this._p_ignore = false     // Get the token size and skip
+  this._p_quiet = false      // Get the token size and call the handler with no data
+  this._p_escape = false     // Pattern must not be escaped
+  this._p_trimLeft = true    // Remove the left pattern from the token
+  this._p_trimRight = true   // Remove the right pattern from the token
+  this._p_next = null        // Next rule to load
+  this._p_continue = null    // Next rule index to load
 }

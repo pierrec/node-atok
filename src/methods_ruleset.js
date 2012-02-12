@@ -128,7 +128,7 @@ Tknzr.prototype.removeRule = function (/* name ... */) {
  * Remove all rules
 **/
 Tknzr.prototype.clearRule = function () {
-  this._clearRuleProp()
+  this.clearProps()
   this.rules = []
   this.handler = null
   return this

@@ -1,3 +1,9 @@
+0.1.8 / 2012-02-12
+==================
+
+  * `clearProps()` reset properties to their default values
+  * `saveProps()` -> `saveProps(name)` with name=default if not set
+
 0.1.7 / 2012-02-12
 ==================
 

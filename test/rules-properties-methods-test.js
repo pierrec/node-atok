@@ -227,7 +227,7 @@ describe('Tokenizer Properties Methods', function () {
       }
       p.saveProps()
 
-      assert.deepEqual(p.savedProps, saved)
+      assert.deepEqual(p.savedProps.default, saved)
       done()
     })
   })
@@ -262,6 +262,40 @@ describe('Tokenizer Properties Methods', function () {
         }
       }
       p.loadProps()
+
+      assert.deepEqual(p.savedProps, saved)
+      done()
+    })
+  })
+
+  describe('#clearProps', function () {
+    var p = new Tokenizer(options)
+    var props = []
+
+    for (prop in p)
+      if (p.hasOwnProperty(prop) && /^_p_/.test(prop)) props.push( prop.substr(3) )
+
+    it('should reset the properties', function (done) {
+      var saved = p.savedProps
+      
+      // Change all properties
+      for (var prop, i = 0, n = props.length; i < n; i++) {
+        prop = props[i]
+        switch (prop) {
+          case 'escape':
+            p.escaped('\\')
+          break
+          case 'continue':
+            p.continue(123)
+          break
+          case 'next':
+            p.next('ruleSet')
+          break
+          default:
+            p[ prop ](true)
+        }
+      }
+      p.clearProps()
 
       assert.deepEqual(p.savedProps, saved)
       done()

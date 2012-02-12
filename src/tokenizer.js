@@ -217,6 +217,10 @@ Tknzr.prototype._tokenize = function () {
         // Continue?
         if (p.continue !== null) {
           i += p.continue
+          if (i > this.rules.length)
+            this._error( new Error('Out of bound rules index: ' + i + ' = ' +
+              (i - p.continue) + ' + ' + p.continue + ' > ' + this.rules.length
+            ))
           // Keep track of the rule index we are at
           this.ruleIndex = i + 1
           // Skip the token and keep going, unless rule returned 0

@@ -14,7 +14,7 @@ Tknzr.prototype.clear = function (keepRules) {
   this.ruleIndex = 0
 
   // Rule flags
-  this._clearRuleProp()
+  this.clearProps()
 
   if (!keepRules) {
     this.currentRule = null   // Name of the current rule  
@@ -26,15 +26,6 @@ Tknzr.prototype.clear = function (keepRules) {
   }
 
   return this
-}
-Tknzr.prototype._clearRuleProp = function () {
-  this._p_ignore = false     // Get the token size and skip
-  this._p_quiet = false      // Get the token size and call the handler with no data
-  this._p_escape = false     // Pattern must not be escaped
-  this._p_trimLeft = true    // Remove the left pattern from the token
-  this._p_trimRight = true   // Remove the right pattern from the token
-  this._p_next = null        // Next rule to load
-  this._p_continue = null    // Next rule index to load
 }
 Tknzr.prototype._slice = function (start, end) {
   if (arguments.length === 0) start = this.offset
