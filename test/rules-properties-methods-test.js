@@ -192,6 +192,51 @@ describe('Tokenizer Properties Methods', function () {
         p.resume()
       })
     })
+
+    describe('with a string defined rule', function () {
+      var p = new Tokenizer(options)
+      it('should define the continue index after #saveRuleSet()', function (done) {
+        p.continue('a')
+        p.addRule('a', 'a')
+        p.continue()
+        p.addRule('b', function (token, idx, type) {
+          done()
+        })
+        p.saveRuleSet('stringContinueTest')
+        p.write('aab')
+      })
+    })
+
+    describe('with a function defined rule', function () {
+      var p = new Tokenizer(options)
+      it('should define the continue index after #saveRuleSet()', function (done) {
+        function test () {}
+
+        p.continue(test)
+        p.addRule('a', test)
+        p.continue()
+        p.addRule('b', function (token, idx, type) {
+          done()
+        })
+        p.saveRuleSet('stringContinueTest')
+        p.write('aab')
+      })
+    })
+
+    describe('with an invalid rule', function () {
+      var p = new Tokenizer(options)
+      it('should throw', function (done) {
+        assert.throws(
+          function () {
+            p.continue(true)
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
   })
 
   describe('#saveProps', function () {

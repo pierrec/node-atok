@@ -23,6 +23,8 @@
 ## Performance
 
 	* faster EventEmitter
+	* remove [match] event -> overload rule#test()
+  * subrules linked execution
 	* handler signature: token idx, type => rule object ?
 	* ruleString: cache charCodes for use in subsequent rules -> slower!
 	* use npb to build .js file per property (trimLeft, trimRight)

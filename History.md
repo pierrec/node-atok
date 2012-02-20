@@ -1,3 +1,11 @@
+0.1.9 / 2012-02-20
+==================
+
+  * `continue()` supports string and function input - __must__ perform a `saveRuleSet()` to take effect
+  * Some refactoring
+    * Array.prototype.slice calls
+    * Rule index internal fetching
+
 0.1.8 / 2012-02-12
 ==================
 

@@ -17,9 +17,14 @@ var inherits = require('inherits')
 var RuleString = require('./string/rule')
 // var RuleBuffer = require('./buffer/ruleBuffer')
 
-var slice = Array.prototype.slice
 var isArray = require('util').isArray
 function noop () {}
+
+function sliceArguments (args, index) {
+  for (var a = [], i = index, n = args.length; i < n; i++)
+    a.push(args[i])
+  return a
+}
 
 module.exports = Tknzr
 
@@ -123,7 +128,7 @@ Tknzr.prototype.write = function (data) {
           data = data.slice(1)
         }
         var c = data[data.length-1]
-        if (c == 0xC2 || c == 0xC3) {
+        if (c === 0xC2 || c === 0xC3) {
           // Keep track of the cut off byte and remove it from the current Buffer
           this.lastByte = c
           data = data.slice(0, data.length-1)
@@ -217,7 +222,7 @@ Tknzr.prototype._tokenize = function () {
         // Continue?
         if (p.continue !== null) {
           i += p.continue
-          if (i > this.rules.length)
+          if (i > this.rules.length || i < -1)
             this._error( new Error('Out of bound rules index: ' + i + ' = ' +
               (i - p.continue) + ' + ' + p.continue + ' > ' + this.rules.length
             ))
@@ -237,7 +242,7 @@ Tknzr.prototype._tokenize = function () {
   }
   if (this.offset > 0) {
     // Remove tokenized data from the buffer
-    if (this.offset == this.length) {
+    if (this.offset === this.length) {
       this.offset = 0
       this.buffer = this._bufferMode ? new Buffer : ''
       this.length = 0
@@ -264,6 +269,4 @@ Tknzr.prototype._tokenize = function () {
   
   return this._done()
 }
-//include(methods_misc.js)
-//include(methods_ruleprops.js)
-//include(methods_ruleset.js)
+//include("methods_*.js")

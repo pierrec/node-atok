@@ -97,8 +97,9 @@ Tknzr.prototype.continue = function (jump) {
     this._p_continue = null
     return this
   }
-  if (typeof jump !== 'number')
-    this._error( new Error('Tokenizer#continue: Invalid jump (must be an integer): ' + jump) )
+  
+  if ( !/(number|string|function)/.test(typeof jump) )
+    this._error( new Error('Tokenizer#continue: Invalid jump (must be an integer/function/string): ' + jump) )
   
   this._p_continue = jump
   return this

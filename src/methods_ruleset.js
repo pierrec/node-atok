@@ -8,10 +8,16 @@
  * Add a rule as the first one
 **/
 Tknzr.prototype.addRuleFirst = function (rule, /*rule, ... */ type) {
-  this.addRule.apply( this, slice.call(arguments, 0) )
+  this.addRule.apply( this, sliceArguments(arguments, 0) )
   this.rules.unshift( this.rules.pop() )
 
   return this
+}
+Tknzr.prototype._getRuleIndex = function (id) {
+  for (var rules = this.rules, i = 0, n = rules.length; i < n; i++)
+    if ( (rules[i].type !== null ? rules[i].type : rules[i].handler) === id ) break
+  
+  return i === n ? -1 : i
 }
 /** chainable, related to: Tokenizer#addRule
  * Tokenizer#addRuleBefore(beforeRule, firstMatch[, nextMatch], type)
@@ -20,14 +26,13 @@ Tknzr.prototype.addRuleFirst = function (rule, /*rule, ... */ type) {
  * Add a rule before an existing one
 **/
 Tknzr.prototype.addRuleBefore = function (existingRule, rule, /*rule, ... */ type) {
-  for (var rules = this.rules, i = 0, n = rules.length; i < n; i++)
-    if ( (rules[i].type !== null ? rules[i].type : rules[i].handler) === existingRule ) break
+  var i = this._getRuleIndex(existingRule)
 
-  if ( i == n )
+  if ( i < 0 )
     return this._error( new Error('Tokenizer#addRuleBefore: rule ' + existingRule + ' does not exist') )
 
-  this.addRule.apply( this, slice.call(arguments, 1) )
-  rules.splice( i, 0, rules.pop() )
+  this.addRule.apply( this, sliceArguments(arguments, 1) )
+  this.rules.splice( i, 0, this.rules.pop() )
 
   return this
 }
@@ -38,14 +43,13 @@ Tknzr.prototype.addRuleBefore = function (existingRule, rule, /*rule, ... */ typ
  * Add a rule after an existing one
 **/
 Tknzr.prototype.addRuleAfter = function (existingRule, rule, /*rule, ... */ type) {
-  for (var rules = this.rules, i = 0, n = rules.length; i < n; i++)
-    if ( (rules[i].type !== null ? rules[i].type : rules[i].handler) === existingRule ) break
+  var i = this._getRuleIndex(existingRule)
 
-  if ( i == n )
+  if ( i < 0 )
     return this._error( new Error('Tokenizer#addRuleAfter: rule ' + existingRule + ' does not exist') )
 
-  this.addRule.apply( this, slice.call(arguments, 1) )
-  rules.splice( i + 1, 0, rules.pop() )
+  this.addRule.apply( this, sliceArguments(arguments, 1) )
+  this.rules.splice( i + 1, 0, this.rules.pop() )
 
   return this
 }
@@ -58,7 +62,7 @@ Tknzr.prototype.addRuleAfter = function (existingRule, rule, /*rule, ... */ type
  * Add a rule
 **/
 Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
-  var args = slice.call(arguments, 0)
+  var args = sliceArguments(arguments, 0)
 
   if (args.length < 2)
     return this._error( new Error('Tokenizer#addRule: Missing arguments (rule1, /*rule2 ...*/ type|handler)') )
@@ -81,11 +85,8 @@ Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
 
   // first <= 0: following arguments are ignored
   if ( first === 0 ) { // Empty buffer rule
-    // this.emptyHandler = handler || (function () {
-    //       this.emit('data', this.ending, -1, type)
-    //     }).bind(this)
     this.emptyHandler = RuleString(
-        first
+        0
       , type
       , handler
       , this
@@ -140,14 +141,30 @@ Tknzr.prototype.clearRule = function () {
  * Save all rules
 **/
 Tknzr.prototype.saveRuleSet = function (name) {
-  if (arguments.length == 0)
+  if (arguments.length === 0)
     return this._error( new Error('Tokenizer#saveRuleSet: No rule name supplied') )
   
+  // Check and set the continue values
+  var rules = this.rules
+    , rule, id, j
+  for (var i = 0, n = rules.length; i < n; i++) {
+    rule = rules[i]
+    id = rule.type !== null ? rule.type : rule.handler
+    if (typeof rule.continue !== 'number') {
+      j = this._getRuleIndex(id)
+      if (j < 0)
+        this._error( new Error('Tokenizer#saveRuleSet: continue() value not found: ' + id) )
+      
+      rule.continue = i - j - 1
+    }
+  }
+
   this.saved[name] = {
     rules: this.rules
   , emptyHandler: this.emptyHandler
   }
   this.currentRule = name
+
   return this
 }
 /** chainable
@@ -204,17 +221,12 @@ Tknzr.prototype.getAllRuleSet = function () {
  * Check the existence of a rule
 **/
 Tknzr.prototype.existsRule = function (/* name ... */) {
-  var args = slice.call(arguments, 0)
-  var rules = this.rules
-  var n = rules.length
+  var args = sliceArguments(arguments, 0)
+  var self = this
 
   var res = args.map(function (rule) {
-    for (var i = 0; i < n; i++) {
-      var type = rules[i].type !== null ? rules[i].type : rules[i].handler
-      if (type === rule) return true
-    }
-    return false
+    return self._getRuleIndex(rule) >= 0
   })
 
-  return args.length == 1 ? res[0] : res
+  return args.length === 1 ? res[0] : res
 }

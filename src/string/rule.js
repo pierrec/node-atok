@@ -43,7 +43,7 @@ function Rule (subrules, type, handler, options) {
   // Special case: addRule(0)
   if (subrules === 0) {
     this.handler = handler || function () {
-      options.emit('data', options.ending, -1, type)
+      options.emit('data', options.ending, -1, self.type)
     }
     return this
   }
@@ -56,21 +56,21 @@ function Rule (subrules, type, handler, options) {
   }
   
   // Does the rule generate any token?
-  this.noToken = (n == 1 && this.trimLeft && !this.rules[0].token) || this.noToken
+  this.noToken = (n === 1 && this.trimLeft && !this.rules[0].token) || this.noToken
 
   // Disable trimRight if only 1 rule
-  if (this.rules.length == 1)
+  if (this.rules.length === 1)
     this.trimRight = false
 
   // Filter out non rules
   this.rules = this.rules.filter(function (r, i) {
     var flag = typeof r.exec === 'function'
     // Disable left trimming if the first rule does not exist
-    if (i == 0 && !flag) self.trimLeft = false
+    if (i === 0 && !flag) self.trimLeft = false
     return flag
   })
   // No rule left...will return all data
-  if (this.rules.length == 0)
+  if (this.rules.length === 0)
     this.test = this.all
 }
 
@@ -116,7 +116,7 @@ Rule.prototype.test = function (data, offset) {
       // console.log('=> FAIL')
       return -1
     } else if (!token) { // Valid rule with no token
-      if (i == 0) trimLeftSize = this.trimLeft ? firstRule.size : 0
+      if (i === 0) trimLeftSize = this.trimLeft ? firstRule.size : 0
       // console.log('=>', matched)
       matchedTotal += matched
       matched = matchedTotal

@@ -12,33 +12,7 @@ var isArray = require('util').isArray
 
 var emptyRule = { token: true, exec: null }
 
-//include(zero_SubRule.js)
-//include(number_SubRule.js)
-//include(numberNoToken_SubRule.js)
-//include(numberArray_SubRule.js)
-
-//include(firstChar_SubRule.js)
-//include(firstString_SubRule.js)
-
-//include(string_SubRule.js)
-//include(stringArray_SubRule.js)
-//include(firstSingleArray_SubRule.js)
-//include(firstArray_SubRule.js)
-//include(escapedString_SubRule.js)
-
-//include(startendNumberSingleRange_SubRule.js)
-//include(startendSingleRange_SubRule.js)
-//include(startSingleRange_SubRule.js)
-//include(startNumberSingleRange_SubRule.js)
-//include(endNumberSingleRange_SubRule.js)
-//include(endSingleRange_SubRule.js)
-
-//include(tokenizedFirstOf_SubRule.js)
-//include(tokenizedNoTrimFirstOf_SubRule.js)
-
-//include(firstOf_SubRule.js)
-
-//include(utils.js)
+//include("utils.js", "*_SubRule.js")
 
 function toCharCodes (v) {
   var res
@@ -47,7 +21,7 @@ function toCharCodes (v) {
     case 'number':
       return v
     case 'string':
-      if (v.length == 0)
+      if (v.length === 0)
         throw new Error('SubRule: Empty value')
       
       res = stringToCharCodes( [v] )
@@ -64,7 +38,7 @@ function toCharCodes (v) {
 function getArrayItemsSize (arr) {
   var n = arr.length, i = 0
 
-  if (n == 0) return -1
+  if (n === 0) return -1
 
   var size = arr[0].length
   while ( ++i < n ) {
@@ -88,18 +62,18 @@ function SubRule (rule, i, n, mainRule) {
           ? new numberNoToken_SubRule(rule)
           : new number_SubRule(rule)
     case 'string':
-      if (rule.length == 0)
+      if (rule.length === 0)
         return emptyRule
-      if (rule.length == 1 && i == 0)
+      if (rule.length === 1 && i === 0)
         return new firstChar_SubRule(rule)
-      if (i == 0)
+      if (i === 0)
         return new firstString_SubRule(rule)
       if (mainRule.escape === false)
         return new string_SubRule(rule)
       return new escapedString_SubRule(rule, mainRule.escape)
     case 'object':
       if ( isArray(rule) ) {
-        if (rule.length == 0)
+        if (rule.length === 0)
           return emptyRule
         // Arrays must be of same type
         var type = typeof rule[0]
@@ -108,7 +82,7 @@ function SubRule (rule, i, n, mainRule) {
 
         switch( type ) {
           case 'number':
-            if (i == 0)
+            if (i === 0)
               return new numberArray_SubRule(rule)
             throw new Error('SubRule: unsupported number list as nth ' + i + ' rule: ' + rule)
           case 'string':
@@ -124,24 +98,24 @@ function SubRule (rule, i, n, mainRule) {
                 return new firstArray_SubRule(rule)
             }
         }
-      } else if ( i == 0 && rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
+      } else if ( i === 0 && rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
         if (rule.start.length != rule.end.length)
           throw new Error('SubRule: start and end must be of same size: ' + rule.start + '/' + rule.end)
 
         return typeof rule.start === 'number'
-            || (typeof rule.start === 'string' && rule.start.length == 1)
+            || (typeof rule.start === 'string' && rule.start.length === 1)
           ? new startendNumberSingleRange_SubRule(rule.start, rule.end)
           : new startendSingleRange_SubRule(rule.start, rule.end)
 
-      } else if ( i == 0 && rule.hasOwnProperty('start') && !rule.hasOwnProperty('end') ) {
+      } else if ( i === 0 && rule.hasOwnProperty('start') && !rule.hasOwnProperty('end') ) {
         return typeof rule.start === 'number'
-            || (typeof rule.start === 'string' && rule.start.length == 1)
+            || (typeof rule.start === 'string' && rule.start.length === 1)
           ? new startNumberSingleRange_SubRule(rule.start)
           : new startSingleRange_SubRule(rule.start)
 
-      } else if ( i == 0 && !rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
+      } else if ( i === 0 && !rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
         return typeof rule.end === 'number'
-            || (typeof rule.end === 'string' && rule.end.length == 1)
+            || (typeof rule.end === 'string' && rule.end.length === 1)
           ? new endNumberSingleRange_SubRule(rule.end)
           : new endSingleRange_SubRule(rule.end)
 
@@ -201,7 +175,7 @@ var max = 21
 SubRule.prototype.indexOf = function (s, p, start) {
   // if (typeof p === 'number') {
     for (var i = 0; i < max; i++) {
-      if (s.charCodeAt(i + start) == p) return i + start
+      if (s.charCodeAt(i + start) === p) return i + start
     }
   // } else {
     // TODO
