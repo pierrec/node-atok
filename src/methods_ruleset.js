@@ -150,7 +150,7 @@ Tknzr.prototype.saveRuleSet = function (name) {
   for (var i = 0, n = rules.length; i < n; i++) {
     rule = rules[i]
     id = rule.type !== null ? rule.type : rule.handler
-    if (typeof rule.continue !== 'number') {
+    if (rule.continue !== null && typeof rule.continue !== 'number') {
       j = this._getRuleIndex(id)
       if (j < 0)
         this._error( new Error('Tokenizer#saveRuleSet: continue() value not found: ' + id) )
