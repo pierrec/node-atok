@@ -15,7 +15,7 @@ tokenizedNoTrimFirstOf_SubRule.prototype.exec = function (s, start, firstSize) {
 	this.size = 0
 
 	// Check all patterns
-	for (var i, j = 0, n = this.n; j < n && res != firstSize; j++) {
+	for (var i, j = 0, n = this.n; j < n && res !== firstSize; j++) {
 		// Exclude the first rule pattern from the search!
 		i = buf.indexOf( l[j], offset + firstSize )
 		// TODO indexOf

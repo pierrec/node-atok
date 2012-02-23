@@ -9,7 +9,7 @@ function firstSingleArray_SubRule (list) {
 firstSingleArray_SubRule.prototype.exec = function (s, start) {
 	var c = s.charCodeAt(start)
 	for (var i = 0, n = this.n, l = this.list; i < n; i++) {
-		if ( c == l[i] ) return (this.idx = i, 1)
+		if ( c === l[i] ) return (this.idx = i, 1)
 	}
 	return -1
 }

@@ -346,4 +346,35 @@ describe('Tokenizer Properties Methods', function () {
       done()
     })
   })
+
+  describe('#split', function () {
+    var p = new Tokenizer(options)
+
+    it('should split up a token', function (done) {
+      p.split(true)
+      p.addRule('[', ',', ',', ']', function (token, idx, type) {
+        assert.deepEqual(token, ['a','b','c'])
+        done()
+      })
+      p.write('[a,b,c]')
+    })
+
+    it('should split up a token', function (done) {
+      p.split(true)
+      p.addRule('', ',', ',', ']', function (token, idx, type) {
+        assert.deepEqual(token, ['a','b','c'])
+        done()
+      })
+      p.write('a,b,c]')
+    })
+
+    it('should split up a token', function (done) {
+      p.split(true)
+      p.addRule('', ',', ',', 0, function (token, idx, type) {
+        assert.deepEqual(token, ['a','b',''])
+        done()
+      })
+      p.write('a,b,')
+    })
+  })
 })

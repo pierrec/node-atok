@@ -1,3 +1,10 @@
+0.1.10 / 2012-02-23
+===================
+
+  * Code cleanups
+  * Added benchmarks
+  * New property method: `split(flag)` - the token is split by subrule. No effect if # of subrules is < 3.
+
 0.1.9 / 2012-02-20
 ==================
 

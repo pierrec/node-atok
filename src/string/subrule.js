@@ -14,42 +14,6 @@ var emptyRule = { token: true, exec: null }
 
 //include("utils.js", "*_SubRule.js")
 
-function toCharCodes (v) {
-  var res
-
-  switch (typeof v) {
-    case 'number':
-      return v
-    case 'string':
-      if (v.length === 0)
-        throw new Error('SubRule: Empty value')
-      
-      res = stringToCharCodes( [v] )
-      break
-    default:
-      if ( !isArray(v) )
-        throw new Error('SubRule: Invalid value')
-      
-      res = stringToCharCodes( v )
-    }
-  return res.length > 1 ? res: res[0]
-}
-
-function getArrayItemsSize (arr) {
-  var n = arr.length, i = 0
-
-  if (n === 0) return -1
-
-  var size = arr[0].length
-  while ( ++i < n ) {
-    if ( arr[i].length != size ) {
-      size = -1
-      break
-    }
-  }
-  return size
-}
-
 function SubRule (rule, i, n, mainRule) {
   switch ( typeof rule ) {
     case 'number':
@@ -132,54 +96,4 @@ function SubRule (rule, i, n, mainRule) {
         return new tokenizedNoTrimFirstOf_SubRule(rule.firstOf)
       }
   }
-  
-  if ( !(this instanceof SubRule) )
-    return new SubRule(rule, i, n, mainRule)
-  
-  this.size = 0 // Last matched pattern length
-  this.idx = -1 // If array rule, matched index
-  // Atomic rules
-    switch ( typeof(rule) ) {
-      case 'function':
-        this.exec = rule
-        break
-      case 'object':
-          if ( rule.hasOwnProperty('firstOf') && isArray( rule.firstOf ) ) {
-            var list = rule.firstOf
-            if (list.length < 2)
-              throw new Error('Tokenizer#addRule: Invalid Array size for firstOf (>= 2)')
-
-            this.token = true
-            this.n = list.length
-            // this.list = toCharCodes(list)
-            this.list = list
-            this.idx = -1
-            // Optimization can only be applied if it is the last rule
-            this.exec = i !== (n-1)
-              ? this.firstOfRule
-              : mainRule.trimRight
-                ? this.tokenizedFirstOfRule
-                : this.tokenizedNoTrimFirstOfRule
-          }
-          break
-      default:
-        throw new Error('Tokenizer#addRule: Invalid rule ' + typeof(rule) + ' (function/string/integer/array only)')
-    }
-}
-
-// indexOf slower for short strings... ~20 chars
-// s: string
-// p: array of codes or code
-// start: int
-var max = 21
-SubRule.prototype.indexOf = function (s, p, start) {
-  // if (typeof p === 'number') {
-    for (var i = 0; i < max; i++) {
-      if (s.charCodeAt(i + start) === p) return i + start
-    }
-  // } else {
-    // TODO
-    // console.log('TODO: indexOf')
-  // }
-  return s.indexOf(p, start)
 }

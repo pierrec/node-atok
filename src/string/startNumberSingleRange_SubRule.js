@@ -6,7 +6,6 @@ function startNumberSingleRange_SubRule (start) {
 }
 
 startNumberSingleRange_SubRule.prototype.exec = function (s, start) {
-	var c = s.charCodeAt(start)
-	return c >= this.start ? 1 : -1
+	return s.charCodeAt(start) >= this.start ? 1 : -1
 }
 

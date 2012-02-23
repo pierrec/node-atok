@@ -78,6 +78,7 @@ function Tknzr (options) {
   this._p_trimRight = true   // Remove the right pattern from the token
   this._p_next = null        // Next rule to load
   this._p_continue = null    // Next rule index to load
+  this._p_split = false      // Split token
 
   // Rules properties
   this.currentRule = null   // Name of the current rule  
@@ -152,6 +153,7 @@ Tknzr.prototype.end = function (data) {
   this.ending = true
   this.write(data)
   this.ended = true
+  this.ending = false
   return this._end()
 }
 Tknzr.prototype.pause = function () {
@@ -185,7 +187,6 @@ Tknzr.prototype._done = function () {
   }
 
   if (this.ended) {
-    if (this.endHandler) endHandler()
     this._end()
     return false
   }

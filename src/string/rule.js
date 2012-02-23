@@ -29,6 +29,7 @@ function Rule (subrules, type, handler, options) {
   this.escape = options._p_escape
   this.next = (typeof options._p_next === 'string') ? options._p_next : null
   this.continue = options._p_continue
+  this.split = options._p_split && (subrules.length > 2)
 
   this.bufferMode = (options._bufferMode === true)
 
@@ -62,6 +63,7 @@ function Rule (subrules, type, handler, options) {
   if (this.rules.length === 1)
     this.trimRight = false
 
+
   // Filter out non rules
   this.rules = this.rules.filter(function (r, i) {
     var flag = typeof r.exec === 'function'
@@ -72,6 +74,9 @@ function Rule (subrules, type, handler, options) {
   // No rule left...will return all data
   if (this.rules.length === 0)
     this.test = this.all
+
+  // Set the split starting index
+  this.splitStart = !this.split ? 0 : this.rules.length < n ? 0 : 1
 }
 
 Rule.prototype.all = function (data, offset) {
@@ -96,14 +101,17 @@ Rule.prototype.test = function (data, offset) {
   var lastRule = rule[n-1]
   var trimLeftSize = 0
 
+  var split = this.split
+  var matches = []
+
   // Check rules:
   // all must be valid for the token to be extracted
   // token is either given by one of the rule or it is set by slice(0, matched)
   // where matched is the index of the last match 
   for (var i = 0; i < n; i++) {
     // Reminder: size is dynamic!
-    // console.log('subrule['+(i+1)+'/'+n+']', start, matched)
     matched = rule[i].exec(s, start + matched, matched - trimLeftSize)
+    // console.log('subrule['+(i+1)+'/'+n+']', start, matched)
     if (rule[i].token && matched !== -1) { // Set the token
       // console.log('=> TOKEN', matched)
       token = true
@@ -118,6 +126,7 @@ Rule.prototype.test = function (data, offset) {
     } else if (!token) { // Valid rule with no token
       if (i === 0) trimLeftSize = this.trimLeft ? firstRule.size : 0
       // console.log('=>', matched)
+      if (split) matches.push(matched)
       matchedTotal += matched
       matched = matchedTotal
     } else { // Valid rule with token
@@ -129,12 +138,24 @@ Rule.prototype.test = function (data, offset) {
   // 1 rule || no token extraction || ignore token -> nothing else to do
 
   if (!token) {
-    var tokenLength = matchedTotal - ( trimLeftSize + (this.trimRight ? lastRule.size : 0) )
-    this.token = this.noToken
-      // Set the token to the size of what would have been extracted
-      ? tokenLength
-      // By default, the token is stripped out from the left and last right patterns
-      : data.substr( offset + trimLeftSize, tokenLength )
+    if (split) {
+      offset += trimLeftSize
+      this.token = []
+      // console.log(matches)
+      for (i = this.splitStart; i < n; i++) {
+        // trimRight applies to all sub tokens
+        var tokenLength = matches[i] - ( this.trimRight ? rule[i].size : 0 )
+        this.token.push( data.substr( offset, tokenLength ) )
+        offset += matches[i]
+      }
+    } else {
+      var tokenLength = matchedTotal - ( trimLeftSize + (this.trimRight ? lastRule.size : 0) )
+      this.token = this.noToken
+        // Set the token to the size of what would have been extracted
+        ? tokenLength
+        // By default, the token is stripped out from the left and last right patterns
+        : data.substr( offset + trimLeftSize, tokenLength )
+    }
   }
 
   this.countStat++

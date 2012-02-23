@@ -8,6 +8,6 @@ function firstChar_SubRule (c) {
 }
 
 firstChar_SubRule.prototype.exec = function (s, start) {
-	return s.charCodeAt(start) == this.c ? 1 : -1
+	return s.charCodeAt(start) === this.c ? 1 : -1
 }
 

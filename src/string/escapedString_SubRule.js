@@ -13,10 +13,10 @@ escapedString_SubRule.prototype.exec = function (s, start) {
 	, esc = this.esc
 
 	while (offset < n) {
-	i = s.indexOf(this.str, offset) // TODO indexOf
-	if (i > 0) {
-		// Check escaped pattern - '\\'.charCodeAt(0) === 92
-		for (var j = i, c = 0; j > 0 && s[--j].charCodeAt(0) == esc; c++) {}
+		i = s.indexOf(this.str, offset) // TODO indexOf
+		if (i > 0) {
+			// Check escaped pattern - '\\'.charCodeAt(0) === 92
+			for (var j = i, c = 0; j > 0 && s[--j].charCodeAt(0) === esc; c++) {}
 			if ((c % 2) == 0) return i - start + this.n
 			offset = i + 1
 		} else {

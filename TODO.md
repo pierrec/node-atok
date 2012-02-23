@@ -3,9 +3,7 @@
 ## API
 
 	* EventEmitter -> ev
-	* add benchmarks
-	* allow token to be split per subrule 2 to n
-		i.e. addRule('a', 'b', 'c') on 'a123b456c' emits/calls handler with: ['123','456'] instead of '123b456'
+	* custom Rule#test() based on props: noToken, trimLeft... (using ekam to duplicate code)
 	* implement debug tools for rules
 		* rule/subrule triggered
 		* step by step
