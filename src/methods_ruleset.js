@@ -178,7 +178,7 @@ Tknzr.prototype.loadRuleSet = function (name) {
   if (!ruleSet)
     return this._error( new Error('Tokenizer#loadRuleSet: Rule set ' + name + ' not found') )
 
-  this.emit('loadruleset', name)
+  this.emit_loadruleset(name)
   this.currentRule = name
   this.rules = ruleSet.rules
   this.emptyHandler = ruleSet.emptyHandler

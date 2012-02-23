@@ -22,10 +22,12 @@
   }
 , "dependencies": {
     "inherits": ">= 1.0"
+  , "ev": ">= 0.0.3"
   }
 , "devDependencies": {
     "mocha": ">= 0.10"
   , "bench": ">= 0.3"
+  , "ekam": ">= 0.2"
   }
 , "scripts": {
     "test": "mocha test/*-test.js"

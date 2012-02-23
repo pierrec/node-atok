@@ -96,4 +96,18 @@ function SubRule (rule, i, n, mainRule) {
         return new tokenizedNoTrimFirstOf_SubRule(rule.firstOf)
       }
   }
+
+  // Special case: user provided subrule function - can only return an integer
+  if ( !(this instanceof SubRule) )
+    return new SubRule(rule, i, n, mainRule)
+
+  this.size = 0 // Last matched pattern length
+  this.idx = -1 // If array rule, matched index
+  switch ( typeof rule ) {
+    case 'function':
+      this.exec = rule
+      break
+    default:
+      throw new Error('Tokenizer#addRule: Invalid rule ' + typeof(rule) + ' (function/string/integer/array only)')
+  }
 }

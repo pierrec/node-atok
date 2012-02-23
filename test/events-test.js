@@ -95,4 +95,21 @@ describe('Tokenizer Events', function () {
       p.write('abc')
     })
   })
+
+  describe('[debug]', function () {
+    var p = new Tokenizer({ debug: true })
+    it('should emit [debug] when option set', function (done) {
+      var matches = 0
+      p.addRule(1, 'consume data')
+      p.addRule(0, function (token, idx, type) {
+        assert.equal(matches, 9)
+        done()
+      })
+      p.on('debug', function (msg) {
+        assert.equal(typeof msg, 'string')
+        matches++
+      })
+      p.write('abc')
+    })
+  })
 })

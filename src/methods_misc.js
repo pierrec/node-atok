@@ -70,7 +70,7 @@ Tknzr.prototype.setEncoding = function (enc) {
  * Positive buffer overrun supported (will offset on the next data chunk)
 **/
 Tknzr.prototype.seek = function (i) {
-  this.emit('seek', i)
+  this.emit_seek(i)
   this.bytesRead += i
   this.offset += i
   if (this.offset < 0)

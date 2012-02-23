@@ -11,8 +11,7 @@ var SubRuleString = require('./subrule')
 module.exports = Rule
 
 /*
-  options
-  trackMatches {Boolean} keep track of all matched indexes in a subrule (default=false)
+  Rule constructor
  */
 function Rule (subrules, type, handler, options) {
   if ( !(this instanceof Rule) )
@@ -32,6 +31,7 @@ function Rule (subrules, type, handler, options) {
   this.split = options._p_split && (subrules.length > 2)
 
   this.bufferMode = (options._bufferMode === true)
+  this.debug = options.debug
 
   this.type = type || null
   this.handler = handler
@@ -44,7 +44,7 @@ function Rule (subrules, type, handler, options) {
   // Special case: addRule(0)
   if (subrules === 0) {
     this.handler = handler || function () {
-      options.emit('data', options.ending, -1, self.type)
+      options.emit_data(options.ending, -1, self.type)
     }
     return this
   }
@@ -63,7 +63,6 @@ function Rule (subrules, type, handler, options) {
   if (this.rules.length === 1)
     this.trimRight = false
 
-
   // Filter out non rules
   this.rules = this.rules.filter(function (r, i) {
     var flag = typeof r.exec === 'function'
@@ -72,93 +71,80 @@ function Rule (subrules, type, handler, options) {
     return flag
   })
   // No rule left...will return all data
-  if (this.rules.length === 0)
-    this.test = this.all
+  if (this.rules.length === 0) {
+    this.test = this.noToken ? this.allNoToken : this.all
+  } else {
+    // Set the test method according to static properties
+    var test_flags = []
+    test_flags.push(
+      this.rules.reduce(function (p, r) { return p || !!r.token }, false)
+    , this.trimLeft
+    , this.split
+    , !!this.debug
+    )
+    this.test = this[ 'test_' + test_flags.join('_') ]
+  }
 
-  // Set the split starting index
+  // Set the split starting index - offset by 1 if first rule was valid
   this.splitStart = !this.split ? 0 : this.rules.length < n ? 0 : 1
 }
 
+// Return the amount of data left
+Rule.prototype.allNoToken = function (data, offset) {
+  this.token = data.length - offset
+  return this.token
+}
+
+// Return remaining data
 Rule.prototype.all = function (data, offset) {
-  if (this.noToken) {
-    this.token = data.length - offset
-    return this.token
-  }
   this.token = data.substr(offset)
   return this.token.length
 }
-Rule.prototype.test = function (data, offset) {
-  var matched = 0       // SubRule result: Integer: matched size, Other: token
-  var matchedTotal = 0  // Total jump
-  var matchedForToken = 0  // Offset when a token was set
-  var start = offset    // Buffer start
-  var s = data
-  var token = false
 
-  var rule = this.rules
-  var n = rule.length
-  var firstRule = rule[0]
-  var lastRule = rule[n-1]
-  var trimLeftSize = 0
+// Test all subrules
+// #test() is divided into various methods based on static flag values
+//var DEBUG = false
+//var RULE_GENERATES_TOKEN = true
+//var RULE_TRIMLEFT = true
+//var RULE_SPLIT = true
+Rule.prototype.test_true_true_true_false = //include("rule#test.js")
+//var RULE_TRIMLEFT = false
+Rule.prototype.test_true_false_true_false = //include("rule#test.js")
+//var RULE_SPLIT = false
+Rule.prototype.test_true_false_false_false = //include("rule#test.js")
+//var RULE_TRIMLEFT = true
+Rule.prototype.test_true_true_false_false = //include("rule#test.js")
 
-  var split = this.split
-  var matches = []
+//var RULE_GENERATES_TOKEN = false
+//var RULE_TRIMLEFT = true
+//var RULE_SPLIT = true
+Rule.prototype.test_false_true_true_false = //include("rule#test.js")
+//var RULE_TRIMLEFT = false
+Rule.prototype.test_false_false_true_false = //include("rule#test.js")
+//var RULE_SPLIT = false
+Rule.prototype.test_false_false_false_false = //include("rule#test.js")
+//var RULE_TRIMLEFT = true
+Rule.prototype.test_false_true_false_false = //include("rule#test.js")
 
-  // Check rules:
-  // all must be valid for the token to be extracted
-  // token is either given by one of the rule or it is set by slice(0, matched)
-  // where matched is the index of the last match 
-  for (var i = 0; i < n; i++) {
-    // Reminder: size is dynamic!
-    matched = rule[i].exec(s, start + matched, matched - trimLeftSize)
-    // console.log('subrule['+(i+1)+'/'+n+']', start, matched)
-    if (rule[i].token && matched !== -1) { // Set the token
-      // console.log('=> TOKEN', matched)
-      token = true
-      matchedTotal += (matched.length || matched) + rule[i].size
-       // Once a token is set, following rules are applied to it
-      this.token = s = matched // Set the token and apply rules to it
-      matched = 0
-      start = 0
-    } else if ( matched < 0 ) { // Invalid rule
-      // console.log('=> FAIL')
-      return -1
-    } else if (!token) { // Valid rule with no token
-      if (i === 0) trimLeftSize = this.trimLeft ? firstRule.size : 0
-      // console.log('=>', matched)
-      if (split) matches.push(matched)
-      matchedTotal += matched
-      matched = matchedTotal
-    } else { // Valid rule with token
-      matchedForToken += matched
-      matched = matchedForToken
-    }
-  }
-  this.idx = lastRule.idx
-  // 1 rule || no token extraction || ignore token -> nothing else to do
+//var DEBUG = true
+//var RULE_GENERATES_TOKEN = true
+//var RULE_TRIMLEFT = true
+//var RULE_SPLIT = true
+Rule.prototype.test_true_true_true_true = //include("rule#test.js")
+//var RULE_TRIMLEFT = false
+Rule.prototype.test_true_false_true_true = //include("rule#test.js")
+//var RULE_SPLIT = false
+Rule.prototype.test_true_false_false_true = //include("rule#test.js")
+//var RULE_TRIMLEFT = true
+Rule.prototype.test_true_true_false_true = //include("rule#test.js")
 
-  if (!token) {
-    if (split) {
-      offset += trimLeftSize
-      this.token = []
-      // console.log(matches)
-      for (i = this.splitStart; i < n; i++) {
-        // trimRight applies to all sub tokens
-        var tokenLength = matches[i] - ( this.trimRight ? rule[i].size : 0 )
-        this.token.push( data.substr( offset, tokenLength ) )
-        offset += matches[i]
-      }
-    } else {
-      var tokenLength = matchedTotal - ( trimLeftSize + (this.trimRight ? lastRule.size : 0) )
-      this.token = this.noToken
-        // Set the token to the size of what would have been extracted
-        ? tokenLength
-        // By default, the token is stripped out from the left and last right patterns
-        : data.substr( offset + trimLeftSize, tokenLength )
-    }
-  }
-
-  this.countStat++
-  // console.log('=> OK', matchedTotal)
-  return matchedTotal
-}
+//var RULE_GENERATES_TOKEN = false
+//var RULE_TRIMLEFT = true
+//var RULE_SPLIT = true
+Rule.prototype.test_false_true_true_true = //include("rule#test.js")
+//var RULE_TRIMLEFT = false
+Rule.prototype.test_false_false_true_true = //include("rule#test.js")
+//var RULE_SPLIT = false
+Rule.prototype.test_false_false_false_true = //include("rule#test.js")
+//var RULE_TRIMLEFT = true
+Rule.prototype.test_false_true_false_true = //include("rule#test.js")
