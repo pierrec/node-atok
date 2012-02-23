@@ -1,4 +1,4 @@
-/**
+/*
  Convert a value to an array of char codes
 **/
 function toCharCodes (v) {
@@ -23,7 +23,7 @@ function toCharCodes (v) {
   return res.length > 1 ? res: res[0]
 }
 
-/**
+/*
  Convert an array of strings into an array of char codes
 **/
 function stringToCharCodes (arr, forceArray) {
@@ -36,7 +36,7 @@ function stringToCharCodes (arr, forceArray) {
     })
 }
 
-/**
+/*
  Check items of a string array are of the same size and return it
 **/
 function getArrayItemsSize (arr) {
