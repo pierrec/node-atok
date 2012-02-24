@@ -1,3 +1,14 @@
+0.2.0 / 2012-02-24
+==================
+
+  * `split()` removed as it can be achieved with current rules definition and adds little value
+  * Performance improvements (~50% compared to v0.1.10)
+    * [match] event removed as redundant with the [debug] event
+    * [loadruleset] and [seek] events moved under the [debug] event
+  * [debug] event signature: (method name, type, data)
+  * `debug` option moved to the `debug()` method so debug mode can be turned on and off dynamically
+  * Added `events` property to Atok
+
 0.1.10 / 2012-02-23
 ===================
 

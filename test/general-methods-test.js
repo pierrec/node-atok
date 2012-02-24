@@ -106,4 +106,21 @@ describe('Tokenizer General Methods', function () {
       })
     })
   })
+
+  describe('#debug', function () {
+    var p = new Tokenizer(options)
+    it('should not corrupt methods', function (done) {
+      p.debug()
+      p.addRule('a', function (token, idx, type) {
+        done()
+      })
+      p.saveRuleSet('test')
+      
+      // Following methods are altered by #debug
+      p.seek(0)
+      p.loadRuleSet('test')
+
+      p.write('a')
+    })
+  })
 })

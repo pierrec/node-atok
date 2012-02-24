@@ -70,10 +70,57 @@ Tknzr.prototype.setEncoding = function (enc) {
  * Positive buffer overrun supported (will offset on the next data chunk)
 **/
 Tknzr.prototype.seek = function (i) {
-  this.emit_seek(i)
   this.bytesRead += i
   this.offset += i
   if (this.offset < 0)
     return this._error( new Error('Tokenizer#seek: negative offset: ' + this.offset + ' from ' + i) )
   return this
+}
+/** chainable
+ * Tokenizer#debug(flag)
+ * - flag (Boolean|Function): toggle debug mode on and off.
+ *
+ * Turn debug mode on or off. Emits the [debug] event if no function supplied.
+ * The #seek and #loadRuleSet methods are also put in debug mode.
+**/
+Tknzr.prototype.debug = function (flag) {
+  var self = this
+  var _debug = (flag === true)
+    ? this.emit_debug
+    : typeof flag === 'function'
+      ? flag
+      : false
+  
+  this._debug = _debug
+
+  // Apply debug mode to all defined rules...
+  this._rulesForEach(function (rule) {
+    rule.setDebug(_debug)
+  })
+
+  // Apply debug mode to the #seek() and #loadRuleSet() methods
+  ;[ 'seek', 'loadRuleSet' ].forEach(function (method) {
+    var _method = ['Tokenizer#' + method]
+
+    function debugFn () {
+      _debug.apply( self, _method.concat( sliceArguments(arguments, 0) ) )
+    }
+
+    methodOverload(
+      self
+    , method
+    , _debug ? debugFn : null
+    )
+  })
+
+  return this
+}
+
+Tknzr.prototype._rulesForEach = function (fn) {
+  this.rules.forEach(fn)
+
+  var saved = this.saved
+  Object.keys(saved).forEach(function (ruleSet) {
+    saved[ruleSet].rules.forEach(fn)
+  })
 }

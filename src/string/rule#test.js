@@ -12,9 +12,6 @@ function (data, offset) {
   var lastRule = rule[n-1]
   var trimLeftSize = 0
 
-  var split = this.split
-  var matches = []
-
   // Check rules:
   // all must be valid for the token to be extracted
   // token is either given by one of the rule or it is set by slice(0, matched)
@@ -23,16 +20,22 @@ function (data, offset) {
     // Reminder: size is dynamic!
     matched = rule[i].exec(s, start + matched, matched - trimLeftSize)
 //if(DEBUG)
-    this.debug('subrule['
-      + (this.type === null ? this.handler.name : this.type)
-      + '] ' + (i+1) + '/' + n
-      + ' ' + start + ' ' + matched
+    this.debug(
+        'Rule#test'
+    ,   'subrule'
+    , [ 
+        this.type === null ? this.handler.name : this.type
+      , i + 1
+      , n
+      , start
+      , matched
+      ]
     )
 //endif
 //if(RULE_GENERATES_TOKEN)
     if (rule[i].token && matched !== -1) { // Set the token
 //if(DEBUG)
-      this.debug('=> TOKEN ' + matched)
+      this.debug('Rule#test', 'token', matched)
 //endif
       token = true
       matchedTotal += (matched.length || matched) + rule[i].size
@@ -42,18 +45,12 @@ function (data, offset) {
       start = 0
     } else if ( matched < 0 ) { // Invalid rule
 //if(DEBUG)
-        this.debug('=> FAIL')
+  this.debug('Rule#test', 'end', [ offset, -1 ])
 //endif
       return -1
     } else if (!token) { // Valid rule with no token
 //if(RULE_TRIMLEFT)
       if (i === 0) trimLeftSize = firstRule.size
-//endif
-//if(DEBUG)
-      this.debug('=> ' + matched)
-//endif
-//if(RULE_SPLIT)
-      matches.push(matched)
 //endif
       matchedTotal += matched
       matched = matchedTotal
@@ -64,18 +61,12 @@ function (data, offset) {
 //else
     if ( matched < 0 ) { // Invalid rule
 //if(DEBUG)
-      this.debug('=> FAIL')
+  this.debug('Rule#test', 'end', [ offset, -1 ])
 //endif
       return -1
     } else { // Valid rule
 //if(RULE_TRIMLEFT)
       if (i === 0) trimLeftSize = firstRule.size
-//endif
-//if(DEBUG)
-      this.debug('=> ' + matched)
-//endif
-//if(RULE_SPLIT)
-      matches.push(matched)
 //endif
       matchedTotal += matched
       matched = matchedTotal
@@ -86,31 +77,21 @@ function (data, offset) {
   // 1 rule || no token extraction || ignore token -> nothing else to do
 
 //if(!RULE_GENERATES_TOKEN)
-//if(RULE_SPLIT)
-      offset += trimLeftSize
-      this.token = []
-//if(DEBUG)
-      this.debug('matches ' + matches)
-//endif
-      for (i = this.splitStart; i < n; i++) {
-        // trimRight applies to all sub tokens
-        var tokenLength = matches[i] - ( this.trimRight ? rule[i].size : 0 )
-        this.token.push( data.substr( offset, tokenLength ) )
-        offset += matches[i]
-      }
+//if(RULE_TRIMRIGHT)
+      var tokenLength = matchedTotal - trimLeftSize - lastRule.size
 //else
-      var tokenLength = matchedTotal - ( trimLeftSize + (this.trimRight ? lastRule.size : 0) )
+      var tokenLength = matchedTotal - trimLeftSize
+//endif
       this.token = this.noToken
         // Set the token to the size of what would have been extracted
         ? tokenLength
         // By default, the token is stripped out from the left and last right patterns
         : data.substr( offset + trimLeftSize, tokenLength )
 //endif
-//endif
 
   this.countStat++
 //if(DEBUG)
-  this.debug('=> OK ' + matchedTotal)
+  this.debug('Rule#test', 'end', [ offset, matchedTotal ])
 //endif
   return matchedTotal
 }

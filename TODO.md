@@ -15,7 +15,6 @@
 
 ## Performance
 
-	* remove [match|empty] events? -> overload rule#test()
 	* subrules linked execution
 	* handler signature: token idx, type => rule object ?
 	* ruleString: cache charCodes for use in subsequent rules -> slower!?

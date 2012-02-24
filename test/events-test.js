@@ -7,24 +7,6 @@ var Tokenizer = require('..')
 var options = {}
 
 describe('Tokenizer Events', function () {
-  describe('[match]', function () {
-    var p = new Tokenizer(options)
-    it('should emit [match] when a rule matches', function (done) {
-      var matches = 0
-      p.addRule(1, 'consume data')
-      p.addRule(0, function (token, idx, type) {
-        assert.equal(matches, 3)
-        done()
-      })
-      p.on('match', function (offset) {
-        // Should be the current offset
-        assert.equal(offset, matches)
-        matches++
-      })
-      p.write('abc')
-    })
-  })
-
   describe('[empty]', function () {
     describe('while not ending', function () {
       var p = new Tokenizer(options)
@@ -53,63 +35,90 @@ describe('Tokenizer Events', function () {
     })
   })
 
-  describe('[seek]', function () {
-    var p = new Tokenizer(options)
-    var flag = false
-
-    it('should emit [seek] on `seek()`', function (done) {
-      p.addRule(' ', function (token, idx, type) {
-        assert.deepEqual(flag, true)
-        done()
-      })
-      p.addRule(1, function () {
-        p.seek(1)
-      })
-      p.on('seek', function (i) {
-        assert.equal(i, 1)
-        flag = true
-      })
-      p.write('abc  ')
-    })
-  })
-
-  describe('[loadruleset]', function () {
-    var p = new Tokenizer(options)
-    var flag = false
-
-    it('should emit [loadruleset] when a rule is loaded', function (done) {
-      p.addRule(1, function () {
-        p.loadRuleSet('ruleSet2')
-      })
-      p.saveRuleSet('ruleSet1')
-      p.addRule(0, function (token, idx, type) {
-        assert.deepEqual(flag, true)
-        done()
-      })
-      p.saveRuleSet('ruleSet2')
-      p.loadRuleSet('ruleSet1')
-      p.on('loadruleset', function (ruleset) {
-        assert.equal(ruleset, 'ruleSet2')
-        flag = true
-      })
-      p.write('abc')
-    })
-  })
-
   describe('[debug]', function () {
-    var p = new Tokenizer({ debug: true })
-    it('should emit [debug] when option set', function (done) {
+    describe('toggled on/off', function () {
+      var p = new Tokenizer(options)
       var matches = 0
+
       p.addRule(1, 'consume data')
-      p.addRule(0, function (token, idx, type) {
+      p.on('debug', function (method, type, data) {
+        assert.equal(arguments.length, 3)
+        assert.equal(typeof method, 'string')
+        assert.equal(typeof type, 'string')
+        matches++
+      })
+      it('should emit [debug]', function (done) {
+        p.debug(true)
+        p.write('abc')
         assert.equal(matches, 9)
         done()
       })
-      p.on('debug', function (msg) {
-        assert.equal(typeof msg, 'string')
-        matches++
+
+      it('should not emit [debug]', function (done) {
+        p.debug()
+        p.write('abc')
+        assert.equal(matches, 9)
+        done()
       })
-      p.write('abc')
+    })
+
+    describe('toggled on/off with #seek', function () {
+      var p = new Tokenizer(options)
+      var seek_flag = false
+
+      p.addRule(1, 'consume data')
+      p.on('debug', function (method, type, data) {
+        if (method === 'Tokenizer#seek') {
+          seek_flag = true
+          assert.equal(type, 1)
+        }
+      })
+      it('should emit [debug]', function (done) {
+        p.debug(true)
+        p.seek(1)
+        p.write('abc')
+        assert.equal(seek_flag, true)
+        done()
+      })
+
+      it('should not emit [debug]', function (done) {
+        seek_flag = false
+        p.debug()
+        p.seek(1)
+        p.write('abc')
+        assert.equal(seek_flag, false)
+        done()
+      })
+    })
+
+    describe('toggled on/off with #loadRuleSet', function () {
+      var p = new Tokenizer(options)
+      var loadruleset_flag = false
+
+      p.addRule(1, 'consume data')
+      p.saveRuleSet('test')
+      p.on('debug', function (method, type, data) {
+        if (method === 'Tokenizer#loadRuleSet') {
+          loadruleset_flag = true
+          assert.equal(type, 'test')
+        }
+      })
+      it('should emit [debug]', function (done) {
+        p.debug(true)
+        p.loadRuleSet('test')
+        p.write('abc')
+        assert.equal(loadruleset_flag, true)
+        done()
+      })
+
+      it('should not emit [debug]', function (done) {
+        loadruleset_flag = false
+        p.debug()
+        p.loadRuleSet('test')
+        p.write('abc')
+        assert.equal(loadruleset_flag, false)
+        done()
+      })
     })
   })
 })

@@ -17,28 +17,30 @@ var inherits = require('inherits')
 
 var RuleString = require('./string/rule')
 // var RuleBuffer = require('./buffer/ruleBuffer')
+var methodOverload = require('./utils').methodOverload
+var sliceArguments = require('./utils').sliceArguments
 
 var isArray = require('util').isArray
 function noop () {}
 
-function sliceArguments (args, index) {
-  for (
-    var i = index, n = args.length, a = new Array(n - 1)
-  ; i < n
-  ; i++
-  )
-    a[i - index] = args[i]
-  return a
-}
-
 module.exports = Tknzr
+
+// Default events
+Tknzr.events = {
+  // Standard Stream events
+  data: 3
+, end: 3
+, drain: 0
+// Atok specific events
+, debug: 3
+, empty: 1
+}
 
 /**
  * new Tokenizer(options)
  * - options (Object):
  * - options.bufferMode (Boolean): use Buffers instead of string (false)
  * - options.encoding (String): encoding to be used (utf8)
- * - options.debug (Boolean|Function): rules and subrules debug messages. If set to true, it will emit debug events.
  *
 **/
 function error (err) {
@@ -51,20 +53,8 @@ function Tknzr (options) {
   if (!(this instanceof Tknzr))
     return new Tknzr(options)
 
-  var self = this
   // Possible events are defined at instanciation for better performance
-  EV.call(this, {
-    // Standard Stream events
-    data: 3
-  , end: 3
-  , drain: 0
-  // Atok specific events
-  , debug: 1
-  , match: 3
-  , empty: 1
-  , loadruleset: 1
-  , seek: 1
-  })
+  EV.call(this, Tknzr.events)
   this.writable = true
   this.readable = true
 
@@ -72,11 +62,6 @@ function Tknzr (options) {
   options = options || {}
   this._bufferMode = (options.bufferMode === true)
   this._encoding = options.encoding
-  this.debug = (options.debug === true)
-    ? function (msg) { self.emit_debug(msg) }
-    : typeof options.debug === 'function'
-      ? options.debug
-      : false
   // Apply the default encoding value
   this.setEncoding(options.encoding)
 
@@ -88,13 +73,16 @@ function Tknzr (options) {
   this.ruleIndex = 0
 
   // Initializations
+  // Debug flag
+  this._debug = false
+
   // Status flags
   this.ended = false      // Flag indicating stream has ended
   this.ending = false     // Set when end() invokes write()
   this.paused = false     // Flag indicating stream is paused
   this.needDrain = false  // Flag indicating stream needs drain
 
-  // // Rules flags
+  // Rules flags
   this._p_ignore = false     // Get the token size and skip
   this._p_quiet = false      // Get the token size and call the handler with no data
   this._p_escape = false     // Pattern must not be escaped
@@ -102,7 +90,6 @@ function Tknzr (options) {
   this._p_trimRight = true   // Remove the right pattern from the token
   this._p_next = null        // Next rule to load
   this._p_continue = null    // Next rule index to load
-  this._p_split = false      // Split token
 
   // Rules properties
   this.currentRule = null   // Name of the current rule  
@@ -230,8 +217,6 @@ Tknzr.prototype._tokenize = function () {
       // Return the size of the matched data (0 is valid!)
       matched = p.test(this.buffer, this.offset)
       if ( matched >= 0 ) {
-        this.emit_match(this.offset, matched, p)
-        
         this.offset += matched
         this.bytesRead += matched
         // Is the token to be processed?

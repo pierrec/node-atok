@@ -105,15 +105,6 @@ Tknzr.prototype.continue = function (jump) {
   return this
 }
 /** chainable
- * Tokenizer#split()
- *
- * Token is split on each subrule
-**/
-Tknzr.prototype.split = function (flag) {
-  this._p_split = (flag === true)
-  return this
-}
-/** chainable
  * Tokenizer#saveProps(name)
  * - name (String): saved properties id
  *
@@ -128,7 +119,6 @@ Tknzr.prototype.saveProps = function (name) {
   , trimRight: this._p_trimRight
   , next: this._p_next
   , continue: this._p_continue
-  , split: this._p_split
   }
   
   return this
@@ -151,7 +141,6 @@ Tknzr.prototype.loadProps = function (name) {
   this._p_trimRight = p.trimRight
   this._p_next = p.next
   this._p_continue = p.continue
-  this._p_split = p.split
 
   return this
 }
@@ -168,5 +157,4 @@ Tknzr.prototype.clearProps = function () {
   this._p_trimRight = true   // Remove the right pattern from the token
   this._p_next = null        // Next rule to load
   this._p_continue = null    // Next rule index to load
-  this._p_split = false      // Split token
 }

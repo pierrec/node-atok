@@ -28,10 +28,9 @@ function Rule (subrules, type, handler, options) {
   this.escape = options._p_escape
   this.next = (typeof options._p_next === 'string') ? options._p_next : null
   this.continue = options._p_continue
-  this.split = options._p_split && (subrules.length > 2)
 
   this.bufferMode = (options._bufferMode === true)
-  this.debug = options.debug
+  this.debug = options._debug
 
   this.type = type || null
   this.handler = handler
@@ -71,22 +70,27 @@ function Rule (subrules, type, handler, options) {
     return flag
   })
   // No rule left...will return all data
-  if (this.rules.length === 0) {
+  if (this.rules.length === 0)
     this.test = this.noToken ? this.allNoToken : this.all
-  } else {
-    // Set the test method according to static properties
-    var test_flags = []
-    test_flags.push(
-      this.rules.reduce(function (p, r) { return p || !!r.token }, false)
-    , this.trimLeft
-    , this.split
-    , !!this.debug
-    )
-    this.test = this[ 'test_' + test_flags.join('_') ]
-  }
+  else
+    this.setDebug(this.debug)
+}
 
-  // Set the split starting index - offset by 1 if first rule was valid
-  this.splitStart = !this.split ? 0 : this.rules.length < n ? 0 : 1
+// Set debug mode on/off
+Rule.prototype.setDebug = function (debug) {
+  this.debug = debug
+
+  // Set the test method according to static properties
+  var test_flags = []
+
+  test_flags.push(
+    this.rules.reduce(function (p, r) { return p || !!r.token }, false)
+  , this.trimLeft
+  , this.trimRight
+  , !!debug
+  )
+
+  this.test = this[ 'test_' + test_flags.join('_') ]
 }
 
 // Return the amount of data left
@@ -103,48 +107,48 @@ Rule.prototype.all = function (data, offset) {
 
 // Test all subrules
 // #test() is divided into various methods based on static flag values
-//var DEBUG = false
 //var RULE_GENERATES_TOKEN = true
 //var RULE_TRIMLEFT = true
-//var RULE_SPLIT = true
+//var RULE_TRIMRIGHT = true
+//var DEBUG = false
 Rule.prototype.test_true_true_true_false = //include("rule#test.js")
 //var RULE_TRIMLEFT = false
 Rule.prototype.test_true_false_true_false = //include("rule#test.js")
-//var RULE_SPLIT = false
+//var RULE_TRIMRIGHT = false
 Rule.prototype.test_true_false_false_false = //include("rule#test.js")
 //var RULE_TRIMLEFT = true
 Rule.prototype.test_true_true_false_false = //include("rule#test.js")
 
 //var RULE_GENERATES_TOKEN = false
 //var RULE_TRIMLEFT = true
-//var RULE_SPLIT = true
+//var RULE_TRIMRIGHT = true
 Rule.prototype.test_false_true_true_false = //include("rule#test.js")
 //var RULE_TRIMLEFT = false
 Rule.prototype.test_false_false_true_false = //include("rule#test.js")
-//var RULE_SPLIT = false
+//var RULE_TRIMRIGHT = false
 Rule.prototype.test_false_false_false_false = //include("rule#test.js")
 //var RULE_TRIMLEFT = true
 Rule.prototype.test_false_true_false_false = //include("rule#test.js")
 
-//var DEBUG = true
 //var RULE_GENERATES_TOKEN = true
 //var RULE_TRIMLEFT = true
-//var RULE_SPLIT = true
+//var RULE_TRIMRIGHT = true
+//var DEBUG = true
 Rule.prototype.test_true_true_true_true = //include("rule#test.js")
 //var RULE_TRIMLEFT = false
 Rule.prototype.test_true_false_true_true = //include("rule#test.js")
-//var RULE_SPLIT = false
+//var RULE_TRIMRIGHT = false
 Rule.prototype.test_true_false_false_true = //include("rule#test.js")
 //var RULE_TRIMLEFT = true
 Rule.prototype.test_true_true_false_true = //include("rule#test.js")
 
 //var RULE_GENERATES_TOKEN = false
 //var RULE_TRIMLEFT = true
-//var RULE_SPLIT = true
+//var RULE_TRIMRIGHT = true
 Rule.prototype.test_false_true_true_true = //include("rule#test.js")
 //var RULE_TRIMLEFT = false
 Rule.prototype.test_false_false_true_true = //include("rule#test.js")
-//var RULE_SPLIT = false
+//var RULE_TRIMRIGHT = false
 Rule.prototype.test_false_false_false_true = //include("rule#test.js")
 //var RULE_TRIMLEFT = true
 Rule.prototype.test_false_true_false_true = //include("rule#test.js")
