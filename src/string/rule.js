@@ -30,7 +30,8 @@ function Rule (subrules, type, handler, options) {
   this.continue = options._p_continue
 
   this.bufferMode = (options._bufferMode === true)
-  this.debug = options._debug
+
+  this.atok = options
 
   this.type = type || null
   this.handler = handler
@@ -57,7 +58,7 @@ function Rule (subrules, type, handler, options) {
   
   // Does the rule generate any token?
   this.noToken = (n === 1 && this.trimLeft && !this.rules[0].token) || this.noToken
-
+  
   // Disable trimRight if only 1 rule
   if (this.rules.length === 1)
     this.trimRight = false
@@ -70,24 +71,28 @@ function Rule (subrules, type, handler, options) {
     return flag
   })
   // No rule left...will return all data
-  if (this.rules.length === 0)
+  if (this.rules.length === 0) {
     this.test = this.noToken ? this.allNoToken : this.all
-  else
-    this.setDebug(this.debug)
+  } else {
+    // Does the rule generate any token regardless of its properties?
+    for (var i = 0, n = this.rules.length; i < n; i++)
+      if (this.rules[i].token) break
+
+    this.genToken = (i < n)
+    this.setDebug()
+  }
 }
 
 // Set debug mode on/off
-Rule.prototype.setDebug = function (debug) {
-  this.debug = debug
-
+Rule.prototype.setDebug = function () {
   // Set the test method according to static properties
   var test_flags = []
 
   test_flags.push(
-    this.rules.reduce(function (p, r) { return p || !!r.token }, false)
+    this.genToken
   , this.trimLeft
   , this.trimRight
-  , !!debug
+  , this.atok.debugMode
   )
 
   this.test = this[ 'test_' + test_flags.join('_') ]

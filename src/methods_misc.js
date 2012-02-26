@@ -78,39 +78,38 @@ Tknzr.prototype.seek = function (i) {
 }
 /** chainable
  * Tokenizer#debug(flag)
- * - flag (Boolean|Function): toggle debug mode on and off.
+ * - flag (Boolean): toggle debug mode on and off.
  *
- * Turn debug mode on or off. Emits the [debug] event if no function supplied.
+ * Turn debug mode on or off. Emits the [debug] event.
  * The #seek and #loadRuleSet methods are also put in debug mode.
 **/
 Tknzr.prototype.debug = function (flag) {
-  var self = this
-  var _debug = (flag === true)
-    ? this.emit_debug
-    : typeof flag === 'function'
-      ? flag
-      : false
-  
-  this._debug = _debug
+  var _debug = !!flag
+
+  // Nothing to do if already in same mode
+  if (_debug === this.debugMode) return this
+  this.debugMode = _debug
 
   // Apply debug mode to all defined rules...
   this._rulesForEach(function (rule) {
-    rule.setDebug(_debug)
+    rule.setDebug()
   })
 
   // Apply debug mode to the #seek() and #loadRuleSet() methods
+  var self = this
   ;[ 'seek', 'loadRuleSet' ].forEach(function (method) {
-    var _method = ['Tokenizer#' + method]
+    if (_debug) {
+      var prevMethod = self[method]
 
-    function debugFn () {
-      _debug.apply( self, _method.concat( sliceArguments(arguments, 0) ) )
+      self[method] = function () {
+        self.emit_debug.apply( null, ['Tokenizer#' + method].concat( sliceArguments(arguments, 0) ) )
+        return prevMethod.apply(self, arguments)
+      }
+      // Save the previous method
+      self[method].prevMethod = prevMethod
+    } else {
+      self[method] = self[method].prevMethod
     }
-
-    methodOverload(
-      self
-    , method
-    , _debug ? debugFn : null
-    )
   })
 
   return this

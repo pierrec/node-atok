@@ -17,8 +17,18 @@ var inherits = require('inherits')
 
 var RuleString = require('./string/rule')
 // var RuleBuffer = require('./buffer/ruleBuffer')
-var methodOverload = require('./utils').methodOverload
-var sliceArguments = require('./utils').sliceArguments
+
+function sliceArguments (args, index) {
+  if (args.length === 0) return []
+
+  for (
+    var i = index, n = args.length, a = new Array(n - 1)
+  ; i < n
+  ; i++
+  )
+    a[i - index] = args[i]
+  return a
+}
 
 var isArray = require('util').isArray
 function noop () {}
@@ -74,7 +84,7 @@ function Tknzr (options) {
 
   // Initializations
   // Debug flag
-  this._debug = false
+  this.debugMode = false
 
   // Status flags
   this.ended = false      // Flag indicating stream has ended
