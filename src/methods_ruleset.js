@@ -132,6 +132,7 @@ Tknzr.prototype.clearRule = function () {
   this.clearProps()
   this.rules = []
   this.handler = null
+  this.currentRule = null
   return this
 }
 /** chainable
