@@ -108,18 +108,16 @@ Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
  * Tokenizer#removeRule(name)
  * - name (String): name of the rule to be removed
  *
- * Remove a rule
+ * Remove a rule (first instance only)
 **/
 Tknzr.prototype.removeRule = function (/* name ... */) {
-  var args = arguments
-  var n = args.length
-
-  this.rules = this.rules.filter(function (rule) {
-    var type = rule.type !== null ? rule.type : rule.handler
-    for (var i = 0; i < n; i++)
-      if (args[i] === type) return false
-    return true
-  })
+  if (arguments.length === 0) return this
+  
+  for (var idx, i = 0, n = arguments.length; i < n; i++) {
+    idx = this._getRuleIndex(arguments[i])
+    if (idx >= 0)
+      this.rules.splice(idx, 1)
+  }
 
   return this
 }
@@ -142,8 +140,8 @@ Tknzr.prototype.clearRule = function () {
  * Save all rules
 **/
 Tknzr.prototype.saveRuleSet = function (name) {
-  if (arguments.length === 0)
-    return this._error( new Error('Tokenizer#saveRuleSet: No rule name supplied') )
+  if (arguments.length === 0 || name === null)
+    return this._error( new Error('Tokenizer#saveRuleSet: invalid rule name supplied') )
   
   // Check and set the continue values
   var rules = this.rules
