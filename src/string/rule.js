@@ -28,6 +28,7 @@ function Rule (subrules, type, handler, options) {
   this.escape = options._p_escape
   this.next = (typeof options._p_next === 'string') ? options._p_next : null
   this.continue = options._p_continue
+  this.break = options._p_break
 
   this.bufferMode = (options._bufferMode === true)
 

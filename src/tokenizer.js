@@ -100,6 +100,7 @@ function Tknzr (options) {
   this._p_trimRight = true   // Remove the right pattern from the token
   this._p_next = null        // Next rule to load
   this._p_continue = null    // Next rule index to load
+  this._p_break = false      // Abort current rule set
 
   // Rules properties
   this.currentRule = null   // Name of the current rule  
@@ -248,6 +249,7 @@ Tknzr.prototype._tokenize = function () {
           this.ruleIndex = i + 1
           // Skip the token and keep going, unless rule returned 0
         } else if (matched > 0) i = -1
+        if (p.break) break
         // Hold on if the stream was paused
         if (this.paused) {
           // Keep track of the rule index we are at

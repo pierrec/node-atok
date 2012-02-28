@@ -141,6 +141,44 @@ describe('Tokenizer Properties Methods', function () {
     })
   })
 
+  describe('#break', function () {
+    describe('with no #continue', function () {
+      var p = new Tokenizer(options)
+      it('should upon match abort the current rule and resume from the start', function (done) {
+        var i = 0
+        p.break(true)
+        p.addRule('a', function (token, idx, type) {
+          p.addRuleFirst('a', function first(token, idx, type) {
+            i++
+          })
+        })
+        p.break()
+        p.write('a')
+        p.write('a')
+        assert.equal(i, 1)
+        done()
+      })
+    })
+
+    describe('with #continue(0)', function () {
+      var p = new Tokenizer(options)
+      it('should upon match abort the current rule and resume from the aborted subrule', function (done) {
+        var i = 0
+        p.break(true).continue(0)
+        p.addRule('a', function (token, idx, type) {
+          i++
+          p.addRuleFirst('a', function (token, idx, type) {
+          })
+        })
+        p.break().continue()
+        p.write('a')
+        p.write('a')
+        assert.equal(i, 2)
+        done()
+      })
+    })
+  })
+
   describe('#continue', function () {
     describe('with a positive jump', function () {
       var p = new Tokenizer(options)
