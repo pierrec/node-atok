@@ -35,7 +35,7 @@ function noop () {}
 
 module.exports = Tknzr
 
-// Default events
+// Export default events
 Tknzr.events = {
   // Standard Stream events
   data: 3
@@ -45,6 +45,9 @@ Tknzr.events = {
 , debug: 3
 , empty: 1
 }
+
+// Export version
+Tknzr.version = require('../package.json').version
 
 /**
  * new Tokenizer(options)

@@ -44,7 +44,7 @@ function Rule (subrules, type, handler, options) {
 
   // Special case: addRule(0)
   if (subrules === 0) {
-    this.handler = handler || function () {
+    this.handler = handler || function atokDefaultHandler () {
       options.emit_data(options.ending, -1, self.type)
     }
     return this

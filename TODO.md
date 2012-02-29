@@ -15,6 +15,7 @@
 
 ## Performance
 
+	* 20-25% drop when using the published module vs direct local access... with the exact same code
 	* subrules linked execution
 	* handler signature: token idx, type => rule object ?
 	* ruleString: cache charCodes for use in subsequent rules -> slower!?
@@ -24,3 +25,5 @@
 ## Known issues
 
 	* rules with 0 are ignored in arrays (i.e. `addRule([0,123])`)
+	* firstOf does not honor `escaped()`
+	* addRule(123, 0, handler) will trigger the handler even if end of buffer not reached

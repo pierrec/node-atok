@@ -89,7 +89,7 @@ function SubRule (rule, i, n, mainRule) {
 
         if (i !== (n-1))
           return new firstOf_SubRule(rule.firstOf)
-
+        // Last subrule, reuse the extracted token set by the subrule
         if (mainRule.trimRight)
           return new tokenizedFirstOf_SubRule(rule.firstOf)
 

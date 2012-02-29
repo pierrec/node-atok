@@ -10,6 +10,11 @@ var Tokenizer = require('..')
 var options = {}
 
 describe('Tokenizer General Methods', function () {
+  it('should provide its version', function (done) {
+    assert.equal(typeof Tokenizer.version, 'string')
+    done()
+  })
+
   describe('#length', function () {
     var p = new Tokenizer(options)
     it('should return the tokenizer buffer size', function (done) {

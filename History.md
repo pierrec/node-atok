@@ -1,3 +1,11 @@
+0.2.2 / 2012-02-29
+==================
+
+  * Fixed rule set name not being reset upon `clearRule()`
+  * Fixed `clearProps()` not chainable
+  * Added `break()`: abort a current rule set. Use continue(-1) to resume at the current subrule.
+  * Added `version` property
+
 0.2.1 / 2012-02-26
 ==================
 
