@@ -225,6 +225,7 @@ Tknzr.prototype._done = function () {
   return true
 }
 Tknzr.prototype._tokenize = function () {
+  this._resetRuleIndex = false
   // NB. Rules and buffer can be reset by the token handler
   if (this.offset < this.length && this.ruleIndex <= this.rules.length) {
     for (

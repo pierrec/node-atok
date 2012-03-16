@@ -25,7 +25,7 @@
 ## Known issues
 
 	* function rules cannot return a token
-	* arrays can only contain the same type (number or string)
+	* arrays can only contain the same type (function, number or string)
 	* the following need major refactoring for proper implementation (linked subrules)
 		* rules with 0 are ignored in arrays (i.e. `addRule([0,123])`)
 		* addRule(123, 0, handler) will trigger the handler even if end of buffer not reached
