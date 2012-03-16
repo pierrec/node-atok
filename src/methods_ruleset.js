@@ -182,6 +182,7 @@ Tknzr.prototype.loadRuleSet = function (name) {
   this.emptyHandler = ruleSet.emptyHandler
   // Reset the rule index...
   this.ruleIndex = 0
+  this._resetRuleIndex = true
 
   return this
 }

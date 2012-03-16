@@ -219,6 +219,21 @@ describe('Tokenizer Rules Methods with trimLeft disabled', function () {
           .write('abcbac')
         })
       })
+
+      describe('#addRule(["a","b"], ["c","d"])', function () {
+        var i = 0
+        it('should return b then a', function (done) {
+          p.addRule(['a','b'], ['c','d'], function (token, idx, type) {
+            i == 0 && assert.equal(token, 'ab')
+            i == 1 && assert.equal(token, 'ba')
+            i == 2 && assert.equal(token, 'ab')
+            i == 3 && assert.equal(token, 'ba')
+            i++
+            if (i == 4) done()
+          })
+          .write('abcbacabdbad')
+        })
+      })
     })
 /*
 ['ab','cd']
@@ -311,6 +326,58 @@ describe('Tokenizer Rules Methods with trimLeft disabled', function () {
             if (i == 4) done()
           })
           .write('abcdbcabdabcebcabe')
+        })
+      })
+    })
+/*
+[fn1, fn2]
+[fn1, fn2], 'a'
+[fn1, fn2], ['a','b']
+**/
+    describe('First: Array Second: "..."', function () {
+      function fn1 (s, start) {
+        return s[start] === 'a' ? 1 : -1
+      }
+      function fn2 (s, start) {
+        return s[start] === 'b' ? 1 : -1
+      }
+
+      describe('#addRule([fn1,fn2])', function () {
+        var i = 0
+        it('should return an empty token', function (done) {
+          p.addRule([fn1,fn2], function (token, idx, type) {
+            i == 0 && assert.equal(token, 'a')
+            i == 1 && assert.equal(token, 'b')
+            i++
+            if (i == 2) done()
+          })
+          .write('ab')
+        })
+      })
+
+      describe('#addRule([fn1,fn2], "a")', function () {
+        var i = 0
+        it('should return bc twice', function (done) {
+          p.addRule([fn1,fn2], 'a', function (token, idx, type) {
+            i == 0 && assert.equal(token, 'abc')
+            i == 1 && assert.equal(token, 'bbc')
+            i++
+            if (i == 2) done()
+          })
+          .write('abcabbca')
+        })
+      })
+
+      describe('#addRule([fn1,fn2], ["a","b"])', function () {
+        var i = 0
+        it('should return c 4 times', function (done) {
+          p.addRule([fn1,fn2], ['a','b'], function (token, idx, type) {
+            i == 0 && assert.equal(token, 'ac')
+            i > 1 && assert.equal(token, 'bc')
+            i++
+            if (i == 4) done()
+          })
+          .write('acaacbbcbbcb')
         })
       })
     })

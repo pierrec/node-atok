@@ -104,6 +104,18 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
+    describe('on unescaped char with default escape char', function () {
+      var p = new Tokenizer(options)
+      it('should apply', function (done) {
+        p.escaped(true)
+        p.addRule('"', '"', function (token, idx, type) {
+          assert.equal(token, 'b\\\\')
+          done()
+        })
+        p.write( '"b\\\\"' )
+      })
+    })
+
     describe('on escaped char with default escape char', function () {
       var p = new Tokenizer(options)
       it('should apply', function (done) {
@@ -137,6 +149,68 @@ describe('Tokenizer Properties Methods', function () {
           done()
         })
         p.write( '"b~""' )
+      })
+    })
+
+    describe('with firstOf', function () {
+      describe('on unescaped char with default escape char', function () {
+        var p = new Tokenizer(options)
+        it('should apply', function (done) {
+          p.escaped(true)
+          p.addRule('a', { firstOf: [' ',','] }, function (token, idx, type) {
+            assert.equal(token, 'bc')
+            done()
+          })
+          p.write('abc, ')
+        })
+      })
+
+      describe('on unescaped char with default escape char', function () {
+        var p = new Tokenizer(options)
+        it('should apply', function (done) {
+          p.escaped(true)
+          p.addRule('a', { firstOf: [' ',','] }, function (token, idx, type) {
+            assert.equal(token, 'bc\\,')
+            done()
+          })
+          p.write( 'abc\\, ' )
+        })
+      })
+
+      describe('on escaped char with default escape char', function () {
+        var p = new Tokenizer(options)
+        it('should apply', function (done) {
+          p.escaped(true)
+          p.addRule('a', { firstOf: [' ',','] }, function (token, idx, type) {
+            assert.equal(token, 'bc\\\\')
+            done()
+          })
+          p.write( 'abc\\\\, ' )
+        })
+      })
+
+      describe('on unescaped char with custom escape char', function () {
+        var p = new Tokenizer(options)
+        it('should apply', function (done) {
+          p.escaped('~')
+          p.addRule('A', { firstOf: [' ',','] }, function (token, idx, type) {
+            assert.equal(token, 'b')
+            done()
+          })
+          p.write('Ab, ')
+        })
+      })
+
+      describe('on escaped char with custom escape char', function () {
+        var p = new Tokenizer(options)
+        it('should apply', function (done) {
+          p.escaped('~')
+          p.addRule('a', { firstOf: [' ',','] }, function (token, idx, type) {
+            assert.equal(token, 'b~,')
+            done()
+          })
+          p.write( 'ab~, ' )
+        })
       })
     })
   })
@@ -273,6 +347,44 @@ describe('Tokenizer Properties Methods', function () {
           }
         )
         done()
+      })
+    })
+
+    describe('with a rule set modified with #loadRuleSet()', function () {
+      var p = new Tokenizer(options)
+      it('should reset the index', function (done) {
+        p.addRule('b', function (token, idx, type) {
+          done()
+        })
+        p.saveRuleSet('b')
+
+        p.continue(0)
+        p.addRule('a', function (token, idx, type) {
+          p.loadRuleSet('b')
+        })
+        p.addRule('b', function (token, idx, type) {
+          done( new Error('Should not trigger') )
+        })
+        
+        p.write('ab')
+      })
+    })
+
+    describe('with a rule set modified with #next()', function () {
+      var p = new Tokenizer(options)
+      it('should reset the index', function (done) {
+        p.addRule('b', function (token, idx, type) {
+          done()
+        })
+        p.saveRuleSet('b')
+
+        p.next('b')
+        p.addRule('a', 'a')
+        p.addRule('b', function (token, idx, type) {
+          done( new Error('Should not trigger') )
+        })
+        
+        p.write('ab')
       })
     })
   })

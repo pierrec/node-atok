@@ -86,17 +86,14 @@ function Rule (subrules, type, handler, options) {
 
 // Set debug mode on/off
 Rule.prototype.setDebug = function () {
-  // Set the test method according to static properties
-  var test_flags = []
-
-  test_flags.push(
-    this.genToken
+  _MaskSetter.call(
+    this
+  , 'test'
+  , this.genToken
   , this.trimLeft
   , this.trimRight
   , this.atok.debugMode
   )
-
-  this.test = this[ 'test_' + test_flags.join('_') ]
 }
 
 // Return the amount of data left
@@ -112,49 +109,4 @@ Rule.prototype.all = function (data, offset) {
 }
 
 // Test all subrules
-// #test() is divided into various methods based on static flag values
-//var RULE_GENERATES_TOKEN = true
-//var RULE_TRIMLEFT = true
-//var RULE_TRIMRIGHT = true
-//var DEBUG = false
-Rule.prototype.test_true_true_true_false = //include("rule#test.js")
-//var RULE_TRIMLEFT = false
-Rule.prototype.test_true_false_true_false = //include("rule#test.js")
-//var RULE_TRIMRIGHT = false
-Rule.prototype.test_true_false_false_false = //include("rule#test.js")
-//var RULE_TRIMLEFT = true
-Rule.prototype.test_true_true_false_false = //include("rule#test.js")
-
-//var RULE_GENERATES_TOKEN = false
-//var RULE_TRIMLEFT = true
-//var RULE_TRIMRIGHT = true
-Rule.prototype.test_false_true_true_false = //include("rule#test.js")
-//var RULE_TRIMLEFT = false
-Rule.prototype.test_false_false_true_false = //include("rule#test.js")
-//var RULE_TRIMRIGHT = false
-Rule.prototype.test_false_false_false_false = //include("rule#test.js")
-//var RULE_TRIMLEFT = true
-Rule.prototype.test_false_true_false_false = //include("rule#test.js")
-
-//var RULE_GENERATES_TOKEN = true
-//var RULE_TRIMLEFT = true
-//var RULE_TRIMRIGHT = true
-//var DEBUG = true
-Rule.prototype.test_true_true_true_true = //include("rule#test.js")
-//var RULE_TRIMLEFT = false
-Rule.prototype.test_true_false_true_true = //include("rule#test.js")
-//var RULE_TRIMRIGHT = false
-Rule.prototype.test_true_false_false_true = //include("rule#test.js")
-//var RULE_TRIMLEFT = true
-Rule.prototype.test_true_true_false_true = //include("rule#test.js")
-
-//var RULE_GENERATES_TOKEN = false
-//var RULE_TRIMLEFT = true
-//var RULE_TRIMRIGHT = true
-Rule.prototype.test_false_true_true_true = //include("rule#test.js")
-//var RULE_TRIMLEFT = false
-Rule.prototype.test_false_false_true_true = //include("rule#test.js")
-//var RULE_TRIMRIGHT = false
-Rule.prototype.test_false_false_false_true = //include("rule#test.js")
-//var RULE_TRIMLEFT = true
-Rule.prototype.test_false_true_false_true = //include("rule#test.js")
+//include("rule#test_masked.js")

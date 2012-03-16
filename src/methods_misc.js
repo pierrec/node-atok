@@ -12,6 +12,7 @@ Tknzr.prototype.clear = function (keepRules) {
   this.bytesRead = 0
   this.offset = 0
   this.ruleIndex = 0
+  this._resetRuleIndex = false
 
   // Rule flags
   this.clearProps()
@@ -102,7 +103,7 @@ Tknzr.prototype.debug = function (flag) {
       var prevMethod = self[method]
 
       self[method] = function () {
-        self.emit_debug.apply( null, ['Tokenizer#' + method].concat( sliceArguments(arguments, 0) ) )
+        self.emit_debug.apply( self, ['Tokenizer#' + method].concat( sliceArguments(arguments, 0) ) )
         return prevMethod.apply(self, arguments)
       }
       // Save the previous method

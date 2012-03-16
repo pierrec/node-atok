@@ -1,3 +1,15 @@
+0.2.3 / 2012-03-16
+==================
+
+  * Added [pipe], [listening], [open] and [close] events to the event set
+  * Added support for array of functions in rule definitions: addRule([fn1, fn2...], ...)
+  * Fixed wrong array size in sliceArguments()
+  * Fix: `firstOf` now honors `escaped()`
+  * Fix: invalid rule index after when using `loadRuleSet()` or `next()`
+  * Code refactoring
+    * automatic masked Rule#test() method
+    * `escaped()` subrules
+
 0.2.2 / 2012-02-29
 ==================
 

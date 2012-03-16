@@ -3,7 +3,7 @@
 , "name": "atok"
 , "description": "Fast, easy and flexible tokenizer for Node Streams"
 , "keywords": ["tokenizer","token","async","stream"]
-, "version": "0.2.2"
+, "version": "0.2.3"
 , "homepage": "http://github.com/pierrec/node-atok"
 , "repository": {
     "type": "git"
@@ -27,7 +27,7 @@
 , "devDependencies": {
     "mocha": ">= 0.10"
   , "bench": ">= 0.3"
-  , "ekam": ">= 0.0.2"
+  , "ekam": ">= 0.0.5"
   }
 , "scripts": {
     "test": "mocha test/*-test.js"

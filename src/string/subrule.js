@@ -61,6 +61,11 @@ function SubRule (rule, i, n, mainRule) {
               default:
                 return new firstArray_SubRule(rule)
             }
+          case 'function':
+            if (rule.length === 1) break
+            return new function_SubRule(rule)
+          default:
+            throw new Error('Invalid type in array: ' + type)
         }
       } else if ( i === 0 && rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
         if (rule.start.length != rule.end.length)
@@ -87,13 +92,22 @@ function SubRule (rule, i, n, mainRule) {
         if (rule.firstOf.length < 2)
           throw new Error('Tokenizer#addRule: Invalid Array size for firstOf (must be >= 2): ' + rule.firstOf.length)
 
-        if (i !== (n-1))
-          return new firstOf_SubRule(rule.firstOf)
-        // Last subrule, reuse the extracted token set by the subrule
-        if (mainRule.trimRight)
-          return new tokenizedFirstOf_SubRule(rule.firstOf)
+        if (mainRule.escape === false) {
+          if (i !== (n-1))
+            return new firstOf_SubRule(rule.firstOf)
+          // Last subrule, reuse the extracted token set by the subrule
+          if (mainRule.trimRight)
+            return new tokenizedFirstOf_SubRule(rule.firstOf)
 
-        return new tokenizedNoTrimFirstOf_SubRule(rule.firstOf)
+          return new tokenizedNoTrimFirstOf_SubRule(rule.firstOf)
+        }
+        if (i !== (n-1))
+            return new escapedFirstOf_SubRule(rule.firstOf, mainRule.escape)
+          // Last subrule, reuse the extracted token set by the subrule
+          if (mainRule.trimRight)
+            return new escapedTokenizedFirstOf_SubRule(rule.firstOf, mainRule.escape)
+
+          return new escapedTokenizedNoTrimFirstOf_SubRule(rule.firstOf, mainRule.escape)
       }
   }
 
@@ -103,6 +117,7 @@ function SubRule (rule, i, n, mainRule) {
 
   this.size = 0 // Last matched pattern length
   this.idx = -1 // If array rule, matched index
+  this.token = false // Cannot generate a token
   switch ( typeof rule ) {
     case 'function':
       this.exec = rule
