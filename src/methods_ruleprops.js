@@ -93,7 +93,7 @@ Tknzr.prototype.escaped = function (flag) {
  * Continue the rules flow if rule matches at the specified rule index
 **/
 Tknzr.prototype.continue = function (jump) {
-  if (arguments.length === 0) {
+  if (arguments.length === 0 || jump === null) {
     this._p_continue = null
     return this
   }

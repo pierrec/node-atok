@@ -254,6 +254,36 @@ describe('Tokenizer Properties Methods', function () {
   })
 
   describe('#continue', function () {
+    describe('with no argument', function () {
+      var p = new Tokenizer(options)
+      it('should be valid', function (done) {
+        assert.doesNotThrow(
+          function () {
+            p.continue()
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
+    describe('with null argument', function () {
+      var p = new Tokenizer(options)
+      it('should be valid', function (done) {
+        assert.doesNotThrow(
+          function () {
+            p.continue(null)
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
     describe('with a positive jump', function () {
       var p = new Tokenizer(options)
       it('should upon match continue at the indexed rule', function (done) {
@@ -365,6 +395,27 @@ describe('Tokenizer Properties Methods', function () {
         p.addRule('b', function (token, idx, type) {
           done( new Error('Should not trigger') )
         })
+        
+        p.write('ab')
+      })
+    })
+
+    describe('with an initial #loadRuleSet()', function () {
+      var p = new Tokenizer(options)
+
+      it('should not reset the index', function (done) {
+        p.continue(1)
+        p.addRule('a', 'a')
+        p.addRule(function () { return 0 }, 'noop')
+        p.addRule('b', function (token, idx, type) {
+          done()
+        })
+        p.addRule('', function (token, idx, type) {
+          done( new Error('Should not trigger') )
+        })
+        p.saveRuleSet('a')
+
+        p.loadRuleSet('a')
         
         p.write('ab')
       })

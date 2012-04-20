@@ -5,11 +5,11 @@
 
 Atok is a fast, easy and flexible tokenizer designed for use with [node.js](http://nodejs.org). It is based around the [Stream](http://nodejs.org/docs/latest/api/streams.html) concept and is implemented as a read/write one.
 
-It was originally inspired by [node-tokenizer](https://github.com/floby/node-tokenizer), but quickly grew into its own form as I wanted it to be RegExp agnostic so it could be used on node Buffer intances and more importantly *faster*. As of the first release, it does not support Buffer instances (yet!) but it is planned to be the next major feature.
+It was originally inspired by [node-tokenizer](https://github.com/floby/node-tokenizer), but quickly grew into its own form as I wanted it to be RegExp agnostic so it could be used on node Buffer intances and more importantly *faster*.
 
-Atok is built using [ekam](https://github.com/pierrec/node-ekam).
+Atok is built using [ekam](https://github.com/pierrec/node-ekam) as it abuses includes and dynamic method generation.
 
-Atok is the fundation for the [atok-parser](https://github.com/pierrec/node-atok-parser), which provides the environment for quickly building efficient and maintainable parsers.
+Atok is the fundation for the [atok-parser](https://github.com/pierrec/node-atok-parser), which provides the environment for quickly building efficient and easier to maintain parsers.
 
 
 ## Download
@@ -112,7 +112,7 @@ Atok has a fairly extended set of tests written for [mocha](https://github.com/v
 
 ## Issues
 
-None known.
+See the TODO file.
 
 
 ## License

@@ -101,14 +101,6 @@ function Tknzr (options) {
   this.needDrain = false  // Flag indicating stream needs drain
 
   // Rules flags
-  // this._p_ignore = false     // Get the token size and skip
-  // this._p_quiet = false      // Get the token size and call the handler with no data
-  // this._p_escape = false     // Pattern must not be escaped
-  // this._p_trimLeft = true    // Remove the left pattern from the token
-  // this._p_trimRight = true   // Remove the right pattern from the token
-  // this._p_next = null        // Next rule to load
-  // this._p_continue = null    // Next rule index to load
-  // this._p_break = false      // Abort current rule set
   this.clearProps()
 
   // Rules properties

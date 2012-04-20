@@ -3,7 +3,7 @@
 ## API
 
 	* better utf-8 support - use a decoding stream upfront of atok? (also applies to other encodings)
-	* Buffer support
+	* Buffer support?
 
 ## Features
 
@@ -25,6 +25,7 @@
 ## Known issues
 
 	* function rules cannot return a token
+		wrong -> set this.token = true and return a String
 	* arrays can only contain the same type (function, number or string)
 	* the following need major refactoring for proper implementation (linked subrules)
 		* rules with 0 are ignored in arrays (i.e. `addRule([0,123])`)
