@@ -68,7 +68,7 @@ describe('Tokenizer Events', function () {
 
       p.addRule(1, 'consume data')
       p.on('debug', function (method, type, data) {
-        if (method === 'Tokenizer#seek') {
+        if (method === 'Atok#seek') {
           seek_flag = true
           assert.equal(type, 1)
         }
@@ -98,7 +98,7 @@ describe('Tokenizer Events', function () {
       p.addRule(1, 'consume data')
       p.saveRuleSet('test')
       p.on('debug', function (method, type, data) {
-        if (method === 'Tokenizer#loadRuleSet') {
+        if (method === 'Atok#loadRuleSet') {
           loadruleset_flag = true
           assert.equal(type, 'test')
         }

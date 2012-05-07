@@ -1,3 +1,12 @@
+/**
+ * Test method for Rule: result >=0 means the rule was latched and this is the
+ * amount of matched data, <0: rule did not match
+ *
+ * @param {Object} incoming data
+ * @param {number} data offset
+ * @return {number}
+ * @api private
+ */
 function (data, offset) {
   var matched = 0       // SubRule result: Integer: matched size, Other: token
   var matchedTotal = 0  // Total jump

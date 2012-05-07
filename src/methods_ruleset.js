@@ -1,74 +1,83 @@
-/*
- * Tokenizer public methods
- */
-/** chainable, related to: Tokenizer#addRule
- * Tokenizer#addRuleFirst(firstRule, firstMatch[, nextMatch], type)
- * - beforeRule (String | Function): name of the rule to add before
- *
+/**
  * Add a rule as the first one
-**/
-Tknzr.prototype.addRuleFirst = function (rule, /*rule, ... */ type) {
+ *
+ * @param {string|number|function()} name of the rule to be added first
+ * @param {...string|number|function()} rule item
+ * @param {string|number|function()} rule type
+ * @return {Atok}
+ * @api public
+ * @see Atok#addRule
+ */
+Atok.prototype.addRuleFirst = function (rule, /*rule, ... */ type) {
   this.addRule.apply( this, sliceArguments(arguments, 0) )
   this.rules.unshift( this.rules.pop() )
 
   return this
 }
-Tknzr.prototype._getRuleIndex = function (id) {
+Atok.prototype._getRuleIndex = function (id) {
   for (var rules = this.rules, i = 0, n = rules.length; i < n; i++)
     if ( (rules[i].type !== null ? rules[i].type : rules[i].handler) === id ) break
   
   return i === n ? -1 : i
 }
-/** chainable, related to: Tokenizer#addRule
- * Tokenizer#addRuleBefore(beforeRule, firstMatch[, nextMatch], type)
- * - beforeRule (String | Function): name of the rule to add before
- *
+/**
  * Add a rule before an existing one
-**/
-Tknzr.prototype.addRuleBefore = function (existingRule, rule, /*rule, ... */ type) {
+ *
+ * @param {string|number|function()} name of the rule to add before
+ * @param {...string|number|function()} rule item
+ * @param {string|number|function()} rule type
+ * @return {Atok}
+ * @api public
+ * @see Atok#addRule
+ */
+Atok.prototype.addRuleBefore = function (existingRule, rule, /*rule, ... */ type) {
   var i = this._getRuleIndex(existingRule)
 
   if ( i < 0 )
-    return this._error( new Error('Tokenizer#addRuleBefore: rule ' + existingRule + ' does not exist') )
+    return this._error( new Error('Atok#addRuleBefore: rule ' + existingRule + ' does not exist') )
 
   this.addRule.apply( this, sliceArguments(arguments, 1) )
   this.rules.splice( i, 0, this.rules.pop() )
 
   return this
 }
-/** chainable, related to: Tokenizer#addRule
- * Tokenizer#addRuleAfter(afterRule, firstMatch[, nextMatch], type)
- * - afterRule (String | Function): name of the rule to add after
- *
+/**
  * Add a rule after an existing one
-**/
-Tknzr.prototype.addRuleAfter = function (existingRule, rule, /*rule, ... */ type) {
+ *
+ * @param {string|number|function()} name of the rule to add after
+ * @param {...string|number|function()} rule item
+ * @param {string|number|function()} rule type
+ * @return {Atok}
+ * @api public
+ * @see Atok#addRule
+ */
+Atok.prototype.addRuleAfter = function (existingRule, rule, /*rule, ... */ type) {
   var i = this._getRuleIndex(existingRule)
 
   if ( i < 0 )
-    return this._error( new Error('Tokenizer#addRuleAfter: rule ' + existingRule + ' does not exist') )
+    return this._error( new Error('Atok#addRuleAfter: rule ' + existingRule + ' does not exist') )
 
   this.addRule.apply( this, sliceArguments(arguments, 1) )
   this.rules.splice( i + 1, 0, this.rules.pop() )
 
   return this
 }
-/** chainable
- * Tokenizer#addRule(firstMatch[, nextMatch], type)
- * - firstMatch (String | Integer | Array): match at current buffer position (String: expect string, Integer: expect n characters, Array: expect one of the items). If not needed, use ''
- * - nextMatch (String | Integer | Array): next match after previous matches. Can have as many as required (String: expect string, Integer: expect n characters, Array: expect one of the items)
- * - type (String | Function | Number): rule name/id (if no default handler set, emit a data event) or handler (executed when all matches are valid)
- *
+/**
  * Add a rule
-**/
-Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
+ *
+ * @param {...string|number|function()} match at current buffer position (String: expect string, Integer: expect n characters, Array: expect one of the items). If not needed, use ''
+ * @param {string|number|function()} rule name/id (if no default handler set, emit a data event) or handler (executed when all matches are valid)
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
   var args = sliceArguments(arguments, 0)
 
-  if (args.length < 2)
-    return this._error( new Error('Tokenizer#addRule: Missing arguments (rule1, /*rule2 ...*/ type|handler)') )
+  if (args.length < 1)
+    return this._error( new Error('Atok#addRule: Missing arguments (/*rule1, rule2 ...*/ type|handler)') )
   
-  var first = args[0]
   var last = args.pop()
+  var first = args[0]
   var type, handler = this.handler
 
   switch ( typeof(last) ) {
@@ -80,18 +89,30 @@ Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
       type = last
       break
     default:
-      return this._error( new Error('Tokenizer#addRule: invalid type/handler, must be Number/String/Function') )
+      return this._error( new Error('Atok#addRule: invalid type/handler, must be Number/String/Function') )
   }
 
-  // first <= 0: following arguments are ignored
-  if ( first === 0 ) { // Empty buffer rule
+  // Check if the rule is to be created
+  for (var i = 0, n = args.length; i < n; i++) {
+    // Discard true's, abort on false
+    if (args[i] === false) return this
+    if (args[i] === true) {
+      args.splice(i, 1)
+      i--
+      n--
+    }
+  }
+
+  // first === 0: following arguments are ignored
+  // Empty buffer rule
+  if ( first === 0 )
     this.emptyHandler = RuleString(
         0
       , type
       , handler
       , this
       )
-  } else {
+  else
     this.rules.push(
       RuleString(
         args
@@ -100,17 +121,17 @@ Tknzr.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
       , this
       )
     )
-  }
 
   return this
 }
-/** chainable
- * Tokenizer#removeRule(name)
- * - name (String): name of the rule to be removed
- *
+/**
  * Remove a rule (first instance only)
-**/
-Tknzr.prototype.removeRule = function (/* name ... */) {
+ *
+ * @param {string} name of the rule to be removed
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.removeRule = function (/* name ... */) {
   if (arguments.length === 0) return this
   
   for (var idx, i = 0, n = arguments.length; i < n; i++) {
@@ -121,27 +142,29 @@ Tknzr.prototype.removeRule = function (/* name ... */) {
 
   return this
 }
-/** chainable
- * Tokenizer#clearRule()
- *
+/**
  * Remove all rules
-**/
-Tknzr.prototype.clearRule = function () {
+ *
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.clearRule = function () {
   this.clearProps()
   this.rules = []
   this.handler = null
   this.currentRule = null
   return this
 }
-/** chainable
- * Tokenizer#saveRuleSet(name)
- * - name (String): name of the rule set
- *
+/**
  * Save all rules
-**/
-Tknzr.prototype.saveRuleSet = function (name) {
+ *
+ * @param {string} name of the rule set
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.saveRuleSet = function (name) {
   if (arguments.length === 0 || name === null)
-    return this._error( new Error('Tokenizer#saveRuleSet: invalid rule name supplied') )
+    return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )
   
   // Check and set the continue values
   var rules = this.rules
@@ -152,9 +175,9 @@ Tknzr.prototype.saveRuleSet = function (name) {
     if (rule.continue !== null && typeof rule.continue !== 'number') {
       j = this._getRuleIndex(id)
       if (j < 0)
-        this._error( new Error('Tokenizer#saveRuleSet: continue() value not found: ' + id) )
+        this._error( new Error('Atok#saveRuleSet: continue() value not found: ' + id) )
       
-      rule.continue = i - j - 1
+      rule.continue = i - j
     }
   }
 
@@ -166,16 +189,17 @@ Tknzr.prototype.saveRuleSet = function (name) {
 
   return this
 }
-/** chainable
- * Tokenizer#loadRuleSet(name)
- * - name (String): name of the rule set
- *
+/**
  * Load a rule set
-**/
-Tknzr.prototype.loadRuleSet = function (name) {
+ *
+ * @param {string} name of the rule set
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.loadRuleSet = function (name) {
   var ruleSet = this.saved[name]
   if (!ruleSet)
-    return this._error( new Error('Tokenizer#loadRuleSet: Rule set ' + name + ' not found') )
+    return this._error( new Error('Atok#loadRuleSet: Rule set ' + name + ' not found') )
 
   this.currentRule = name
   this.rules = ruleSet.rules
@@ -186,40 +210,44 @@ Tknzr.prototype.loadRuleSet = function (name) {
 
   return this
 }
-/** chainable
- * Tokenizer#deleteRuleSet(name)
- * - name (String): name of the rule set
- *
+/**
  * Delete a rule set
-**/
-Tknzr.prototype.deleteRuleSet = function (name) {
+ *
+ * @param {string} name of the rule set
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.deleteRuleSet = function (name) {
   delete this.saved[name]
 
   return this
 }
 /**
- * Tokenizer#getRuleSet()
- *
  * Get the current rule set
-**/
-Tknzr.prototype.getRuleSet = function () {
+ *
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.getRuleSet = function () {
   return this.currentRule
 }
 /**
- * Tokenizer#getAllRuleSet()
- *
  * Get the list of rule sets
-**/
-Tknzr.prototype.getAllRuleSet = function () {
+ *
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.getAllRuleSet = function () {
   return this.saved
 }
 /**
- * Tokenizer#existsRule(name[, name2]) -> Boolean
- * - name (String): name of the rule to check
- *
  * Check the existence of a rule
-**/
-Tknzr.prototype.existsRule = function (/* name ... */) {
+ *
+ * @param {...string} name of the rule to check
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.existsRule = function (/* name ... */) {
   var args = sliceArguments(arguments, 0)
   var self = this
 

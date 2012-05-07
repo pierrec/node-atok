@@ -1,11 +1,3 @@
-/*
- * class SubRule
- *
- * SubRule for stream based tokenizer Rule
- *
- * Copyright (c) 2012 Pierre Curto
- * MIT Licensed
-**/
 module.exports = SubRule
 
 var isArray = require('util').isArray

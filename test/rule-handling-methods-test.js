@@ -13,7 +13,7 @@ describe('Tokenizer RuleSet Methods', function () {
       it('should throw an Error', function (done) {
         assert.throws(
           function () {
-            p.addRule('a')
+            p.addRule()
           }
         , function (err) {
             if (err instanceof Error) return true
@@ -67,6 +67,31 @@ describe('Tokenizer RuleSet Methods', function () {
           done()
         })
         p.addRule('a', 'test')
+        p.write('a')
+      })
+    })
+
+    describe('with false subrule', function () {
+      var p = new Tokenizer(options)
+      it('should ignore the rule', function (done) {
+        p.setDefaultHandler(function (token, idx, type) {
+          assert.equal(type, 'test')
+          done()
+        })
+        p.addRule('a', false, 'ignore')
+        p.addRule('a', 'test')
+        p.write('a')
+      })
+    })
+
+    describe('with true subrule', function () {
+      var p = new Tokenizer(options)
+      it('should use the rule', function (done) {
+        p.setDefaultHandler(function (token, idx, type) {
+          assert.equal(type, 'test')
+          done()
+        })
+        p.addRule('a', true, 'test')
         p.write('a')
       })
     })

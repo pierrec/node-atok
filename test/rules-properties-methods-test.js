@@ -284,6 +284,21 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
+    describe('with null as second argument', function () {
+      var p = new Tokenizer(options)
+      it('should be valid', function (done) {
+        assert.doesNotThrow(
+          function () {
+            p.continue(null, null)
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
     describe('with a positive jump', function () {
       var p = new Tokenizer(options)
       it('should upon match continue at the indexed rule', function (done) {
@@ -338,33 +353,56 @@ describe('Tokenizer Properties Methods', function () {
     describe('with a string defined rule', function () {
       var p = new Tokenizer(options)
       it('should define the continue index after #saveRuleSet()', function (done) {
-        p.continue('a')
+        var i = 0
+        p.continue('end')
         p.addRule('a', 'a')
         p.continue()
-        p.addRule('b', function (token, idx, type) {
-          done()
-        })
+        p.addRule('a', 'end')
         p.saveRuleSet('stringContinueTest')
-        p.write('aab')
+
+        p.on('data', function (token, idx, type) {
+          switch (type) {
+            case 'a':
+              if (i > 0) done(new Error('Too many calls'))
+              i++
+              break
+            case 'end':
+              p.pause()
+              done()
+              break
+            default:
+              done(new Error('Invalid type: ' + type))
+          }
+        })
+        p.write('aaa')
       })
     })
 
     describe('with a function defined rule', function () {
       var p = new Tokenizer(options)
       it('should define the continue index after #saveRuleSet()', function (done) {
-        function test () {}
-
-        p.continue(test)
-        p.addRule('a', test)
-        p.continue()
-        p.addRule('b', function (token, idx, type) {
+        function test () {
+          p.pause()
           done()
-        })
+        }
+
+        var i = 0
+        p.continue(test)
+        p.addRule('a', 'a')
+        p.continue()
+        p.addRule('a', test)
         p.saveRuleSet('stringContinueTest')
-        p.write('aab')
+
+        p.on('data', function (token, idx, type) {
+          if (type === 'a') {
+            if (i > 0) done(new Error('Too many calls'))
+            i++
+          }
+        })
+        p.write('aaa')
       })
     })
-
+    
     describe('with an invalid rule', function () {
       var p = new Tokenizer(options)
       it('should throw', function (done) {
@@ -442,10 +480,7 @@ describe('Tokenizer Properties Methods', function () {
 
   describe('#saveProps', function () {
     var p = new Tokenizer(options)
-    var props = []
-
-    for (prop in p)
-      if (p.hasOwnProperty(prop) && /^_p_/.test(prop)) props.push( prop.substr(3) )
+    var props = Object.keys( p.getProps() )
 
     it('should save the current properties', function (done) {
       var saved = {}
@@ -459,8 +494,8 @@ describe('Tokenizer Properties Methods', function () {
             saved.escape = '\\'
           break
           case 'continue':
-            p.continue(123)
-            saved.continue = 123
+            p.continue(123, 456)
+            saved.continue = [123, 456]
           break
           case 'next':
             p.next('ruleSet')
@@ -480,10 +515,7 @@ describe('Tokenizer Properties Methods', function () {
 
   describe('#loadProps', function () {
     var p = new Tokenizer(options)
-    var props = []
-
-    for (prop in p)
-      if (p.hasOwnProperty(prop) && /^_p_/.test(prop)) props.push( prop.substr(3) )
+    var props = Object.keys( p.getProps() )
 
     it('should load the current properties', function (done) {
       p.saveProps()
@@ -496,6 +528,9 @@ describe('Tokenizer Properties Methods', function () {
         switch (prop) {
           case 'escape':
             p.escaped('\\')
+          break
+          case 'continueOnFail':
+            p.continue(123, 456)
           break
           case 'continue':
             p.continue(123)
@@ -516,10 +551,7 @@ describe('Tokenizer Properties Methods', function () {
 
   describe('#clearProps', function () {
     var p = new Tokenizer(options)
-    var props = []
-
-    for (prop in p)
-      if (p.hasOwnProperty(prop) && /^_p_/.test(prop)) props.push( prop.substr(3) )
+    var props = Object.keys( p.getProps() )
 
     it('should reset the properties', function (done) {
       var saved = p.savedProps
@@ -530,6 +562,9 @@ describe('Tokenizer Properties Methods', function () {
         switch (prop) {
           case 'escape':
             p.escaped('\\')
+          break
+          case 'continueOnFail':
+            p.continue(123, 456)
           break
           case 'continue':
             p.continue(123)

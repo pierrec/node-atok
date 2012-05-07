@@ -1,6 +1,10 @@
-/*
- Convert a value to an array of char codes
-**/
+/**
+ * Convert a value to an array of char codes
+ *
+ * @param {number|string|Array} value to convert
+ * @return {Array|number} char code(s)
+ * @api private
+ */
 function toCharCodes (v) {
   var res
 
@@ -23,9 +27,13 @@ function toCharCodes (v) {
   return res.length > 1 ? res: res[0]
 }
 
-/*
- Convert an array of strings into an array of char codes
-**/
+/**
+ * Convert an array of strings into an array of char codes
+ *
+ * @param {Array} array of strings to convert
+ * @return {Array|number} char code(s)
+ * @api private
+ */
 function stringToCharCodes (arr, forceArray) {
   return arr.map(function (s) {
     return s.length > 1
@@ -36,9 +44,13 @@ function stringToCharCodes (arr, forceArray) {
     })
 }
 
-/*
- Check items of a string array are of the same size and return it
-**/
+/**
+ * Check items of a string array are of the same size and return it
+ *
+ * @param {Array} array of strings
+ * @return {number} -1 if not the same sizer or string size
+ * @api private
+ */
 function getArrayItemsSize (arr) {
   var n = arr.length
 

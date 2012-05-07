@@ -76,6 +76,7 @@ describe('Tokenizer Stream Methods', function () {
       output.on('close', function () {
         var content = fs.readFileSync(outputFile).toString()
         assert.equal(content, input)
+        fs.unlinkSync(outputFile)
         done()
       })
       p.addRule(1, 'data')

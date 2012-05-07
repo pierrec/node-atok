@@ -1,3 +1,4 @@
+// The content of this file was automatically generated during build time
 function _MaskSetter (method /* , flag1, flag2... */) {
   for (var int = 0, j = 33; --j;) {
     int = int | (arguments[j] ? 1 : 0)
