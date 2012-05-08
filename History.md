@@ -2,11 +2,15 @@
 ==================
 
   * Added `offsetBuffer` property: when set to a positive value, the buffer is not sliced when `write()` ends. __Use with caution__ as this can make the buffer continuously grow.
+  * Added `currentRule` property: name of the current rule set, `getRuleSet()` is deprecated
   * Added `getProps()`: return an object containing the requested property values (default=all properties)
   * Added second parameter to `continue()`: used when the rule fails (Number, String or Function)
-  * Added boolean sub rules to `addRule()`: rule is discarded if false
-  * Fix: `continue(String|Function)` proper indexes
+  * Added boolean sub rules to `addRule()`: the whole rule is discarded if false, `true` subrule ignored
   * `addRule()` can now accept only one parameter (type|handler)
+  * Added second parameter to `loadRuleSet()`
+  
+  * Fix: `continue(String|Function)` proper indexes
+
   * Switch to using JSDoc format, documentation automatically generated on build
 
 0.2.4 / 2012-04-20

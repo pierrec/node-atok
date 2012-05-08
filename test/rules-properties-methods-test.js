@@ -499,7 +499,7 @@ describe('Tokenizer Properties Methods', function () {
           break
           case 'next':
             p.next('ruleSet')
-            saved.next = 'ruleSet'
+            saved.next = ['ruleSet', 0]
           break
           default:
             p[ prop ](true)

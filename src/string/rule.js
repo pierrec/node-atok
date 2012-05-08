@@ -97,14 +97,15 @@ function Rule (subrules, type, handler, options) {
  * @api private
  */
 Rule.prototype.setDebug = function () {
-  _MaskSetter.call(
-    this
-  , 'test'
-  , this.genToken
-  , this.trimLeft
-  , this.trimRight
-  , this.atok.debugMode
-  )
+  if (this.rules.length > 0)
+    _MaskSetter.call(
+      this
+    , 'test'
+    , this.genToken
+    , this.trimLeft
+    , this.trimRight
+    , this.atok.debugMode
+    )
 }
 /**
  * Return the amount of data left

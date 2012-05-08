@@ -193,10 +193,11 @@ Atok.prototype.saveRuleSet = function (name) {
  * Load a rule set
  *
  * @param {string} name of the rule set
+ * @param {number} index to start at
  * @return {Atok}
  * @api public
  */
-Atok.prototype.loadRuleSet = function (name) {
+Atok.prototype.loadRuleSet = function (name, index) {
   var ruleSet = this.saved[name]
   if (!ruleSet)
     return this._error( new Error('Atok#loadRuleSet: Rule set ' + name + ' not found') )
@@ -204,8 +205,8 @@ Atok.prototype.loadRuleSet = function (name) {
   this.currentRule = name
   this.rules = ruleSet.rules
   this.emptyHandler = ruleSet.emptyHandler
-  // Reset the rule index...
-  this.ruleIndex = 0
+  // Set the rule index
+  this.ruleIndex = typeof index === 'number' ? index : 0
   this._resetRuleIndex = true
 
   return this
@@ -221,15 +222,6 @@ Atok.prototype.deleteRuleSet = function (name) {
   delete this.saved[name]
 
   return this
-}
-/**
- * Get the current rule set
- *
- * @return {Atok}
- * @api public
- */
-Atok.prototype.getRuleSet = function () {
-  return this.currentRule
 }
 /**
  * Get the list of rule sets

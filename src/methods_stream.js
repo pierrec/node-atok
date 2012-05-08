@@ -95,7 +95,7 @@ Atok.prototype.resume = function () {
  */
 Atok.prototype.destroy = noop
 
-/*
+/**
  * Private methods
  */
 
@@ -136,6 +136,7 @@ Atok.prototype._done = function () {
  * The core of Atok. Loops through the rules and check them against the data,
  * calling handler or emitting the `data` event and branching appropriately.
  * 
+ * @return {boolean}
  * @private
  */
 Atok.prototype._tokenize = function () {
@@ -166,7 +167,7 @@ Atok.prototype._tokenize = function () {
         // Rule set may have changed...
         if (this._resetRuleIndex) {
           this._resetRuleIndex = false
-          if (matched > 0) i = -1
+          if (matched > 0) i = this.ruleIndex - 1
         // Continue?
         } else if (p.continue !== null) {
           i += p.continue
@@ -178,7 +179,9 @@ Atok.prototype._tokenize = function () {
           this.ruleIndex = i + 1
           // Skip the token and keep going, unless rule returned 0
         } else if (matched > 0) i = -1
+
         if (p.break) break
+
         // Hold on if the stream was paused
         if (this.paused) {
           // Keep track of the rule index we are at

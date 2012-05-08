@@ -122,6 +122,7 @@ Atok.prototype.debug = function (flag) {
       // Save the previous method
       self[method].prevMethod = prevMethod
     } else {
+      // Restore the method
       self[method] = self[method].prevMethod
     }
   })
