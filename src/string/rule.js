@@ -34,6 +34,7 @@ function Rule (subrules, type, handler, options) {
   this.quiet = options._p_quiet
   this.escape = options._p_escape
   this.next = (typeof options._p_next === 'string') ? options._p_next : null
+  this.nextIndex = options._p_nextIndex
   this.continue = options._p_continue
   this.continueOnFail = options._p_continueOnFail
   this.break = options._p_break
@@ -55,6 +56,13 @@ function Rule (subrules, type, handler, options) {
     this.handler = handler || function atokDefaultHandler () {
       options.emit_data(options.ending, -1, self.type)
     }
+    return this
+  }
+
+  // Special case: addRule()
+  if (subrules.length === 0) {
+    this.test = this.nothing
+    this.token = 0
     return this
   }
 
@@ -106,6 +114,15 @@ Rule.prototype.setDebug = function () {
     , this.trimRight
     , this.atok.debugMode
     )
+}
+/**
+ * Return 0
+ *
+ * @return {number} always 0
+ * @api private
+ */
+Rule.prototype.nothing = function () {
+  return 0
 }
 /**
  * Return the amount of data left

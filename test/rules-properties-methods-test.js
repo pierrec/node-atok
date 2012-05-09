@@ -251,6 +251,26 @@ describe('Tokenizer Properties Methods', function () {
         done()
       })
     })
+
+    describe('reentrant', function () {
+      var p = new Tokenizer(options)
+      it('should resume from the start', function (done) {
+        var i = 0
+        p.break(true).continue(0)
+        p.addRule('a', function (token, idx, type) {
+            i++
+        })
+        p.break().continue()
+        p.addRule('a', function (token, idx, type) {
+        })
+
+        p.write('a')
+        p.write('a')
+        p.write('a')
+        assert.equal(i, 2)
+        done()
+      })
+    })
   })
 
   describe('#continue', function () {

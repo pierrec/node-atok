@@ -143,8 +143,9 @@ Atok.prototype._tokenize = function () {
   this._resetRuleIndex = false
   // NB. Rules and buffer can be reset by the token handler
   if (this.offset < this.length && this.ruleIndex <= this.rules.length) {
+    var i = this.ruleIndex, p, matched
+    this.ruleIndex = 0
     for (
-        var i = this.ruleIndex, p, matched
       ; this.offset < this.length && i < this.rules.length
       ; i++
       )
@@ -155,6 +156,7 @@ Atok.prototype._tokenize = function () {
       if ( matched >= 0 ) {
         this.offset += matched
         this.bytesRead += matched
+        this.ruleIndex = i
         // Is the token to be processed?
         if ( !p.ignore ) {
           // Emit the data by default, unless the handler is set
@@ -162,7 +164,7 @@ Atok.prototype._tokenize = function () {
           else this.emit_data(p.token, p.idx, p.type)
         }
         // Load a new set of rules
-        if (p.next) this.loadRuleSet(p.next)
+        if (p.next) this.loadRuleSet(p.next, p.nextIndex)
 
         // Rule set may have changed...
         if (this._resetRuleIndex) {
@@ -178,7 +180,10 @@ Atok.prototype._tokenize = function () {
           // Keep track of the rule index we are at
           this.ruleIndex = i + 1
           // Skip the token and keep going, unless rule returned 0
-        } else if (matched > 0) i = -1
+        } else if (matched > 0) {
+          i = -1
+          this.ruleIndex = 0
+        }
 
         if (p.break) break
 

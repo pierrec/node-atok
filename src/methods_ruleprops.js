@@ -20,7 +20,7 @@ Atok.prototype.setDefaultHandler = function (handler) {
  * @api public
  */
 Atok.prototype.next = function (ruleSet, index) {
-  this._p_next = ruleSet
+  this._p_next = typeof ruleSet === 'string' ? ruleSet : null
   this._p_nextIndex = typeof index === 'number' ? index : 0
   return this
 }
@@ -168,8 +168,8 @@ Atok.prototype.loadProps = function (name) {
   this._p_escape = p.escape
   this._p_trimLeft = p.trimLeft
   this._p_trimRight = p.trimRight
-  this._p_next = p.next
-  this._p_nextIndex = p.nextIndex
+  this._p_next = p.next[0]
+  this._p_nextIndex = p.next[1]
   this._p_continue = p.continue[0]
   this._p_continueOnFail = p.continue[1]
   this._p_break = p.break
