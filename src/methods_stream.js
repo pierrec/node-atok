@@ -162,7 +162,7 @@ Atok.prototype._tokenize = function () {
       // Rule set may have changed...
       if (this._resetRuleIndex) {
         this._resetRuleIndex = false
-        if (matched > 0) i = this.ruleIndex - 1
+        i = this.ruleIndex - 1
       // Continue?
       } else if (p.continue !== null) {
         i += p.continue
@@ -205,7 +205,7 @@ Atok.prototype._tokenize = function () {
       this.buffer = this._bufferMode ? new Buffer : ''
       this.length = 0
       this.emit_empty(this.ending)
-      
+
       var emptyHandler = this.emptyHandler, n = emptyHandler.length
       if (n > 0) {
         for (i = 0, n = emptyHandler.length; i < n; i++) {

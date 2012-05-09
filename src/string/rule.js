@@ -46,6 +46,7 @@ function Rule (subrules, type, handler, options) {
   this.type = type || null
   this.handler = handler
 
+  this.rules = []
   this.countStat = 0
   this.idx = -1
   this.token = ''
@@ -67,7 +68,6 @@ function Rule (subrules, type, handler, options) {
   }
 
   // Instantiate all sub rules
-  this.rules = []
   for (var r, i = 0, n = subrules.length; i < n; i++) {
     r = SubRuleString(subrules[i], i, n, this)
     this.rules.push(r)
