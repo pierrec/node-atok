@@ -10,6 +10,7 @@
   * Added second parameter to `loadRuleSet()`
   
   * Fix: `continue(String|Function)` proper indexes
+  * Fix: `addRule(0)` can now be invoked many times in a rule set
 
   * Switch to using JSDoc format, documentation automatically generated on build
 

@@ -15,6 +15,7 @@ describe('Tokenizer Supported Properties', function () {
   , buffer: isString
   , writable: isBoolean
   , readable: isBoolean
+  , ending: isBoolean
   , currentRule: function (v) { return v === null || isString(v) }
   }
 

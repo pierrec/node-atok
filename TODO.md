@@ -26,7 +26,7 @@
 
 ## Known issues
 
-* add debug methods to Rule#allNoToken and Rule#all
+* add debug methods to Rule#allNoToken, Rule#all...
 * function rules cannot return a token
 	wrong -> set this.token = true and return a String
 * arrays can only contain the same type (function, number or string)

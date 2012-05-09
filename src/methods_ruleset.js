@@ -106,12 +106,14 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
   // first === 0: following arguments are ignored
   // Empty buffer rule
   if ( first === 0 )
-    this.emptyHandler = RuleString(
+    this.emptyHandler.push(
+      RuleString(
         0
       , type
       , handler
       , this
       )
+    )
   else
     this.rules.push(
       RuleString(
