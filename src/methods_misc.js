@@ -94,6 +94,7 @@ Atok.prototype.seek = function (i) {
 /**
  * Turn debug mode on or off. Emits the [debug] event.
  * The #seek and #loadRuleSet methods are also put in debug mode.
+ * All handlers log their arguments.
  *
  * @param {boolean} toggle debug mode on and off
  * @return {Atok}
@@ -118,12 +119,13 @@ Atok.prototype.debug = function (flag) {
       var prevMethod = self[method]
 
       self[method] = function () {
-        self.emit_debug.apply( self, ['Atok#' + method].concat( sliceArguments(arguments, 0) ) )
+        // self.emit_debug.apply( self, ['Atok#' + method].concat( sliceArguments(arguments, 0) ) )
+        self.emit_debug( 'Atok#', method, arguments )
         return prevMethod.apply(self, arguments)
       }
       // Save the previous method
       self[method].prevMethod = prevMethod
-    } else {
+    } else if (self[method].prevMethod) {
       // Restore the method
       self[method] = self[method].prevMethod
     }

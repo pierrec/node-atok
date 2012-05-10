@@ -36,29 +36,40 @@ describe('Tokenizer Events', function () {
   })
 
   describe('[debug]', function () {
-    describe('toggled on/off', function () {
+    describe('toggled', function () {
       var p = new Tokenizer(options)
-      var matches = 0
+      var matches
 
       p.addRule(1, 'consume data')
-      p.on('debug', function (method, type, data) {
+      p.on('debug', function (type, method, args) {
         assert.equal(arguments.length, 3)
-        assert.equal(typeof method, 'string')
         assert.equal(typeof type, 'string')
+        assert.equal(typeof method, 'string')
+        assert.equal(typeof args, 'object')
         matches++
       })
-      it('should emit [debug]', function (done) {
-        p.debug(true)
-        p.write('abc')
-        assert.equal(matches, 9)
-        done()
+
+      describe('on', function () {
+        it('should emit [debug]', function (done) {
+          matches = 0
+          p.debug(true)
+          p.write('abc')
+          assert.equal(matches, 12) // 3 x ( 1xhandler, 3xrule )
+          done()
+        })
       })
 
-      it('should not emit [debug]', function (done) {
-        p.debug()
-        p.write('abc')
-        assert.equal(matches, 9)
-        done()
+      describe('off', function () {
+        it('should not emit [debug]', function (done) {
+          matches = 0
+          p.debug()
+      p.on('debug', function (type, method, args) {
+        console.log(arguments)
+      })
+          p.write('abc')
+          assert.equal(matches, 0)
+          done()
+        })
       })
     })
 
@@ -67,17 +78,17 @@ describe('Tokenizer Events', function () {
       var seek_flag = false
 
       p.addRule(1, 'consume data')
-      p.on('debug', function (method, type, data) {
-        if (method === 'Atok#seek') {
+      p.on('debug', function (type, method, args) {
+        if (type === 'Atok#' && method === 'seek') {
           seek_flag = true
-          assert.equal(type, 1)
+          assert.equal(args[0], 1)
         }
       })
       it('should emit [debug]', function (done) {
         p.debug(true)
         p.seek(1)
         p.write('abc')
-        assert.equal(seek_flag, true)
+        assert(seek_flag)
         done()
       })
 
@@ -86,7 +97,7 @@ describe('Tokenizer Events', function () {
         p.debug()
         p.seek(1)
         p.write('abc')
-        assert.equal(seek_flag, false)
+        assert(!seek_flag)
         done()
       })
     })
@@ -97,17 +108,17 @@ describe('Tokenizer Events', function () {
 
       p.addRule(1, 'consume data')
       p.saveRuleSet('test')
-      p.on('debug', function (method, type, data) {
-        if (method === 'Atok#loadRuleSet') {
+      p.on('debug', function (type, method, args) {
+        if (type === 'Atok#' && method === 'loadRuleSet') {
           loadruleset_flag = true
-          assert.equal(type, 'test')
+          assert.equal(args[0], 'test')
         }
       })
       it('should emit [debug]', function (done) {
         p.debug(true)
         p.loadRuleSet('test')
         p.write('abc')
-        assert.equal(loadruleset_flag, true)
+        assert(loadruleset_flag)
         done()
       })
 
@@ -116,7 +127,36 @@ describe('Tokenizer Events', function () {
         p.debug()
         p.loadRuleSet('test')
         p.write('abc')
-        assert.equal(loadruleset_flag, false)
+        assert(!loadruleset_flag)
+        done()
+      })
+    })
+
+    describe('toggled on/off with a handler', function () {
+      var p = new Tokenizer(options)
+      var handler_flag = false
+
+      p.addRule(1, function myHandler () {})
+      p.saveRuleSet('test')
+      p.on('debug', function (type, method, args) {
+        if (type === 'Handler' && method === 'myHandler') {
+          handler_flag = true
+        }
+      })
+      it('should emit [debug]', function (done) {
+        p.debug(true)
+        p.loadRuleSet('test')
+        p.write('abc')
+        assert(handler_flag)
+        done()
+      })
+
+      it('should not emit [debug]', function (done) {
+        handler_flag = false
+        p.debug()
+        p.loadRuleSet('test')
+        p.write('abc')
+        assert(!handler_flag)
         done()
       })
     })

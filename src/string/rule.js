@@ -45,25 +45,21 @@ function Rule (subrules, type, handler, options) {
 
   this.type = type || null
   this.handler = handler
+  this.prevHandler = null
+  this.id = this.type !== null ? this.type : (handler && handler.name ? handler.name : '#emit()' )
 
   this.rules = []
   this.countStat = 0
   this.idx = -1
-  this.token = ''
   this.noToken = this.quiet || this.ignore
+  this.token = this.noToken ? 0 : ''
 
   // Special case: addRule(0)
-  if (subrules === 0) {
-    this.handler = handler || function atokDefaultHandler () {
-      options.emit_data(options.ending, -1, self.type)
-    }
-    return this
-  }
+  if (subrules === 0) return this
 
   // Special case: addRule()
   if (subrules.length === 0) {
     this.test = this.nothing
-    this.token = 0
     return this
   }
 
@@ -96,7 +92,7 @@ function Rule (subrules, type, handler, options) {
       if (this.rules[i].token) break
 
     this.genToken = (i < n)
-    this.setDebug()
+    this.setDebug(true)
   }
 }
 /**
@@ -104,16 +100,63 @@ function Rule (subrules, type, handler, options) {
  *
  * @api private
  */
-Rule.prototype.setDebug = function () {
+Rule.prototype.setDebug = function (init) {
+  var self = this
+  var atok = this.atok
+  var debug = atok.debugMode
+
   if (this.rules.length > 0)
+    // Set the #test() method according to the flags
     _MaskSetter.call(
       this
     , 'test'
     , this.genToken
     , this.trimLeft
     , this.trimRight
-    , this.atok.debugMode
+    , debug
     )
+
+  if (!init) {
+    // Wrap/unwrap handlers
+    if (debug) {
+      var id = this.id, handler = this.handler
+
+      // Save the previous handler
+      this.prevHandler = handler
+      
+      this.handler = handler
+        ? function () {
+            atok.emit_debug( 'Handler', id, arguments )
+            handler.apply(null, arguments)
+          }
+        : function () {
+            atok.emit_debug( 'Handler', id, arguments )
+            atok.emit_data.apply(atok, arguments)
+          }
+
+    } else {
+      // Restore the handler
+      this.handler = this.prevHandler
+      this.prevHandler = null
+    }
+
+    // Special methods
+    ;[ 'nothing', 'all', 'allNoToken' ].forEach(function (method) {
+      if (debug) {
+        var prevMethod = self[method]
+
+        self[method] = function () {
+          atok.emit_debug( 'Handler#', method, arguments )
+          prevMethod.apply(atok, arguments)
+        }
+        // Save the previous method
+        self[method].prevMethod = prevMethod
+      } else {
+        // Restore the method
+          self[method] = self[method].prevMethod
+      }
+    })
+  }
 }
 /**
  * Return 0

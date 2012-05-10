@@ -101,7 +101,7 @@ Atok.prototype.escaped = function (flag) {
  * Continue the rules flow if rule matches at the specified rule index
  *
  * @param {number|null|undefined} number of rules to skip before continuing
- * @param {number|null|undefined} when the rule fails, number of rules to skip before continuing
+ * @param {number|null|undefined} when the rule fails, number of rules to skip before continuing (must be positive)
  * @return {Atok}
  * @api public
  */
@@ -120,9 +120,11 @@ Atok.prototype.continue = function (jump, jumpOnFail) {
     jumpOnFail = null
   else if (
         jumpOnFail !== null
-    && !/(number|string|function)/.test(typeof jumpOnFail)
+    && (    !/(number|string|function)/.test(typeof jumpOnFail)
+        ||  (typeof jumpOnFail === 'number' && jumpOnFail < 0)
+       )
     )
-      this._error( new Error('Atok#continue: Invalid jump (must be an integer/function/string): ' + jumpOnFail) )
+      this._error( new Error('Atok#continue: Invalid jump (must be a positive integer/function/string): ' + jumpOnFail) )
   
   this._p_continue = jump
   this._p_continueOnFail = jumpOnFail

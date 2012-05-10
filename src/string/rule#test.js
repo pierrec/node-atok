@@ -31,9 +31,9 @@ function (data, offset) {
 //if(DEBUG)
     this.atok.emit_debug(
         'Rule#test'
-    ,   'subrule'
+    ,   'subrule-START'
     , [ 
-        this.type === null ? this.handler.name : this.type
+        this.id
       , i + 1
       , n
       , start
@@ -44,7 +44,7 @@ function (data, offset) {
 //if(RULE_GENERATES_TOKEN)
     if (rule[i].token && matched !== -1) { // Set the token
 //if(DEBUG)
-      this.atok.emit_debug('Rule#test', 'token', matched)
+      this.atok.emit_debug('Rule#test', 'token', [ matched ])
 //endif
       token = true
       matchedTotal += (matched.length || matched) + rule[i].size
@@ -54,7 +54,7 @@ function (data, offset) {
       start = 0
     } else if ( matched < 0 ) { // Invalid rule
 //if(DEBUG)
-  this.atok.emit_debug('Rule#test', 'end', [ offset, -1 ])
+  this.atok.emit_debug('Rule#test', 'subrule-END', [ offset, -1 ])
 //endif
       return -1
     } else if (!token) { // Valid rule with no token
@@ -70,7 +70,7 @@ function (data, offset) {
 //else
     if ( matched < 0 ) { // Invalid rule
 //if(DEBUG)
-  this.atok.emit_debug('Rule#test', 'end', [ offset, -1 ])
+  this.atok.emit_debug('Rule#test', 'subrule-END', [ offset, -1 ])
 //endif
       return -1
     } else { // Valid rule
@@ -100,7 +100,7 @@ function (data, offset) {
 
   this.countStat++
 //if(DEBUG)
-  this.atok.emit_debug('Rule#test', 'end', [ offset, matchedTotal ])
+  this.atok.emit_debug('Rule#test', 'subrule-END', [ offset, matchedTotal ])
 //endif
   return matchedTotal
 }

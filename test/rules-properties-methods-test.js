@@ -319,6 +319,21 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
+    describe('with negative second argument', function () {
+      var p = new Tokenizer(options)
+      it('should throw', function (done) {
+        assert.throws(
+          function () {
+            p.continue(null, -1)
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
     describe('with a positive jump', function () {
       var p = new Tokenizer(options)
       it('should upon match continue at the indexed rule', function (done) {

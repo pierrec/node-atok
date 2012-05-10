@@ -211,7 +211,11 @@ Atok.prototype._tokenize = function () {
         for (i = 0, n = emptyHandler.length; i < n; i++) {
           p = emptyHandler[i]
 
-          if ( !p.ignore ) p.handler(this.ending)
+          if ( !p.ignore ) {
+            if (p.handler) p.handler(this.ending)
+            else this.emit_data(p.token, p.idx, p.type)
+          }
+
           if (p.next) this.loadRuleSet(p.next, p.nextIndex)
 
           if (this._resetRuleIndex) this._resetRuleIndex = false

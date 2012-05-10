@@ -222,6 +222,8 @@ Atok.prototype.loadRuleSet = function (name, index) {
  */
 Atok.prototype.deleteRuleSet = function (name) {
   delete this.saved[name]
+  // Make sure no reference to the rule set exists
+  if (this.currentRule === name) this.currentRule = null
 
   return this
 }
