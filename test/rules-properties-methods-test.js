@@ -251,6 +251,26 @@ describe('Tokenizer Properties Methods', function () {
         done()
       })
     })
+
+    describe('reentrant', function () {
+      var p = new Tokenizer(options)
+      it('should resume from the start', function (done) {
+        var i = 0
+        p.break(true).continue(0)
+        p.addRule('a', function (token, idx, type) {
+            i++
+        })
+        p.break().continue()
+        p.addRule('a', function (token, idx, type) {
+        })
+
+        p.write('a')
+        p.write('a')
+        p.write('a')
+        assert.equal(i, 2)
+        done()
+      })
+    })
   })
 
   describe('#continue', function () {
@@ -290,6 +310,21 @@ describe('Tokenizer Properties Methods', function () {
         assert.doesNotThrow(
           function () {
             p.continue(null, null)
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
+    describe('with negative second argument', function () {
+      var p = new Tokenizer(options)
+      it('should throw', function (done) {
+        assert.throws(
+          function () {
+            p.continue(null, -1)
           }
         , function (err) {
             if (err instanceof Error) return true
@@ -499,7 +534,7 @@ describe('Tokenizer Properties Methods', function () {
           break
           case 'next':
             p.next('ruleSet')
-            saved.next = 'ruleSet'
+            saved.next = ['ruleSet', 0]
           break
           default:
             p[ prop ](true)

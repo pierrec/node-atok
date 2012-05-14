@@ -4,16 +4,18 @@
 var assert = require('assert')
 
 var Tokenizer = require('..')
-var options = {}
 
 describe('Tokenizer Supported Properties', function () {
   var props = {
     offset: isNumber
   , offsetBuffer: isNumber
   , length: isNumber
+  , bytesRead: isNumber
   , buffer: isString
   , writable: isBoolean
   , readable: isBoolean
+  , ending: isBoolean
+  , currentRule: function (v) { return v === null || isString(v) }
   }
 
   function isNumber () {
@@ -26,14 +28,14 @@ describe('Tokenizer Supported Properties', function () {
     return typeof arguments[0] === 'boolean'
   }
 
-  var p = new Tokenizer(options)
+  var p = new Tokenizer
 
   Object.keys(props).forEach(function (prop) {
-    describe(prop, function () {
+    describe('.' + prop, function () {
       it('should exist', function (done) {
         var check = props[prop]
 
-        assert.equal( check( p[prop] ), true )
+        assert( check( p[prop] ) )
         done()
       })
     })

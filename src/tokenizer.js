@@ -16,12 +16,6 @@ var RuleString = require('./string/rule')
 // var RuleBuffer = require('./buffer/ruleBuffer')
 
 /**
- * Do nothing function
- * @private
- */
-function noop () {}
-
-/**
  * Expose the atok constructor
  */
 module.exports = Atok
@@ -96,7 +90,7 @@ function Atok (options) {
 
   // Rules properties
   this.currentRule = null   // Name of the current rule  
-  this.emptyHandler = null  // Handler to trigger when the buffer becomes empty
+  this.emptyHandler = []    // Handler to trigger when the buffer becomes empty
   this.rules = []           // Rules to be checked against
   this.handler = null       // Matched token default handler
   this.saved = {}           // Saved rules

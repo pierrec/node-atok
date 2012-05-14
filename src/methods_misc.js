@@ -6,21 +6,23 @@
  * @api public
  */
 Atok.prototype.clear = function (keepRules) {
-  // Buffered data
+  // Public properties
   this.buffer = this._bufferMode ? new Buffer : ''
   this.length = 0
-  this.lastByte = -1
   this.bytesRead = 0
   this.offset = 0
   this.ruleIndex = 0
+
+  // Private properties
   this._resetRuleIndex = false
+  this._lastByte = -1
 
   // Rule flags
   this.clearProps()
 
   if (!keepRules) {
     this.currentRule = null   // Name of the current rule  
-    this.emptyHandler = noop  // Handler to trigger when the buffer becomes empty
+    this.emptyHandler = []    // Handler to trigger when the buffer becomes empty
     this.rules = []           // Rules to be checked against
     this.handler = null       // Matched token default handler
     this.saved = {}           // Saved rules
@@ -92,6 +94,7 @@ Atok.prototype.seek = function (i) {
 /**
  * Turn debug mode on or off. Emits the [debug] event.
  * The #seek and #loadRuleSet methods are also put in debug mode.
+ * All handlers log their arguments.
  *
  * @param {boolean} toggle debug mode on and off
  * @return {Atok}
@@ -116,12 +119,14 @@ Atok.prototype.debug = function (flag) {
       var prevMethod = self[method]
 
       self[method] = function () {
-        self.emit_debug.apply( self, ['Atok#' + method].concat( sliceArguments(arguments, 0) ) )
+        // self.emit_debug.apply( self, ['Atok#' + method].concat( sliceArguments(arguments, 0) ) )
+        self.emit_debug( 'Atok#', method, arguments )
         return prevMethod.apply(self, arguments)
       }
       // Save the previous method
       self[method].prevMethod = prevMethod
-    } else {
+    } else if (self[method].prevMethod) {
+      // Restore the method
       self[method] = self[method].prevMethod
     }
   })

@@ -92,8 +92,8 @@ build({
       var outdir = path.join( __dirname, '..', 'doc')
       var packData = require( path.join( __dirname, '..', 'package.json') )
 
-      exec('dox < ' + file, function (err, stdout, stderr) {
-        if (err) return console.error(err, stderr)
+      exec('dox <' + file, function (err, stdout, stderr) {
+        if (err) return console.error(err)
 
         var tmpfile = path.join( outdir, filename + '.json' )
 
@@ -101,7 +101,7 @@ build({
           if (err) return console.error(err)
 
           exec(
-            'dox-template -n "' + packData.name + '" -r ' + packData.version + '  < ' + tmpfile
+            'dox-template -n "' + packData.name + '" -r ' + packData.version + ' <' + tmpfile
           , function (err, stdout, stderr) {
               if (err) return console.error(err, stderr)
 

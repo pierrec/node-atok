@@ -19,7 +19,7 @@ tok
     // Rule definition:
     // first argument: always an exact match. To match anything, use ''
     // next arguments: array of possible matches (first match wins)
-    .addRule('', { firstOf: [ sep ].concat(eol) }, function (token, idx) {
+    .addRule('', { firstOf: [ sep ].concat(eol) }, function handler (token, idx) {
         // token=the matched data
         // idx=when using array of patterns, the index of the matched pattern
         // Newline?
@@ -39,6 +39,11 @@ tok
 // Setup some variables
 var data = []
 var firstLine = true
+
+// Toggle debug on/off
+// tok.debug(true)
+// tok.debug()
+tok.on('debug', console.log)
 
 // Send some data to be parsed!
 tok.end('# Comment\n1,2,3\nabc\n')

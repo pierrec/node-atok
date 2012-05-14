@@ -15,11 +15,13 @@ Atok.prototype.setDefaultHandler = function (handler) {
  * Skip matched data silently for all subsequent rules
  *
  * @param {string} name of the rule set to load if rule successful
+ * @param {number} index to start at
  * @return {Atok}
  * @api public
  */
-Atok.prototype.next = function (ruleSet) {
-  this._p_next = ruleSet
+Atok.prototype.next = function (ruleSet, index) {
+  this._p_next = typeof ruleSet === 'string' ? ruleSet : null
+  this._p_nextIndex = typeof index === 'number' ? index : 0
   return this
 }
 /**
@@ -99,7 +101,7 @@ Atok.prototype.escaped = function (flag) {
  * Continue the rules flow if rule matches at the specified rule index
  *
  * @param {number|null|undefined} number of rules to skip before continuing
- * @param {number|null|undefined} when the rule fails, number of rules to skip before continuing
+ * @param {number|null|undefined} when the rule fails, number of rules to skip before continuing (must be positive)
  * @return {Atok}
  * @api public
  */
@@ -118,9 +120,11 @@ Atok.prototype.continue = function (jump, jumpOnFail) {
     jumpOnFail = null
   else if (
         jumpOnFail !== null
-    && !/(number|string|function)/.test(typeof jumpOnFail)
+    && (    !/(number|string|function)/.test(typeof jumpOnFail)
+        ||  (typeof jumpOnFail === 'number' && jumpOnFail < 0)
+       )
     )
-      this._error( new Error('Atok#continue: Invalid jump (must be an integer/function/string): ' + jumpOnFail) )
+      this._error( new Error('Atok#continue: Invalid jump (must be a positive integer/function/string): ' + jumpOnFail) )
   
   this._p_continue = jump
   this._p_continueOnFail = jumpOnFail
@@ -166,7 +170,8 @@ Atok.prototype.loadProps = function (name) {
   this._p_escape = p.escape
   this._p_trimLeft = p.trimLeft
   this._p_trimRight = p.trimRight
-  this._p_next = p.next
+  this._p_next = p.next[0]
+  this._p_nextIndex = p.next[1]
   this._p_continue = p.continue[0]
   this._p_continueOnFail = p.continue[1]
   this._p_break = p.break
@@ -186,6 +191,7 @@ Atok.prototype.clearProps = function () {
   this._p_trimLeft = true       // Remove the left pattern from the token
   this._p_trimRight = true      // Remove the right pattern from the token
   this._p_next = null           // Next rule to load
+  this._p_nextIndex = 0         // Index for the next rule to load
   this._p_continue = null       // Next rule index to load
   this._p_continueOnFail = null // Next rule index to load when rule fails
   this._p_break = false         // Abort current rule set
@@ -204,7 +210,7 @@ Atok.prototype.getProps = function () {
   // Default properties
   var defaultProps = Object.keys(this)
     .filter(function (prop) {
-      return prop.substr(0, 3) === '_p_' && prop !== '_p_continueOnFail'
+      return prop.substr(0, 3) === '_p_' && !/_p_(continueOnFail|nextIndex)/.test(prop)
     })
     .map(function (prop) {
       return prop.substr(3)
@@ -215,10 +221,19 @@ Atok.prototype.getProps = function () {
   for (var prop, i = 0, num = propNames.length; i < num; i++) {
     prop = propNames[i] === 'escaped' ? 'escape' : propNames[i]
     if ( this.hasOwnProperty('_p_' + prop) )
-      props[ prop ] = prop === 'continue'
+      switch (prop) {
         // Special case: continue has 2 properties
-        ? [ this._p_continue, this._p_continueOnFail ]
-        : this[ '_p_' + prop ]
+        case 'continue':
+          props[ prop ] = [ this._p_continue, this._p_continueOnFail ]
+        break
+        // Special case: next has 2 properties
+        case 'next':
+          props[ prop ] = [ this._p_next, this._p_nextIndex ]
+        break
+        default:
+          props[ prop ] = this[ '_p_' + prop ]
+      }
+        
   }
 
   return props
