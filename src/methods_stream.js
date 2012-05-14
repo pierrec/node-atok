@@ -93,7 +93,7 @@ Atok.prototype.resume = function () {
  *
  * @api public
  */
-Atok.prototype.destroy = noop
+Atok.prototype.destroy = function () {}
 
 /**
  * Private methods

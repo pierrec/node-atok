@@ -16,27 +16,6 @@
     }
   },
   {
-    "tags": [
-      {
-        "type": "private",
-        "string": ""
-      }
-    ],
-    "description": {
-      "full": "<p>Do nothing function</p>",
-      "summary": "<p>Do nothing function</p>",
-      "body": ""
-    },
-    "isPrivate": false,
-    "ignore": false,
-    "code": "function noop () {}",
-    "ctx": {
-      "type": "function",
-      "name": "noop",
-      "string": "noop()"
-    }
-  },
-  {
     "tags": [],
     "description": {
       "full": "<p>Expose the atok constructor</p>",
@@ -1611,13 +1590,12 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.destroy = noop",
+    "code": "Atok.prototype.destroy = function () {}",
     "ctx": {
-      "type": "property",
+      "type": "method",
       "constructor": "Atok",
       "name": "destroy",
-      "value": "noop",
-      "string": "Atok.prototypedestroy"
+      "string": "Atok.prototype.destroy()"
     }
   },
   {

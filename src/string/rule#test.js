@@ -95,7 +95,7 @@ function (data, offset) {
         // Set the token to the size of what would have been extracted
         ? tokenLength
         // By default, the token is stripped out from the left and last right patterns
-        : data.substr( offset + trimLeftSize, tokenLength )
+        : this.emptyToken ? '' : data.substr( offset + trimLeftSize, tokenLength )
 //endif
 
   this.countStat++

@@ -51,8 +51,13 @@ function Rule (subrules, type, handler, options) {
   this.rules = []
   this.countStat = 0
   this.idx = -1
+  // Does the rule generate any token?
   this.noToken = this.quiet || this.ignore
+  // Generated token
   this.token = this.noToken ? 0 : ''
+  // In some cases, we know the token will be empty, no matter what
+  // NB. this.noToken is tested before emptyToken
+  this.emptyToken = false
 
   // Special case: addRule(0)
   if (subrules === 0) return this
@@ -69,8 +74,8 @@ function Rule (subrules, type, handler, options) {
     this.rules.push(r)
   }
   
-  // Does the rule generate any token?
-  this.noToken = (n === 1 && this.trimLeft && !this.rules[0].token) || this.noToken
+  // Do we have an empty token?
+  this.emptyToken = (n === 1 && this.trimLeft && !this.rules[0].token)
   
   // Disable trimRight if only 1 rule
   if (this.rules.length === 1)

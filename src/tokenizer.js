@@ -16,12 +16,6 @@ var RuleString = require('./string/rule')
 // var RuleBuffer = require('./buffer/ruleBuffer')
 
 /**
- * Do nothing function
- * @private
- */
-function noop () {}
-
-/**
  * Expose the atok constructor
  */
 module.exports = Atok

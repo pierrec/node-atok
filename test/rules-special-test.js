@@ -19,6 +19,34 @@ describe('Tokenizer Special Rules', function () {
     })
   })
 
+  describe('single subrule', function () {
+
+    describe('with quiet()', function () {
+      var p = new Tokenizer(options)
+      
+      it('should return an empty token', function (done) {
+        p.addRule('a', function (matched) {
+          assert.equal(matched, '')
+          done()
+        })
+        p.write('a')
+      })
+    })
+
+    describe('with quiet(true)', function () {
+      var p = new Tokenizer(options)
+      
+      it('should return 0 match', function (done) {
+        p.quiet(true)
+        p.addRule('a', function (matched) {
+          assert.equal(matched, 0)
+          done()
+        })
+        p.write('a')
+      })
+    })
+  })
+
   describe('addRule(0)', function () {
     describe('on empty buffer', function () {
       var p = new Tokenizer(options)
