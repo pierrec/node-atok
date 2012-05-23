@@ -1,3 +1,18 @@
+0.3.0 / 2012-05-23
+==================
+
+~* cleanups
+  * `deleteRuleSet()` -> `removeRuleSet()`
+  * `loadProps()` -> `setProps()`
+  * `escaped()` -> `escape()`
+  ~* renamed internal properties with a leading _
+* Deprecated
+  * `saveProps()`: use `getProps()` to retrieve all properties
+  * `existsRule()`
+  * `getAllRuleSet()`
+  * `bytesRead` property
+  * `seek()`: use the `offset` property directly
+
 0.2.6 / 2012-05-23
 ==================
 

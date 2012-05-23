@@ -9,7 +9,6 @@ Atok.prototype.clear = function (keepRules) {
   // Public properties
   this.buffer = this._bufferMode ? new Buffer : ''
   this.length = 0
-  this.bytesRead = 0
   this.offset = 0
   this.ruleIndex = 0
 
@@ -26,7 +25,6 @@ Atok.prototype.clear = function (keepRules) {
     this.rules = []           // Rules to be checked against
     this.handler = null       // Matched token default handler
     this.saved = {}           // Saved rules
-    this.savedProps = {}      // Saved rules properties
   }
 
   return this
@@ -77,23 +75,8 @@ Atok.prototype.setEncoding = function (enc) {
   return this
 }
 /**
- * Move the cursor on the current buffer by a given amount.
- * Positive buffer overrun supported (will offset on the next data chunk)
- *
- * @param {number} move by this amount (can be negative)
- * @return {Atok}
- * @api public
- */
-Atok.prototype.seek = function (i) {
-  this.bytesRead += i
-  this.offset += i
-  if (this.offset < 0)
-    return this._error( new Error('Atok#seek: negative offset: ' + this.offset + ' from ' + i) )
-  return this
-}
-/**
  * Turn debug mode on or off. Emits the [debug] event.
- * The #seek and #loadRuleSet methods are also put in debug mode.
+ * The #loadRuleSet method is also put in debug mode.
  * All handlers log their arguments.
  *
  * @param {boolean} toggle debug mode on and off
@@ -112,9 +95,9 @@ Atok.prototype.debug = function (flag) {
     rule.setDebug()
   })
 
-  // Apply debug mode to the #seek() and #loadRuleSet() methods
+  // Apply debug mode to some methods
   var self = this
-  ;[ 'seek', 'loadRuleSet' ].forEach(function (method) {
+  ;[ 'loadRuleSet' ].forEach(function (method) {
     if (_debug) {
       var prevMethod = self[method]
 

@@ -220,36 +220,10 @@ Atok.prototype.loadRuleSet = function (name, index) {
  * @return {Atok}
  * @api public
  */
-Atok.prototype.deleteRuleSet = function (name) {
+Atok.prototype.removeRuleSet = function (name) {
   delete this.saved[name]
   // Make sure no reference to the rule set exists
   if (this.currentRule === name) this.currentRule = null
 
   return this
-}
-/**
- * Get the list of rule sets
- *
- * @return {Atok}
- * @api public
- */
-Atok.prototype.getAllRuleSet = function () {
-  return this.saved
-}
-/**
- * Check the existence of a rule
- *
- * @param {...string} name of the rule to check
- * @return {Atok}
- * @api public
- */
-Atok.prototype.existsRule = function (/* name ... */) {
-  var args = sliceArguments(arguments, 0)
-  var self = this
-
-  var res = args.map(function (rule) {
-    return self._getRuleIndex(rule) >= 0
-  })
-
-  return args.length === 1 ? res[0] : res
 }

@@ -7,7 +7,7 @@
 
 ## 0.3.0
 
-* better utf-8 support -> node StringDecoder
+* Use of Node's StringDecoder
 * _slice -> sliceBuffer?
 * cleanups
   * `deleteRuleSet()` -> `removeRuleSet()`

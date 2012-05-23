@@ -10,7 +10,6 @@ describe('Tokenizer Supported Properties', function () {
     offset: isNumber
   , offsetBuffer: isNumber
   , length: isNumber
-  , bytesRead: isNumber
   , buffer: isString
   , writable: isBoolean
   , readable: isBoolean

@@ -22,11 +22,10 @@ describe('Tokenizer Supported Methods', function () {
   , 'trimLeft'
   , 'trimRight'
   , 'setDefaultHandler'
-  , 'escaped'
+  , 'escape'
   , 'break'
-  , 'saveProps'
-  , 'loadProps'
   , 'getProps'
+  , 'setProps'
   , 'clearProps'
   // Rules
   , 'addRuleFirst'
@@ -38,10 +37,9 @@ describe('Tokenizer Supported Methods', function () {
   // Rule sets
   , 'saveRuleSet'
   , 'loadRuleSet'
-  , 'deleteRuleSet'
+  , 'removeRuleSet'
   // Misc
   , 'setEncoding'
-  , 'seek'
   , 'clear'
   , 'flush'
   , 'debug'

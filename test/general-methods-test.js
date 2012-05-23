@@ -61,57 +61,6 @@ describe('Tokenizer General Methods', function () {
     })
   })
 
-  describe('#seek', function () {
-    describe('(n)', function () {
-      var p = new Tokenizer(options)
-      it('should move the cursor forward by n', function (done) {
-        p.addRule('a', function (token, idx, type) {
-          p.seek(2)
-        })
-        p.addRule('c', function (token, idx, type) {
-          done()
-        })
-        p.write('abbc')
-      })
-    })
-
-    describe('(-n)', function () {
-      var p = new Tokenizer(options)
-      var passed = false
-      var num = 0
-      it('should move the cursor backward by n', function (done) {
-        p.addRule('a', function (token, idx, type) {
-          if (!passed && ++num == 2) {
-            p.seek(-2)
-            passed = true
-          }
-        })
-        p.addRule('b', function (token, idx, type) {
-          done()
-        })
-        p.write('aab')
-      })
-    })
-
-    describe('(-N)', function () {
-      var p = new Tokenizer(options)
-      it('should throw an error', function (done) {
-        p.addRule('a', function (token, idx, type) {
-          assert.throws(
-            function () {
-              p.seek(-2)
-            }
-          , function (err) {
-              if (err instanceof Error) return true
-            }
-          )
-          done()
-        })
-        p.write('a')
-      })
-    })
-  })
-
   describe('#debug', function () {
     var p = new Tokenizer(options)
     it('should not corrupt methods', function (done) {
@@ -122,7 +71,6 @@ describe('Tokenizer General Methods', function () {
       p.saveRuleSet('test')
       
       // Following methods are altered by #debug
-      p.seek(0)
       p.loadRuleSet('test')
 
       p.write('a')

@@ -73,35 +73,6 @@ describe('Tokenizer Events', function () {
       })
     })
 
-    describe('toggled on/off with #seek', function () {
-      var p = new Tokenizer(options)
-      var seek_flag = false
-
-      p.addRule(1, 'consume data')
-      p.on('debug', function (type, method, args) {
-        if (type === 'Atok#' && method === 'seek') {
-          seek_flag = true
-          assert.equal(args[0], 1)
-        }
-      })
-      it('should emit [debug]', function (done) {
-        p.debug(true)
-        p.seek(1)
-        p.write('abc')
-        assert(seek_flag)
-        done()
-      })
-
-      it('should not emit [debug]', function (done) {
-        seek_flag = false
-        p.debug()
-        p.seek(1)
-        p.write('abc')
-        assert(!seek_flag)
-        done()
-      })
-    })
-
     describe('toggled on/off with #loadRuleSet', function () {
       var p = new Tokenizer(options)
       var loadruleset_flag = false

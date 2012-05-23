@@ -69,7 +69,6 @@ function Atok (options) {
   this.buffer = this._bufferMode ? new Buffer : ''
   this.length = 0
   this.lastByte = -1
-  this.bytesRead = 0
   this.offset = 0
   this.ruleIndex = 0
   this._resetRuleIndex = false
@@ -94,7 +93,6 @@ function Atok (options) {
   this.rules = []           // Rules to be checked against
   this.handler = null       // Matched token default handler
   this.saved = {}           // Saved rules
-  this.savedProps = {}      // Saved rules properties
 }
 inherits(Atok, EV, Stream.prototype)
 

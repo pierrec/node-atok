@@ -95,7 +95,7 @@ describe('Tokenizer Properties Methods', function () {
     describe('on unescaped char with default escape char', function () {
       var p = new Tokenizer(options)
       it('should apply', function (done) {
-        p.escaped(true)
+        p.escape(true)
         p.addRule('"', '"', function (token, idx, type) {
           assert.equal(token, 'b')
           done()
@@ -107,7 +107,7 @@ describe('Tokenizer Properties Methods', function () {
     describe('on unescaped char with default escape char', function () {
       var p = new Tokenizer(options)
       it('should apply', function (done) {
-        p.escaped(true)
+        p.escape(true)
         p.addRule('"', '"', function (token, idx, type) {
           assert.equal(token, 'b\\\\')
           done()
@@ -119,7 +119,7 @@ describe('Tokenizer Properties Methods', function () {
     describe('on escaped char with default escape char', function () {
       var p = new Tokenizer(options)
       it('should apply', function (done) {
-        p.escaped(true)
+        p.escape(true)
         p.addRule('"', '"', function (token, idx, type) {
           assert.equal(token, 'b\\\"')
           done()
@@ -131,7 +131,7 @@ describe('Tokenizer Properties Methods', function () {
     describe('on unescaped char with custom escape char', function () {
       var p = new Tokenizer(options)
       it('should apply', function (done) {
-        p.escaped('~')
+        p.escape('~')
         p.addRule('"', '"', function (token, idx, type) {
           assert.equal(token, 'b')
           done()
@@ -143,7 +143,7 @@ describe('Tokenizer Properties Methods', function () {
     describe('on escaped char with custom escape char', function () {
       var p = new Tokenizer(options)
       it('should apply', function (done) {
-        p.escaped('~')
+        p.escape('~')
         p.addRule('"', '"', function (token, idx, type) {
           assert.equal(token, 'b~"')
           done()
@@ -156,7 +156,7 @@ describe('Tokenizer Properties Methods', function () {
       describe('on unescaped char with default escape char', function () {
         var p = new Tokenizer(options)
         it('should apply', function (done) {
-          p.escaped(true)
+          p.escape(true)
           p.addRule('a', { firstOf: [' ',','] }, function (token, idx, type) {
             assert.equal(token, 'bc')
             done()
@@ -168,7 +168,7 @@ describe('Tokenizer Properties Methods', function () {
       describe('on unescaped char with default escape char', function () {
         var p = new Tokenizer(options)
         it('should apply', function (done) {
-          p.escaped(true)
+          p.escape(true)
           p.addRule('a', { firstOf: [' ',','] }, function (token, idx, type) {
             assert.equal(token, 'bc\\,')
             done()
@@ -180,7 +180,7 @@ describe('Tokenizer Properties Methods', function () {
       describe('on escaped char with default escape char', function () {
         var p = new Tokenizer(options)
         it('should apply', function (done) {
-          p.escaped(true)
+          p.escape(true)
           p.addRule('a', { firstOf: [' ',','] }, function (token, idx, type) {
             assert.equal(token, 'bc\\\\')
             done()
@@ -192,7 +192,7 @@ describe('Tokenizer Properties Methods', function () {
       describe('on unescaped char with custom escape char', function () {
         var p = new Tokenizer(options)
         it('should apply', function (done) {
-          p.escaped('~')
+          p.escape('~')
           p.addRule('A', { firstOf: [' ',','] }, function (token, idx, type) {
             assert.equal(token, 'b')
             done()
@@ -204,7 +204,7 @@ describe('Tokenizer Properties Methods', function () {
       describe('on escaped char with custom escape char', function () {
         var p = new Tokenizer(options)
         it('should apply', function (done) {
-          p.escaped('~')
+          p.escape('~')
           p.addRule('a', { firstOf: [' ',','] }, function (token, idx, type) {
             assert.equal(token, 'b~,')
             done()
@@ -513,7 +513,19 @@ describe('Tokenizer Properties Methods', function () {
     })
   })
 
-  describe('#saveProps', function () {
+  describe('#getProps', function () {
+    var p = new Tokenizer(options)
+
+    it('should load the current properties', function (done) {
+      var props = p.getProps()
+      var propNames = Object.keys(props)
+
+      assert(propNames.length > 0)
+      done()
+    })
+  })
+
+  describe('#setProps', function () {
     var p = new Tokenizer(options)
     var props = Object.keys( p.getProps() )
 
@@ -525,7 +537,7 @@ describe('Tokenizer Properties Methods', function () {
         prop = props[i]
         switch (prop) {
           case 'escape':
-            p.escaped('\\')
+            p.escape('\\')
             saved.escape = '\\'
           break
           case 'continue':
@@ -541,45 +553,9 @@ describe('Tokenizer Properties Methods', function () {
             saved[prop] = true
         }
       }
-      p.saveProps()
+      p.setProps(saved)
 
-      assert.deepEqual(p.savedProps.default, saved)
-      done()
-    })
-  })
-
-  describe('#loadProps', function () {
-    var p = new Tokenizer(options)
-    var props = Object.keys( p.getProps() )
-
-    it('should load the current properties', function (done) {
-      p.saveProps()
-
-      var saved = p.savedProps
-      
-      // Change all properties
-      for (var prop, i = 0, n = props.length; i < n; i++) {
-        prop = props[i]
-        switch (prop) {
-          case 'escape':
-            p.escaped('\\')
-          break
-          case 'continueOnFail':
-            p.continue(123, 456)
-          break
-          case 'continue':
-            p.continue(123)
-          break
-          case 'next':
-            p.next('ruleSet')
-          break
-          default:
-            p[ prop ](true)
-        }
-      }
-      p.loadProps()
-
-      assert.deepEqual(p.savedProps, saved)
+      assert.deepEqual( p.getProps(), saved )
       done()
     })
   })
@@ -596,7 +572,7 @@ describe('Tokenizer Properties Methods', function () {
         prop = props[i]
         switch (prop) {
           case 'escape':
-            p.escaped('\\')
+            p.escape('\\')
           break
           case 'continueOnFail':
             p.continue(123, 456)

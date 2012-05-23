@@ -151,7 +151,6 @@ Atok.prototype._tokenize = function () {
     matched = p.test(this.buffer, this.offset)
     if ( matched >= 0 ) {
       this.offset += matched
-      this.bytesRead += matched
       this.ruleIndex = i
       // Is the token to be processed?
       if ( !p.ignore ) {
@@ -232,7 +231,7 @@ Atok.prototype._tokenize = function () {
         }
       }
     } else if (this.offset > this.length) {
-      // Can only occurs after #seek was called
+      // Can only occurs if offset was manually incremented
       this.offset = this.offset - this.length
       this.buffer = this._bufferMode ? new Buffer : ''
       this.length = 0

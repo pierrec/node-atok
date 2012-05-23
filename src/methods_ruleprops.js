@@ -89,7 +89,7 @@ Atok.prototype.trim = function (flag) {
  * @return {Atok}
  * @api public
  */
-Atok.prototype.escaped = function (flag) {
+Atok.prototype.escape = function (flag) {
   this._p_escape = typeof flag === 'string' && flag.length > 0
     ? flag[0]
     : flag === true
@@ -142,39 +142,33 @@ Atok.prototype.break = function (flag) {
   return this
 }
 /**
- * Save all properties
+ * Restore properties
  *
- * @param {string} saved properties id
+ * @param {Object} properties to be loaded
  * @return {Atok}
  * @api public
  */
-Atok.prototype.saveProps = function (name) {
-  this.savedProps[name || 'default'] = this.getProps()
-  
-  return this
-}
-/**
- * Restore saved proterties
- *
- * @param {string} saved properties id
- * @return {Atok}
- * @api public
- */
-Atok.prototype.loadProps = function (name) {
-  name = name || 'default'
-  var p = this.savedProps[name]
-  delete this.savedProps[name]
+Atok.prototype.setProps = function (props) {
+  var propNames = Object.keys(props || {})
 
-  this._p_ignore = p.ignore
-  this._p_quiet = p.quiet
-  this._p_escape = p.escape
-  this._p_trimLeft = p.trimLeft
-  this._p_trimRight = p.trimRight
-  this._p_next = p.next[0]
-  this._p_nextIndex = p.next[1]
-  this._p_continue = p.continue[0]
-  this._p_continueOnFail = p.continue[1]
-  this._p_break = p.break
+  for (var prop, i = 0, n = propNames.length; i < n; i++) {
+    prop = propNames[i]
+    if ( this.hasOwnProperty('_p_' + prop) )
+      switch (prop) {
+        // Special case: continue has 2 properties
+        case 'continue':
+          this._p_continue = props[ prop ][0]
+          this._p_continueOnFail = props[ prop ][1]
+        break
+        // Special case: next has 2 properties
+        case 'next':
+          this._p_next = props[ prop ][0]
+          this._p_nextIndex = props[ prop ][1]
+        break
+        default:
+          this[ '_p_' + prop ] = props[ prop ]
+      }
+  }
 
   return this
 }
@@ -201,7 +195,7 @@ Atok.prototype.clearProps = function () {
 /**
  * Reset properties to their default values
  *
- * @return {Atok}
+ * @return {Object}
  * @api public
  */
 Atok.prototype.getProps = function () {
@@ -219,7 +213,7 @@ Atok.prototype.getProps = function () {
   var propNames = arguments.length > 0 ? sliceArguments(arguments, 0) : defaultProps
 
   for (var prop, i = 0, num = propNames.length; i < num; i++) {
-    prop = propNames[i] === 'escaped' ? 'escape' : propNames[i]
+    prop = propNames[i]
     if ( this.hasOwnProperty('_p_' + prop) )
       switch (prop) {
         // Special case: continue has 2 properties
@@ -233,7 +227,6 @@ Atok.prototype.getProps = function () {
         default:
           props[ prop ] = this[ '_p_' + prop ]
       }
-        
   }
 
   return props
