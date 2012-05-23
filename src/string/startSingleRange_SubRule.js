@@ -3,6 +3,7 @@ function startSingleRange_SubRule (start) {
 	this.idx = -1
 	this.start = toCharCodes(start)
 	this.token = false
+	this.length = 1
 }
 
 startSingleRange_SubRule.prototype.exec = function (s, start) {

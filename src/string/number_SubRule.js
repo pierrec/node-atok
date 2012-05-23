@@ -5,6 +5,7 @@ function number_SubRule (n) {
 	this.token = true
 	// Specific properties
 	this.n = n
+	this.length = n
 }
 
 number_SubRule.prototype.exec = function (s, start) {

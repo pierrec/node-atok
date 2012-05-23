@@ -2,8 +2,10 @@ function numberArray_SubRule (list) {
 	this.size = 1
 	this.idx = -1
 	this.n = list.length
-	this.list = list
-	this.token = false
+	// Max first... to enforce first rule always checked, which defeats this type of rule... TODO
+	this.list = list.sort().reverse()
+	this.token = true
+	this.length = this.list[0]
 }
 
 numberArray_SubRule.prototype.exec = function (s, start) {

@@ -2,6 +2,7 @@ function startendSingleRange_SubRule (start, end) {
 	this.size = 1
 	this.idx = -1
 	this.token = false
+	this.length = 1
 
 	var _start = toCharCodes(start)
 	var _end = toCharCodes(end)

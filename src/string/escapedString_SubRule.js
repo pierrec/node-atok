@@ -5,6 +5,7 @@ function escapedString_SubRule (s, esc) {
 	this.str = s
 	this.esc = esc.charCodeAt(0)
 	this.token = false
+	this.length = s.length
 }
 
 escapedString_SubRule.prototype.exec = function (s, start) {

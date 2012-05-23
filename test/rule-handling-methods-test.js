@@ -38,6 +38,36 @@ describe('Tokenizer RuleSet Methods', function () {
       })
     })
 
+    describe('with null parameter', function () {
+      var p = new Tokenizer(options)
+      it('should throw an Error', function (done) {
+        assert.throws(
+          function () {
+            p.addRule(null, 'dummy')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
+    describe('with undefined parameter', function () {
+      var p = new Tokenizer(options)
+      it('should throw an Error', function (done) {
+        assert.throws(
+          function () {
+            p.addRule(undefined, 'dummy')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
     describe('with handler', function () {
       var p = new Tokenizer(options)
       it('should set the rule with a handler', function (done) {

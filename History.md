@@ -1,3 +1,10 @@
+0.2.6 / 2012-05-23
+==================
+
+* Fix: `addRule(null)` throws an error
+* Fix: `addRule([1,2])` returns proper token
+* Fix: first rule validation enforced (waits for more data if required, which means rules starting with an array of numbers is equivalent to a rule with the max of those numbers: addRule([1,2]) <=> addRule(2))
+
 0.2.5 / 2012-05-11
 ==================
 

@@ -98,7 +98,6 @@ function (data, offset) {
         : this.emptyToken ? '' : data.substr( offset + trimLeftSize, tokenLength )
 //endif
 
-  this.countStat++
 //if(DEBUG)
   this.atok.emit_debug('Rule#test', 'subrule-END', [ offset, matchedTotal ])
 //endif

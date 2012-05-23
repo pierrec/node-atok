@@ -4,6 +4,7 @@ function startendNumberSingleRange_SubRule (start, end) {
 	this.start = toCharCodes(start)
 	this.end = toCharCodes(end)
 	this.token = false
+	this.length = 1
 }
 
 startendNumberSingleRange_SubRule.prototype.exec = function (s, start) {

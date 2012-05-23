@@ -4,6 +4,7 @@ function firstString_SubRule (s) {
 	this.n = s.length
 	this.str = s
 	this.token = false
+	this.length = s.length
 }
 
 firstString_SubRule.prototype.exec = function (s, start) {

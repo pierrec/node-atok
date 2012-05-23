@@ -130,6 +130,7 @@ describe('Tokenizer Rules Methods', function () {
 /*
 0
 1
+[1,2]
 'a' 0
 **/
     describe('First: Number', function () {
@@ -140,6 +141,16 @@ describe('Tokenizer Rules Methods', function () {
             done()
           })
           .write('a')
+        })
+      })
+
+      describe('#addRule([1,2])', function () {
+        it('should return ab', function (done) {
+          p.addRule([1,2], function (token, idx, type) {
+            assert.equal(token, 'ab')
+            done()
+          })
+          .write('ab')
         })
       })
 

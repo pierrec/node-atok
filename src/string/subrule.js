@@ -7,6 +7,9 @@ var emptyRule = { token: true, exec: null }
 //include("utils.js", "*_SubRule.js")
 
 function SubRule (rule, i, n, mainRule) {
+  if (rule === null || rule === undefined)
+    throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
+
   switch ( typeof rule ) {
     case 'number':
       if (rule < 0)
@@ -107,9 +110,10 @@ function SubRule (rule, i, n, mainRule) {
   if ( !(this instanceof SubRule) )
     return new SubRule(rule, i, n, mainRule)
 
-  this.size = 0 // Last matched pattern length
-  this.idx = -1 // If array rule, matched index
-  this.token = false // Cannot generate a token
+  this.length = 0     // First subrule pattern length (max of all patterns if many)
+  this.size = 0       // Last matched pattern length
+  this.idx = -1       // If array rule, matched index
+  this.token = false  // Cannot generate a token
   switch ( typeof rule ) {
     case 'function':
       this.exec = rule

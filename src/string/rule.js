@@ -49,8 +49,8 @@ function Rule (subrules, type, handler, options) {
   this.id = this.type !== null ? this.type : (handler && handler.name ? handler.name : '#emit()' )
 
   this.rules = []
-  this.countStat = 0
-  this.idx = -1
+  this.idx = -1     // Subrule pattern index that matched (-1 if only 1 pattern)
+  this.length = 0   // First subrule pattern length (max of all patterns if many)
   // Does the rule generate any token?
   this.noToken = this.quiet || this.ignore
   // Generated token
@@ -72,6 +72,7 @@ function Rule (subrules, type, handler, options) {
   for (var r, i = 0, n = subrules.length; i < n; i++) {
     r = SubRuleString(subrules[i], i, n, this)
     this.rules.push(r)
+    this.length = Math.max(this.length, r.length)
   }
   
   // Do we have an empty token?

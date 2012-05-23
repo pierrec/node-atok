@@ -4,6 +4,7 @@ function firstArray_SubRule (list) {
 	this.n = list.length
 	this.list = stringToCharCodes(list, true)
 	this.token = false
+//include("set_subrule_length.js")
 }
 
 firstArray_SubRule.prototype.exec = function (s, start) {

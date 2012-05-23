@@ -5,6 +5,7 @@ function escapedTokenizedNoTrimFirstOf_SubRule (list, esc) {
 	this.n = list.length
 	this.list = list
 	this.esc = esc.charCodeAt(0)
+//include("set_subrule_length.js")
 }
 
 escapedTokenizedNoTrimFirstOf_SubRule.prototype.exec = function (s, start, firstSize) {

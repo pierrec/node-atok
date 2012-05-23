@@ -4,6 +4,7 @@ function tokenizedNoTrimFirstOf_SubRule (list) {
 	this.token = true
 	this.n = list.length
 	this.list = list
+//include("set_subrule_length.js")
 }
 
 tokenizedNoTrimFirstOf_SubRule.prototype.exec = function (s, start, firstSize) {

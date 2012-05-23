@@ -5,6 +5,7 @@ function firstChar_SubRule (c) {
 	// Specific properties
 	this.c = c.charCodeAt(0)
 	this.token = false
+	this.length = 1
 }
 
 firstChar_SubRule.prototype.exec = function (s, start) {

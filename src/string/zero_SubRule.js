@@ -3,6 +3,7 @@ function zero_SubRule (n) {
 	this.size = 0
 	this.idx = -1
 	this.token = false
+	this.length = 0
 }
 
 zero_SubRule.prototype.exec = function (s, start) {

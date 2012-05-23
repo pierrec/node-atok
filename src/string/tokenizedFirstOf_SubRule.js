@@ -4,6 +4,7 @@ function tokenizedFirstOf_SubRule (list) {
 	this.token = true
 	this.n = list.length
 	this.list = list
+//include("set_subrule_length.js")
 }
 
 tokenizedFirstOf_SubRule.prototype.exec = function (s, start, firstSize) {

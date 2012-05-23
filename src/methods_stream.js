@@ -144,6 +144,9 @@ Atok.prototype._tokenize = function () {
     )
   {
     p = this.rules[i]
+    // Check that there is enough data to check the first rule
+    if (p.length > 0 && (this.length - this.offset) < p.length) break
+
     // Return the size of the matched data (0 is valid!)
     matched = p.test(this.buffer, this.offset)
     if ( matched >= 0 ) {

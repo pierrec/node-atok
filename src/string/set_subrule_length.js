@@ -1,0 +1,1 @@
+	this.length = Math.max.apply(null, list.map(function (v) { return typeof v === 'number' ? v : v.length }))
