@@ -66,14 +66,6 @@ function Atok (options) {
   // Apply the default encoding value
   this.setEncoding(options.encoding)
 
-  this.buffer = this._bufferMode ? new Buffer : ''
-  this.length = 0
-  this.lastByte = -1
-  this.bytesRead = 0
-  this.offset = 0
-  this.ruleIndex = 0
-  this._resetRuleIndex = false
-
   // Initializations
   // Debug flag
   this.debugMode = false
@@ -85,16 +77,11 @@ function Atok (options) {
   this.needDrain = false    // Flag indicating stream needs drain
   this.offsetBuffer = -1    // Flag indicating whether the buffer should be kept when write() ends
 
-  // Rules flags
-  this.clearProps()
+  // Rule properties
+//include("Atok_rule_properties.js")
 
-  // Rules properties
-  this.currentRule = null   // Name of the current rule  
-  this.emptyHandler = []    // Handler to trigger when the buffer becomes empty
-  this.rules = []           // Rules to be checked against
-  this.handler = null       // Matched token default handler
-  this.saved = {}           // Saved rules
-  this.savedProps = {}      // Saved rules properties
+//var keepRules = false
+//include("Atok_properties.js")
 }
 inherits(Atok, EV, Stream.prototype)
 
