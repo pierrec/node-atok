@@ -7,19 +7,8 @@
 
 ## 0.3.0
 
-* Use of Node's StringDecoder
 * _slice -> sliceBuffer?
-* cleanups
-  * `deleteRuleSet()` -> `removeRuleSet()`
-  * `loadProps()`/`saveProps()` -> `getProps()`/`setProps()`
-  * `escaped()` -> `escape()`
-  * renamed internal properties with a leading _
-* Deprecated
-  * `existsRule()`
-  * `getAllRuleSet()`
-  * `seek()`: use the `offset` property directly
-
-* Remove Atok.ruleIndex, bytesRead support
+* Remove Atok.ruleIndex
 * group(boolean): bind following rules to the same index
 * continue(string|function): remove resolution from saveRuleSet() and _resolve() on write() (use a flag to check for _resolve()), throw on unresolved rules (force _resolve() if continue(string|function))
 * subrules linked execution

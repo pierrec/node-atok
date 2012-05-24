@@ -8,7 +8,6 @@
 Atok.prototype.clear = function (keepRules) {
   // Public properties
   this.buffer = this._bufferMode ? new Buffer : ''
-  this.length = 0
   this.offset = 0
   this.ruleIndex = 0
 

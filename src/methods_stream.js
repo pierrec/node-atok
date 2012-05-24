@@ -20,28 +20,7 @@ Atok.prototype.write = function (data) {
     this.buffer.push( data )
     this.length += data.length
   } else {
-    // Check for cut off UTF-8 characters
-    switch (this._encoding) {
-      case 'UTF-8':
-        if (this._lastByte >= 0) { // Process the missing utf8 character
-          this.buffer += new Buffer([ this._lastByte, data[0] ]).toString('UTF-8')
-          this.length++
-
-          this._lastByte = -1
-          data = data.slice(1)
-        }
-        var c = data[data.length-1]
-        if (c === 0xC2 || c === 0xC3) {
-          // Keep track of the cut off byte and remove it from the current Buffer
-          this._lastByte = c
-          data = data.slice(0, data.length-1)
-        }
-      break
-      default:
-    }
-    var str = data.toString( this._encoding )
-    this.buffer += str
-    this.length += str.length
+    this.buffer += this._stringDecoder.write(data)
   }
   // ... hold on until tokenization completed on the current data set
   // or consume the data
@@ -205,7 +184,6 @@ Atok.prototype._tokenize = function () {
     if (this.offset === this.length) {
       this.offset = 0
       this.buffer = this._bufferMode ? new Buffer : ''
-      this.length = 0
       this.emit_empty(this.ending)
 
       var emptyHandler = this.emptyHandler, n = emptyHandler.length
@@ -234,10 +212,8 @@ Atok.prototype._tokenize = function () {
       // Can only occurs if offset was manually incremented
       this.offset = this.offset - this.length
       this.buffer = this._bufferMode ? new Buffer : ''
-      this.length = 0
     } else {
       this.buffer = this._slice(this.offset)
-      this.length -= this.offset
       this.offset = 0
     }
   }

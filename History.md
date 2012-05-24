@@ -12,6 +12,7 @@
   * `getAllRuleSet()`
   * `bytesRead` property
   * `seek()`: use the `offset` property directly
+* Use of Node's StringDecoder
 
 0.2.6 / 2012-05-23
 ==================

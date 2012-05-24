@@ -6,6 +6,7 @@
 
 var assert = require('assert')
   , Stream = require('stream')
+  , StringDecoder = require('string_decoder').StringDecoder
   , EV = require('ev')
   , sliceArguments = require('fnutils').slice
 
@@ -67,7 +68,7 @@ function Atok (options) {
   this.setEncoding(options.encoding)
 
   this.buffer = this._bufferMode ? new Buffer : ''
-  this.length = 0
+  this._stringDecoder = new StringDecoder(this._encoding)
   this.lastByte = -1
   this.offset = 0
   this.ruleIndex = 0
@@ -100,5 +101,9 @@ Atok.prototype._error = function (err) {
   this.emit_error(err)
   return this
 }
+
+Atok.prototype.__defineGetter__('length', function () {
+  return this.buffer.length
+})
 
 //include("methods_*.js")
