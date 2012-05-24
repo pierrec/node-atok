@@ -311,7 +311,7 @@ describe('Tokenizer RuleSet Methods', function () {
         p.addRule('a', 'first')
         p.addRule('b', 'second')
         p.saveRuleSet('myRules')
-        assert.equal(p.saved.hasOwnProperty('myRules'), true)
+        assert.equal(p._savedRules.hasOwnProperty('myRules'), true)
         done()
       })
     })

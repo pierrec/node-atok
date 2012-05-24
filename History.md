@@ -1,11 +1,11 @@
-0.3.0 / 2012-05-23
+0.3.0 / 2012-05-24
 ==================
 
-~* cleanups
+* cleanups
   * `deleteRuleSet()` -> `removeRuleSet()`
   * `loadProps()` -> `setProps()`
   * `escaped()` -> `escape()`
-  ~* renamed internal properties with a leading _
+  * renamed internal properties with a leading _
 * Deprecated
   * `saveProps()`: use `getProps()` to retrieve all properties
   * `existsRule()`

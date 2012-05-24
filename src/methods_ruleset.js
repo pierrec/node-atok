@@ -10,12 +10,12 @@
  */
 Atok.prototype.addRuleFirst = function (rule, /*rule, ... */ type) {
   this.addRule.apply( this, sliceArguments(arguments, 0) )
-  this.rules.unshift( this.rules.pop() )
+  this._rules.unshift( this._rules.pop() )
 
   return this
 }
 Atok.prototype._getRuleIndex = function (id) {
-  for (var rules = this.rules, i = 0, n = rules.length; i < n; i++)
+  for (var rules = this._rules, i = 0, n = rules.length; i < n; i++)
     if ( (rules[i].type !== null ? rules[i].type : rules[i].handler) === id ) break
   
   return i === n ? -1 : i
@@ -37,7 +37,7 @@ Atok.prototype.addRuleBefore = function (existingRule, rule, /*rule, ... */ type
     return this._error( new Error('Atok#addRuleBefore: rule ' + existingRule + ' does not exist') )
 
   this.addRule.apply( this, sliceArguments(arguments, 1) )
-  this.rules.splice( i, 0, this.rules.pop() )
+  this._rules.splice( i, 0, this._rules.pop() )
 
   return this
 }
@@ -58,7 +58,7 @@ Atok.prototype.addRuleAfter = function (existingRule, rule, /*rule, ... */ type)
     return this._error( new Error('Atok#addRuleAfter: rule ' + existingRule + ' does not exist') )
 
   this.addRule.apply( this, sliceArguments(arguments, 1) )
-  this.rules.splice( i + 1, 0, this.rules.pop() )
+  this._rules.splice( i + 1, 0, this._rules.pop() )
 
   return this
 }
@@ -78,7 +78,7 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
   
   var last = args.pop()
   var first = args[0]
-  var type, handler = this.handler
+  var type, handler = this._defaultHandler
 
   switch ( typeof(last) ) {
     case 'function':
@@ -106,7 +106,7 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
   // first === 0: following arguments are ignored
   // Empty buffer rule
   if ( first === 0 )
-    this.emptyHandler.push(
+    this._emptyHandler.push(
       RuleString(
         0
       , type
@@ -115,7 +115,7 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
       )
     )
   else
-    this.rules.push(
+    this._rules.push(
       RuleString(
         args
       , type
@@ -139,7 +139,7 @@ Atok.prototype.removeRule = function (/* name ... */) {
   for (var idx, i = 0, n = arguments.length; i < n; i++) {
     idx = this._getRuleIndex(arguments[i])
     if (idx >= 0)
-      this.rules.splice(idx, 1)
+      this._rules.splice(idx, 1)
   }
 
   return this
@@ -152,8 +152,8 @@ Atok.prototype.removeRule = function (/* name ... */) {
  */
 Atok.prototype.clearRule = function () {
   this.clearProps()
-  this.rules = []
-  this.handler = null
+  this._rules = []
+  this._defaultHandler = null
   this.currentRule = null
   return this
 }
@@ -169,7 +169,7 @@ Atok.prototype.saveRuleSet = function (name) {
     return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )
   
   // Check and set the continue values
-  var rules = this.rules
+  var rules = this._rules
     , rule, id, j
   for (var i = 0, n = rules.length; i < n; i++) {
     rule = rules[i]
@@ -183,9 +183,9 @@ Atok.prototype.saveRuleSet = function (name) {
     }
   }
 
-  this.saved[name] = {
-    rules: this.rules
-  , emptyHandler: this.emptyHandler
+  this._savedRules[name] = {
+    rules: this._rules
+  , emptyHandler: this._emptyHandler
   }
   this.currentRule = name
 
@@ -200,13 +200,13 @@ Atok.prototype.saveRuleSet = function (name) {
  * @api public
  */
 Atok.prototype.loadRuleSet = function (name, index) {
-  var ruleSet = this.saved[name]
+  var ruleSet = this._savedRules[name]
   if (!ruleSet)
     return this._error( new Error('Atok#loadRuleSet: Rule set ' + name + ' not found') )
 
   this.currentRule = name
-  this.rules = ruleSet.rules
-  this.emptyHandler = ruleSet.emptyHandler
+  this._rules = ruleSet.rules
+  this._emptyHandler = ruleSet.emptyHandler
   // Set the rule index
   this.ruleIndex = typeof index === 'number' ? index : 0
   this._resetRuleIndex = true
@@ -221,7 +221,7 @@ Atok.prototype.loadRuleSet = function (name, index) {
  * @api public
  */
 Atok.prototype.removeRuleSet = function (name) {
-  delete this.saved[name]
+  delete this._savedRules[name]
   // Make sure no reference to the rule set exists
   if (this.currentRule === name) this.currentRule = null
 

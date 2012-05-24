@@ -43,7 +43,7 @@ describe('Tokenizer General Methods', function () {
         p.saveRuleSet('myRules')
         p.clear()
         assert.equal(p.length, 0)
-        assert.deepEqual(p.saved, {})
+        assert.deepEqual(p._savedRules, {})
         done()
       })
     })

@@ -6,25 +6,10 @@
  * @api public
  */
 Atok.prototype.clear = function (keepRules) {
-  // Public properties
-  this.buffer = this._bufferMode ? new Buffer : ''
-  this.offset = 0
-  this.ruleIndex = 0
+//var keepRules = true
+//include("Atok_properties.js")
 
-  // Private properties
-  this._resetRuleIndex = false
-  this._lastByte = -1
-
-  // Rule flags
   this.clearProps()
-
-  if (!keepRules) {
-    this.currentRule = null   // Name of the current rule  
-    this.emptyHandler = []    // Handler to trigger when the buffer becomes empty
-    this.rules = []           // Rules to be checked against
-    this.handler = null       // Matched token default handler
-    this.saved = {}           // Saved rules
-  }
 
   return this
 }
@@ -122,9 +107,9 @@ Atok.prototype.debug = function (flag) {
  * @api private
  */
 Atok.prototype._rulesForEach = function (fn) {
-  this.rules.forEach(fn)
+  this._rules.forEach(fn)
 
-  var saved = this.saved
+  var saved = this._savedRules
   Object.keys(saved).forEach(function (ruleSet) {
     saved[ruleSet].rules.forEach(fn)
   })

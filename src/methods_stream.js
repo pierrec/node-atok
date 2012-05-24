@@ -118,11 +118,11 @@ Atok.prototype._tokenize = function () {
   this._resetRuleIndex = false
 
   for (
-    ; this.offset < this.length && i < this.rules.length
+    ; this.offset < this.length && i < this._rules.length
     ; i++
     )
   {
-    p = this.rules[i]
+    p = this._rules[i]
     // Check that there is enough data to check the first rule
     if (p.length > 0 && (this.length - this.offset) < p.length) break
 
@@ -147,9 +147,9 @@ Atok.prototype._tokenize = function () {
       // Continue?
       } else if (p.continue !== null) {
         i += p.continue
-        if (i > this.rules.length || i < -1)
+        if (i > this._rules.length || i < -1)
           this._error( new Error('Out of bound rules index: ' + i + ' = ' +
-            (i - p.continue) + ' + ' + p.continue + ' > ' + this.rules.length
+            (i - p.continue) + ' + ' + p.continue + ' > ' + this._rules.length
           ))
         // Keep track of the rule index we are at
         this.ruleIndex = i + 1
@@ -170,9 +170,9 @@ Atok.prototype._tokenize = function () {
       }
     } else if (p.continueOnFail !== null) {
       i += p.continueOnFail
-      if (i > this.rules.length || i < -1)
+      if (i > this._rules.length || i < -1)
         this._error( new Error('Out of bound rules index: ' + i + ' = ' +
-          (i - p.continueOnFail) + ' + ' + p.continueOnFail + ' > ' + this.rules.length
+          (i - p.continueOnFail) + ' + ' + p.continueOnFail + ' > ' + this._rules.length
         ))
       // Keep track of the rule index we are at
       this.ruleIndex = i + 1
@@ -186,7 +186,7 @@ Atok.prototype._tokenize = function () {
       this.buffer = this._bufferMode ? new Buffer : ''
       this.emit_empty(this.ending)
 
-      var emptyHandler = this.emptyHandler, n = emptyHandler.length
+      var emptyHandler = this._emptyHandler, n = emptyHandler.length
       if (n > 0) {
         for (i = 0, n = emptyHandler.length; i < n; i++) {
           p = emptyHandler[i]
