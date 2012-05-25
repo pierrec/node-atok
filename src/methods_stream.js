@@ -141,7 +141,7 @@ Atok.prototype._tokenize = function () {
     matched = p.test(this.buffer, this.offset)
     if ( matched >= 0 ) {
       this.offset += matched
-      this._ruleIndex = i
+      // this._ruleIndex = i
       // Is the token to be processed?
       if ( !p.ignore ) {
         // Emit the data by default, unless the handler is set

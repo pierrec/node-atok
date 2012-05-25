@@ -545,6 +545,7 @@ describe('Tokenizer Properties Methods', function () {
         p.addRule('b', function (token, idx, type) {
           done()
         })
+        p.continue()
         p.addRule('', function (token, idx, type) {
           done( new Error('Should not trigger') )
         })
