@@ -43,10 +43,10 @@ function Rule (subrules, type, handler, options) {
 
   this.atok = options
 
-  this.type = type || null
+  this.type = type
   this.handler = handler
   this.prevHandler = null
-  this.id = this.type !== null ? this.type : (handler && handler.name ? handler.name : '#emit()' )
+  this.id = this.type !== null ? this.type : handler
 
   this.rules = []
   this.idx = -1     // Subrule pattern index that matched (-1 if only 1 pattern)
@@ -125,7 +125,8 @@ Rule.prototype.setDebug = function (init) {
   if (!init) {
     // Wrap/unwrap handlers
     if (debug) {
-      var id = this.id, handler = this.handler
+      var handler = this.handler
+      var id = handler !== null ? (handler.name || '#emit()') : this.type
 
       // Save the previous handler
       this.prevHandler = handler

@@ -453,6 +453,68 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
+    describe('with an invalid positive index', function () {
+      var p = new Tokenizer(options)
+      it('should throw on saveRuleSet()', function (done) {
+        assert.throws(
+          function () {
+            p.continue(999)
+            p.addRule(1, 'dummy')
+            p.saveRuleSet('test')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+
+      it('should throw on write()', function (done) {
+        assert.throws(
+          function () {
+            p.continue(999)
+            p.addRule(1, 'dummy')
+            p.write('test')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
+    describe('with an invalid negative index', function () {
+      var p = new Tokenizer(options)
+      it('should throw on saveRuleSet()', function (done) {
+        assert.throws(
+          function () {
+            p.continue(-999)
+            p.addRule(1, 'dummy')
+            p.saveRuleSet('test')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+
+      it('should throw on write()', function (done) {
+        assert.throws(
+          function () {
+            p.continue(-999)
+            p.addRule(1, 'dummy')
+            p.write('test')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+        done()
+      })
+    })
+
     describe('with a rule set modified with #loadRuleSet()', function () {
       var p = new Tokenizer(options)
       it('should reset the index', function (done) {

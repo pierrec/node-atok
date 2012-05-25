@@ -14,9 +14,16 @@ Atok.prototype.addRuleFirst = function (rule, /*rule, ... */ type) {
 
   return this
 }
+/**
+ * Get the index of a rule by id
+ *
+ * @param {string|number|function()} rule type
+ * @return {number}
+ * @api private
+ */
 Atok.prototype._getRuleIndex = function (id) {
   for (var rules = this._rules, i = 0, n = rules.length; i < n; i++)
-    if ( (rules[i].type !== null ? rules[i].type : rules[i].handler) === id ) break
+    if (rules[i].id === id) break
   
   return i === n ? -1 : i
 }
@@ -78,7 +85,8 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
   
   var last = args.pop()
   var first = args[0]
-  var type, handler = this._defaultHandler
+  var type = null
+    , handler = this._defaultHandler
 
   switch ( typeof(last) ) {
     case 'function':
@@ -102,6 +110,8 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
       n--
     }
   }
+
+  this._rulesToResolve = true
 
   // first === 0: following arguments are ignored
   // Empty buffer rule
@@ -142,6 +152,8 @@ Atok.prototype.removeRule = function (/* name ... */) {
       this._rules.splice(idx, 1)
   }
 
+  this._rulesToResolve = true
+
   return this
 }
 /**
@@ -155,6 +167,8 @@ Atok.prototype.clearRule = function () {
   this._rules = []
   this._defaultHandler = null
   this.currentRule = null
+  this._rulesToResolve = false
+
   return this
 }
 /**
@@ -168,26 +182,15 @@ Atok.prototype.saveRuleSet = function (name) {
   if (arguments.length === 0 || name === null)
     return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )
   
-  // Check and set the continue values
-  var rules = this._rules
-    , rule, id, j
-  for (var i = 0, n = rules.length; i < n; i++) {
-    rule = rules[i]
-    id = rule.type !== null ? rule.type : rule.handler
-    if (rule.continue !== null && typeof rule.continue !== 'number') {
-      j = this._getRuleIndex(id)
-      if (j < 0)
-        this._error( new Error('Atok#saveRuleSet: continue() value not found: ' + id) )
-      
-      rule.continue = i - j
-    }
-  }
 
   this._savedRules[name] = {
     rules: this._rules
   , emptyHandler: this._emptyHandler
   }
   this.currentRule = name
+
+  // Resolve and check continues
+  this._resolveRules(name)
 
   return this
 }
@@ -224,6 +227,38 @@ Atok.prototype.removeRuleSet = function (name) {
   delete this._savedRules[name]
   // Make sure no reference to the rule set exists
   if (this.currentRule === name) this.currentRule = null
+
+  return this
+}
+/**
+ * Resolve a rule or all of them if none specified:
+ * - translate non number continue() to numbers
+ * - check continue() stay within bounds
+ *
+ * @param {string} name of the rule set (optional)
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype._resolveRules = function (name) {
+  // Check and set the continue values
+  var rules = name ? this._savedRules[name].rules : this._rules
+  var rule, j
+
+  for (var i = 0, n = rules.length; i < n; i++) {
+    rule = rules[i]
+    if (rule.continue !== null && typeof rule.continue !== 'number') {
+      j = this._getRuleIndex(rule.id)
+      if (j < 0)
+        this._error( new Error('Atok#_resolveRules: continue() value not found: ' + rule.id) )
+      
+      rule.continue = i - j
+    }
+    // Check the continue boundaries
+    if (rule.continue < -1 || rule.continue > rules.length)
+      this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule.continue) )
+  }
+
+  if (!name) this._rulesToResolve = false
 
   return this
 }

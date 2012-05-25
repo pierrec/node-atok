@@ -1,11 +1,12 @@
   // Public properties
   this.buffer = this._bufferMode ? new Buffer : ''
-  this._stringDecoder = new StringDecoder(this._encoding)
   this.offset = 0
   this.ruleIndex = 0
 
   // Private properties
   this._resetRuleIndex = false
+  this._stringDecoder = new StringDecoder(this._encoding)
+  this._rulesToResolve = false
 
 //if(keepRules)
   if (!keepRules) {

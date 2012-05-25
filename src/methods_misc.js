@@ -86,7 +86,6 @@ Atok.prototype.debug = function (flag) {
       var prevMethod = self[method]
 
       self[method] = function () {
-        // self.emit_debug.apply( self, ['Atok#' + method].concat( sliceArguments(arguments, 0) ) )
         self.emit_debug( 'Atok#', method, arguments )
         return prevMethod.apply(self, arguments)
       }

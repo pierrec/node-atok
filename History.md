@@ -13,6 +13,7 @@
   * `bytesRead` property
   * `seek()`: use the `offset` property directly
 * Use of Node's StringDecoder
+* continue(string|function): resolution automatically performed on saveRuleSet() and write()
 
 0.2.6 / 2012-05-23
 ==================
