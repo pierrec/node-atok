@@ -17,9 +17,9 @@ tok
         .addRule(']', 'array-end')
     .quiet() // Turn the quiet property off
     // The second pattern will only match if it is not escaped (default escape character=\)
-    .escaped(true)
+    .escape(true)
         .addRule('"', '"', 'string')
-    .escaped()
+    .escape()
     // Array item separator
     .addRule(',', 'separator')
     // Skip the match, in this case whitespaces

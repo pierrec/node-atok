@@ -74,9 +74,9 @@ tok
 if (quotedData)
   tok
   // Quoted string
-  .escaped('"') // Use " as the escape character
+  .escape('"') // Use " as the escape character
     .addRule('"', stringTerm, stringHandler)
-  .escaped()
+  .escape()
 
 tok
   // Number or unquoted string
