@@ -1,4 +1,4 @@
-0.3.0 / 2012-05-24
+0.3.0 / 2012-05-25
 ==================
 
 * cleanups
@@ -12,8 +12,14 @@
   * `getAllRuleSet()`
   * `bytesRead` property
   * `seek()`: use the `offset` property directly
+  * `ruleIndex` is now private (`_ruleIndex`)
 * Use of Node's StringDecoder
 * continue(string|function): resolution automatically performed on saveRuleSet() and write()
+* Better Stream compliance:
+  * `writable` and `readable` set to false after an error, `end()` and `destroy()`
+* Added `slice(startIndex, endIndex)`: returns a slice of the buffer
+* Added `groupRule(boolean)`: bind the following rules to the same index
+
 
 0.2.6 / 2012-05-23
 ==================

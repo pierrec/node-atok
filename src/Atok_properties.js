@@ -1,12 +1,15 @@
   // Public properties
   this.buffer = this._bufferMode ? new Buffer : ''
   this.offset = 0
-  this.ruleIndex = 0
+  this.offsetBuffer = -1    // Flag indicating whether the buffer should be kept when write() ends
 
   // Private properties
+  this._ruleIndex = 0
   this._resetRuleIndex = false
   this._stringDecoder = new StringDecoder(this._encoding)
   this._rulesToResolve = false
+  this._groupStart = 0
+  this._groupEnd = 0
 
 //if(keepRules)
   if (!keepRules) {

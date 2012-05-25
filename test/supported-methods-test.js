@@ -13,6 +13,7 @@ describe('Tokenizer Supported Methods', function () {
   , 'pause'
   , 'resume'
   , 'pipe'
+  , 'destroy'
   // Properties
   , 'continue'
   , 'next'
@@ -43,6 +44,7 @@ describe('Tokenizer Supported Methods', function () {
   , 'clear'
   , 'flush'
   , 'debug'
+  , 'slice'
   ]
 
   var p = new Tokenizer

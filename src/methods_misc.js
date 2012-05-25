@@ -19,11 +19,16 @@ Atok.prototype.clear = function (keepRules) {
  * @param {number} starting index
  * @param {number} ending index
  * @return {Object} extracted data
- * @api private
+ * @api public
  */
-Atok.prototype._slice = function (start, end) {
-  if (arguments.length === 0) start = this.offset
-  if (arguments.length <= 1) end = this.length
+Atok.prototype.slice = function (start, end) {
+  switch (arguments.length) {
+    case 0:
+      start = this.offset
+    case 1:
+      end = this.length
+  }
+
   return this._bufferMode
     ? this.buffer.slice(start, end)
     : this.buffer.substr(start, end - start)
@@ -35,7 +40,7 @@ Atok.prototype._slice = function (start, end) {
  * @api public
  */
 Atok.prototype.flush = function () {
-  var data = this._slice()
+  var data = this.slice()
   
   this.clear(true) // Keep rules!
 

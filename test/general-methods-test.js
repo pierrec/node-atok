@@ -76,4 +76,33 @@ describe('Tokenizer General Methods', function () {
       p.write('a')
     })
   })
+
+  describe('#slice', function () {
+    describe('()', function () {
+      var p = new Tokenizer(options)
+      it('should return the buffer', function (done) {
+        p.write('abcd')
+        assert.equal(p.slice(), 'abcd')
+        done()
+      })
+    })
+
+    describe('(1)', function () {
+      var p = new Tokenizer(options)
+      it('should return everything from the index', function (done) {
+        p.write('abcd')
+        assert.equal(p.slice(1), 'bcd')
+        done()
+      })
+    })
+
+    describe('(1,2)', function () {
+      var p = new Tokenizer(options)
+      it('should return a slice of the buffer', function (done) {
+        p.write('abcd')
+        assert.equal(p.slice(1,2), 'b')
+        done()
+      })
+    })
+  })
 })

@@ -96,7 +96,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "function Atok (options) {\n  if (!(this instanceof Atok))\n    return new Atok(options)\n\n  // Possible events are defined at instanciation for better performance\n  EV.call(this, Atok.events)\n  this.writable = true\n  this.readable = true\n\n  // Options\n  options = options || {}\n  this._bufferMode = (options.bufferMode === true)\n  this._encoding = options.encoding\n  // Apply the default encoding value\n  this.setEncoding(options.encoding)\n\n  // Initializations\n  // Debug flag\n  this.debugMode = false\n\n  // Status flags\n  this.ended = false        // Flag indicating stream has ended\n  this.ending = false       // Set when end() invokes write()\n  this.paused = false       // Flag indicating stream is paused\n  this.needDrain = false    // Flag indicating stream needs drain\n  this.offsetBuffer = -1    // Flag indicating whether the buffer should be kept when write() ends\n\n// include(\"Atok_properties.js\")\n  // Public properties\n  this.buffer = this._bufferMode ? new Buffer : ''\n  this.offset = 0\n  this.ruleIndex = 0\n\n  // Private properties\n  this._resetRuleIndex = false\n  this._stringDecoder = new StringDecoder(this._encoding)\n  this._rulesToResolve = false\n\n\n    this.currentRule = null   // Name of the current rule  \n    this._emptyHandler = []    // Handler to trigger when the buffer becomes empty\n    this._rules = []           // Rules to be checked against\n    this._defaultHandler = null       // Matched token default handler\n    this._savedRules = {}           // Saved rules\n\n// include(\"Atok_rule_properties.js\")\n  this._p_ignore = false        // Get the token size and skip\n  this._p_quiet = false         // Get the token size and call the handler with no data\n  this._p_escape = false        // Pattern must not be escaped\n  this._p_trimLeft = true       // Remove the left pattern from the token\n  this._p_trimRight = true      // Remove the right pattern from the token\n  this._p_next = null           // Next rule to load\n  this._p_nextIndex = 0         // Index for the next rule to load\n  this._p_continue = null       // Next rule index to load\n  this._p_continueOnFail = null // Next rule index to load when rule fails\n  this._p_break = false         // Abort current rule set\n}\ninherits(Atok, EV, Stream.prototype)\n\nAtok.prototype._error = function (err) {\n  this.emit_error(err)\n  return this\n}\n\nAtok.prototype.__defineGetter__('length', function () {\n  return this.buffer.length\n})\n\n// include(\"methods_misc.js\")",
+    "code": "function Atok (options) {\n  if (!(this instanceof Atok))\n    return new Atok(options)\n\n  // Possible events are defined at instanciation for better performance\n  EV.call(this, Atok.events)\n  this.writable = true\n  this.readable = true\n\n  // Options\n  options = options || {}\n  this._bufferMode = (options.bufferMode === true)\n  this._encoding = options.encoding\n  // Apply the default encoding value\n  this.setEncoding(options.encoding)\n\n  // Initializations\n  // Debug flag\n  this.debugMode = false\n\n  // Status flags\n  this.ended = false        // Flag indicating stream has ended\n  this.ending = false       // Set when end() invokes write()\n  this.paused = false       // Flag indicating stream is paused\n  this.needDrain = false    // Flag indicating stream needs drain\n\n// include(\"Atok_properties.js\")\n  // Public properties\n  this.buffer = this._bufferMode ? new Buffer : ''\n  this.offset = 0\n  this.offsetBuffer = -1    // Flag indicating whether the buffer should be kept when write() ends\n\n  // Private properties\n  this._ruleIndex = 0\n  this._resetRuleIndex = false\n  this._stringDecoder = new StringDecoder(this._encoding)\n  this._rulesToResolve = false\n  this._groupStart = 0\n  this._groupEnd = 0\n\n\n    this.currentRule = null   // Name of the current rule  \n    this._emptyHandler = []    // Handler to trigger when the buffer becomes empty\n    this._rules = []           // Rules to be checked against\n    this._defaultHandler = null       // Matched token default handler\n    this._savedRules = {}           // Saved rules\n\n// include(\"Atok_rule_properties.js\")\n  this._p_ignore = false        // Get the token size and skip\n  this._p_quiet = false         // Get the token size and call the handler with no data\n  this._p_escape = false        // Pattern must not be escaped\n  this._p_trimLeft = true       // Remove the left pattern from the token\n  this._p_trimRight = true      // Remove the right pattern from the token\n  this._p_next = null           // Next rule to load\n  this._p_nextIndex = 0         // Index for the next rule to load\n  this._p_continue = null       // Next rule index to load\n  this._p_continueOnFail = null // Next rule index to load when rule fails\n  this._p_break = false         // Abort current rule set\n}\ninherits(Atok, EV, Stream.prototype)\n\nAtok.prototype._error = function (err) {\n  this.readable = false\n  this.writable = false\n\n  this.emit_error(err)\n\n  return this\n}\n\nAtok.prototype.__defineGetter__('length', function () {\n  return this.buffer.length\n})\n\n// include(\"methods_misc.js\")",
     "ctx": {
       "type": "function",
       "name": "Atok",
@@ -132,7 +132,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.clear = function (keepRules) {\n// include(\"Atok_properties.js\")\n  // Public properties\n  this.buffer = this._bufferMode ? new Buffer : ''\n  this.offset = 0\n  this.ruleIndex = 0\n\n  // Private properties\n  this._resetRuleIndex = false\n  this._stringDecoder = new StringDecoder(this._encoding)\n  this._rulesToResolve = false\n\n\n  if (!keepRules) {\n\n    this.currentRule = null   // Name of the current rule  \n    this._emptyHandler = []    // Handler to trigger when the buffer becomes empty\n    this._rules = []           // Rules to be checked against\n    this._defaultHandler = null       // Matched token default handler\n    this._savedRules = {}           // Saved rules\n\n  }\n\n  this.clearProps()\n\n  return this\n}",
+    "code": "Atok.prototype.clear = function (keepRules) {\n// include(\"Atok_properties.js\")\n  // Public properties\n  this.buffer = this._bufferMode ? new Buffer : ''\n  this.offset = 0\n  this.offsetBuffer = -1    // Flag indicating whether the buffer should be kept when write() ends\n\n  // Private properties\n  this._ruleIndex = 0\n  this._resetRuleIndex = false\n  this._stringDecoder = new StringDecoder(this._encoding)\n  this._rulesToResolve = false\n  this._groupStart = 0\n  this._groupEnd = 0\n\n\n  if (!keepRules) {\n\n    this.currentRule = null   // Name of the current rule  \n    this._emptyHandler = []    // Handler to trigger when the buffer becomes empty\n    this._rules = []           // Rules to be checked against\n    this._defaultHandler = null       // Matched token default handler\n    this._savedRules = {}           // Saved rules\n\n  }\n\n  this.clearProps()\n\n  return this\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",
@@ -167,7 +167,7 @@
       },
       {
         "type": "api",
-        "visibility": "private"
+        "visibility": "public"
       }
     ],
     "description": {
@@ -175,14 +175,14 @@
       "summary": "<p>Extract data from the buffer</p>",
       "body": ""
     },
-    "isPrivate": true,
+    "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype._slice = function (start, end) {\n  if (arguments.length === 0) start = this.offset\n  if (arguments.length <= 1) end = this.length\n  return this._bufferMode\n    ? this.buffer.slice(start, end)\n    : this.buffer.substr(start, end - start)\n}",
+    "code": "Atok.prototype.slice = function (start, end) {\n  switch (arguments.length) {\n    case 0:\n      start = this.offset\n    case 1:\n      end = this.length\n  }\n\n  return this._bufferMode\n    ? this.buffer.slice(start, end)\n    : this.buffer.substr(start, end - start)\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",
-      "name": "_slice",
-      "string": "Atok.prototype._slice()"
+      "name": "slice",
+      "string": "Atok.prototype.slice()"
     }
   },
   {
@@ -206,7 +206,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.flush = function () {\n  var data = this._slice()\n  \n  this.clear(true) // Keep rules!\n\n  return data\n}",
+    "code": "Atok.prototype.flush = function () {\n  var data = this.slice()\n  \n  this.clear(true) // Keep rules!\n\n  return data\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",
@@ -1286,7 +1286,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.loadRuleSet = function (name, index) {\n  var ruleSet = this._savedRules[name]\n  if (!ruleSet)\n    return this._error( new Error('Atok#loadRuleSet: Rule set ' + name + ' not found') )\n\n  this.currentRule = name\n  this._rules = ruleSet.rules\n  this._emptyHandler = ruleSet.emptyHandler\n  // Set the rule index\n  this.ruleIndex = typeof index === 'number' ? index : 0\n  this._resetRuleIndex = true\n\n  return this\n}",
+    "code": "Atok.prototype.loadRuleSet = function (name, index) {\n  var ruleSet = this._savedRules[name]\n  if (!ruleSet)\n    return this._error( new Error('Atok#loadRuleSet: Rule set ' + name + ' not found') )\n\n  this.currentRule = name\n  this._rules = ruleSet.rules\n  this._emptyHandler = ruleSet.emptyHandler\n  this._rulesToResolve = false\n  // Set the rule index\n  this._ruleIndex = typeof index === 'number' ? index : 0\n  this._resetRuleIndex = true\n\n  return this\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",
@@ -1342,6 +1342,36 @@
         "description": "of the rule set (optional)"
       },
       {
+        "type": "api",
+        "visibility": "private"
+      }
+    ],
+    "description": {
+      "full": "<h2>Resolve a rule or all of them if none specified</h2>\n\n<ul>\n<li>translate non number continue() to numbers</li>\n<li>check continue() stay within bounds</li>\n</ul>",
+      "summary": "<h2>Resolve a rule or all of them if none specified</h2>\n\n<ul>\n<li>translate non number continue() to numbers</li>\n<li>check continue() stay within bounds</li>\n</ul>",
+      "body": ""
+    },
+    "isPrivate": true,
+    "ignore": false,
+    "code": "Atok.prototype._resolveRules = function (name) {\n  // Check and set the continue values\n  var rules = name ? this._savedRules[name].rules : this._rules\n  var rule, j\n\n  for (var i = 0, n = rules.length; i < n; i++) {\n    rule = rules[i]\n    if (rule.continue !== null && typeof rule.continue !== 'number') {\n      j = this._getRuleIndex(rule.id)\n      if (j < 0)\n        this._error( new Error('Atok#_resolveRules: continue() value not found: ' + rule.id) )\n      \n      rule.continue = i - j\n    }\n    // Check the continue boundaries\n    j = i + rule.continue\n    if (j < 0 || j > rules.length)\n      this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule.continue + ' index ' + i) )\n  }\n\n  this._rulesToResolve = false\n\n  // Adjust continue jumps according to groups\n  for (i = 0; i < n; i++) {\n    rule = rules[i]\n    // Check each rule continue property\n    if (rule.continue !== null) {\n      if (rule.continue > 0) {\n        // Positive jump\n        for (var j = 1, m = rule.continue + 1; j < m; j++) {\n          // Scan all rules from the current one to the target one\n          rule.continue += rules[i + j].groupEnd > 0\n            ? rules[i + j].groupEnd - rules[i + j].groupStart\n            : 0\n        }\n      } else if (rule.continue < -1) {\n        // Negative jump\n        for (var j = 1, m = -rule.continue; j < m; j++) {\n          // Scan all rules from the current one to the target one\n          rule.continue -= rules[i - j].groupEnd > 0\n            ? rules[i - j].groupEnd - rules[i - j].groupStart\n            : 0\n        }\n      }\n    }\n  }\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "_resolveRules",
+      "string": "Atok.prototype._resolveRules()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "Boolean"
+        ],
+        "name": "toggle",
+        "description": "grouping on/off"
+      },
+      {
         "type": "return",
         "types": [
           "Atok"
@@ -1354,18 +1384,18 @@
       }
     ],
     "description": {
-      "full": "<h2>Resolve a rule or all of them if none specified</h2>\n\n<ul>\n<li>translate non number continue() to numbers</li>\n<li>check continue() stay within bounds</li>\n</ul>",
-      "summary": "<h2>Resolve a rule or all of them if none specified</h2>\n\n<ul>\n<li>translate non number continue() to numbers</li>\n<li>check continue() stay within bounds</li>\n</ul>",
+      "full": "<p>Bind rules to the same index</p>",
+      "summary": "<p>Bind rules to the same index</p>",
       "body": ""
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype._resolveRules = function (name) {\n  // Check and set the continue values\n  var rules = name ? this._savedRules[name].rules : this._rules\n  var rule, j\n\n  for (var i = 0, n = rules.length; i < n; i++) {\n    rule = rules[i]\n    if (rule.continue !== null && typeof rule.continue !== 'number') {\n      j = this._getRuleIndex(rule.id)\n      if (j < 0)\n        this._error( new Error('Atok#_resolveRules: continue() value not found: ' + rule.id) )\n      \n      rule.continue = i - j\n    }\n    // Check the continue boundaries\n    if (rule.continue < -1 || rule.continue > rules.length)\n      this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule.continue) )\n  }\n\n  if (!name) this._rulesToResolve = false\n\n  return this\n}\n// include(\"methods_stream.js\")",
+    "code": "Atok.prototype.groupRule = function (flag) {\n  var rules = this._rules\n\n  if (flag !== true) {\n    // 1 or 0 rule, group is ignored\n    if (rules.length - this._groupStart < 2) {\n      for (var i = 0, n = rules.length; i < n; i++) {\n        rules[i].groupStart = 0\n        rules[i].groupEnd = 0\n      }\n    } else {\n      // Set the last index of the group to all rules\n      for (var i = this._groupStart, n = rules.length; i < n; i++)\n        rules[i].groupEnd = n - 1\n    }\n\n    this._groupStart = 0\n    this._groupEnd = 0\n\n    return this\n  }\n\n  this._groupStart = this._rules.length\n\n  return this\n}\n// include(\"methods_stream.js\")",
     "ctx": {
       "type": "method",
       "constructor": "Atok",
-      "name": "_resolveRules",
-      "string": "Atok.prototype._resolveRules()"
+      "name": "groupRule",
+      "string": "Atok.prototype.groupRule()"
     }
   },
   {
@@ -1436,7 +1466,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.end = function (data) {\n  this.ending = true\n  this.write(data)\n  this.ended = true\n  this.ending = false\n  this._end()\n  return this\n}",
+    "code": "Atok.prototype.end = function (data) {\n  this.ending = true\n  this.write(data)\n  this.ended = true\n  this.ending = false\n\n  this.readable = false\n  this.writable = false\n\n  this._end()\n  return this\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",
@@ -1516,7 +1546,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.destroy = function () {}",
+    "code": "Atok.prototype.destroy = function () {\n  this.readable = false\n  this.writable = false\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",
@@ -1547,7 +1577,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype._end = function () {\n  this.emit_end( this._slice(), -1, this.currentRule)\n  this.clear()\n}",
+    "code": "Atok.prototype._end = function () {\n  this.emit_end( this.slice(), -1, this.currentRule)\n  this.clear()\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",
@@ -1598,7 +1628,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype._tokenize = function () {\n  // NB. Rules and buffer can be reset by the token handler\n  var i = this.ruleIndex, p, matched\n\n  this.ruleIndex = 0\n  this._resetRuleIndex = false\n\n  for (\n    ; this.offset < this.length && i < this._rules.length\n    ; i++\n    )\n  {\n    p = this._rules[i]\n    // Check that there is enough data to check the first rule\n    if (p.length > 0 && (this.length - this.offset) < p.length) break\n\n    // Return the size of the matched data (0 is valid!)\n    matched = p.test(this.buffer, this.offset)\n    if ( matched >= 0 ) {\n      this.offset += matched\n      this.ruleIndex = i\n      // Is the token to be processed?\n      if ( !p.ignore ) {\n        // Emit the data by default, unless the handler is set\n        if (p.handler) p.handler(p.token, p.idx, p.type)\n        else this.emit_data(p.token, p.idx, p.type)\n      }\n      // Load a new set of rules\n      if (p.next) this.loadRuleSet(p.next, p.nextIndex)\n\n      // Rule set may have changed...\n      if (this._resetRuleIndex) {\n        this._resetRuleIndex = false\n        i = this.ruleIndex - 1\n      // Continue?\n      } else if (p.continue !== null) {\n        i += p.continue\n        // Keep track of the rule index we are at\n        this.ruleIndex = i + 1\n        // Skip the token and keep going, unless rule returned 0\n      } else if (matched > 0) {\n        i = -1\n        this.ruleIndex = 0\n      }\n\n      if (p.break) break\n\n      // Hold on if the stream was paused\n      if (this.paused) {\n        // Keep track of the rule index we are at\n        this.ruleIndex = i + 1\n        this.needDrain = true\n        return false\n      }\n    } else if (p.continueOnFail !== null) {\n      i += p.continueOnFail\n      // Keep track of the rule index we are at\n      this.ruleIndex = i + 1\n    }\n  }\n\n  if (this.offsetBuffer < 0) {\n    // Remove tokenized data from the buffer\n    if (this.offset === this.length) {\n      this.offset = 0\n      this.buffer = this._bufferMode ? new Buffer : ''\n      this.emit_empty(this.ending)\n\n      var emptyHandler = this._emptyHandler, n = emptyHandler.length\n      if (n > 0) {\n        for (i = 0, n = emptyHandler.length; i < n; i++) {\n          p = emptyHandler[i]\n\n          if ( !p.ignore ) {\n            if (p.handler) p.handler(this.ending)\n            else this.emit_data(p.token, p.idx, p.type)\n          }\n\n          if (p.next) this.loadRuleSet(p.next, p.nextIndex)\n\n          if (this._resetRuleIndex) this._resetRuleIndex = false\n          else if (p.continue !== null) this.ruleIndex = i + 1\n\n          if (this.paused) {\n            this.ruleIndex = i + 1\n            this.needDrain = true\n            return false\n          }\n        }\n      }\n    } else if (this.offset > this.length) {\n      // Can only occurs if offset was manually incremented\n      this.offset = this.offset - this.length\n      this.buffer = this._bufferMode ? new Buffer : ''\n    } else {\n      this.buffer = this._slice(this.offset)\n      this.offset = 0\n    }\n  }\n  \n  return this._done()\n}",
+    "code": "Atok.prototype._tokenize = function () {\n  // NB. Rules and buffer can be reset by the token handler\n  var i = this._ruleIndex, p, matched\n\n  this._ruleIndex = 0\n  this._resetRuleIndex = false\n\n  for (\n    ; this.offset < this.length && i < this._rules.length\n    ; i++\n    )\n  {\n    p = this._rules[i]\n    // Check that there is enough data to check the first rule\n    if (p.length > 0 && (this.length - this.offset) < p.length) break\n\n    // Return the size of the matched data (0 is valid!)\n    matched = p.test(this.buffer, this.offset)\n    if ( matched >= 0 ) {\n      this.offset += matched\n      this._ruleIndex = i\n      // Is the token to be processed?\n      if ( !p.ignore ) {\n        // Emit the data by default, unless the handler is set\n        if (p.handler) p.handler(p.token, p.idx, p.type)\n        else this.emit_data(p.token, p.idx, p.type)\n      }\n      // Load a new set of rules\n      if (p.next) this.loadRuleSet(p.next, p.nextIndex)\n\n      // Rule set may have changed...\n      if (this._resetRuleIndex) {\n        this._resetRuleIndex = false\n        i = this._ruleIndex - 1\n      // Continue?\n      } else if (p.continue !== null) {\n        i += p.continue\n        // Keep track of the rule index we are at\n        this._ruleIndex = i + 1\n        // Skip the token and keep going, unless rule returned 0\n      } else if (matched > 0) {\n        i = -1\n        this._ruleIndex = 0\n      }\n\n      if (p.break) break\n\n      // Hold on if the stream was paused\n      if (this.paused) {\n        // Keep track of the rule index we are at\n        this._ruleIndex = i + 1\n        this.needDrain = true\n        return false\n      }\n    } else if (p.continueOnFail !== null) {\n      i += p.continueOnFail\n      // Keep track of the rule index we are at\n      this._ruleIndex = i + 1\n    }\n  }\n\n  if (this.offsetBuffer < 0) {\n    // Remove tokenized data from the buffer\n    if (this.offset === this.length) {\n      this.offset = 0\n      this.buffer = this._bufferMode ? new Buffer : ''\n      this.emit_empty(this.ending)\n\n      var emptyHandler = this._emptyHandler, n = emptyHandler.length\n      if (n > 0) {\n        for (i = 0, n = emptyHandler.length; i < n; i++) {\n          p = emptyHandler[i]\n\n          if ( !p.ignore ) {\n            if (p.handler) p.handler(this.ending)\n            else this.emit_data(p.token, p.idx, p.type)\n          }\n\n          if (p.next) this.loadRuleSet(p.next, p.nextIndex)\n\n          if (this._resetRuleIndex) this._resetRuleIndex = false\n          else if (p.continue !== null) this._ruleIndex = i + 1\n\n          if (this.paused) {\n            this._ruleIndex = i + 1\n            this.needDrain = true\n            return false\n          }\n        }\n      }\n    } else if (this.offset > this.length) {\n      // Can only occurs if offset was manually incremented\n      this.offset = this.offset - this.length\n      this.buffer = this._bufferMode ? new Buffer : ''\n    } else {\n      this.buffer = this.slice(this.offset)\n      this.offset = 0\n    }\n  }\n  \n  return this._done()\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",

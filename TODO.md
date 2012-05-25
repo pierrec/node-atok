@@ -4,12 +4,11 @@
 
 * Subrules no longer extract tokens (only a number is returned) -> simplify code and allow Buffer support
 * Buffer support
+* Returns Buffer instances instead of strings unless setEncoding() was used (Stream compliance)
+
 
 ## 0.3.0
 
-* _slice -> sliceBuffer?
-* Remove Atok.ruleIndex
-* group(boolean): bind following rules to the same index
 * subrules linked execution
 
 

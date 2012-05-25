@@ -76,7 +76,6 @@ function Atok (options) {
   this.ending = false       // Set when end() invokes write()
   this.paused = false       // Flag indicating stream is paused
   this.needDrain = false    // Flag indicating stream needs drain
-  this.offsetBuffer = -1    // Flag indicating whether the buffer should be kept when write() ends
 
 //var keepRules = false
 //include("Atok_properties.js")
@@ -87,7 +86,11 @@ function Atok (options) {
 inherits(Atok, EV, Stream.prototype)
 
 Atok.prototype._error = function (err) {
+  this.readable = false
+  this.writable = false
+
   this.emit_error(err)
+
   return this
 }
 

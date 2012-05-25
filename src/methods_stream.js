@@ -47,6 +47,10 @@ Atok.prototype.end = function (data) {
   this.write(data)
   this.ended = true
   this.ending = false
+
+  this.readable = false
+  this.writable = false
+
   this._end()
   return this
 }
@@ -76,7 +80,10 @@ Atok.prototype.resume = function () {
  *
  * @api public
  */
-Atok.prototype.destroy = function () {}
+Atok.prototype.destroy = function () {
+  this.readable = false
+  this.writable = false
+}
 
 /**
  * Private methods
@@ -87,7 +94,7 @@ Atok.prototype.destroy = function () {}
  * @private
  */
 Atok.prototype._end = function () {
-  this.emit_end( this._slice(), -1, this.currentRule)
+  this.emit_end( this.slice(), -1, this.currentRule)
   this.clear()
 }
 /**
@@ -116,9 +123,9 @@ Atok.prototype._done = function () {
  */
 Atok.prototype._tokenize = function () {
   // NB. Rules and buffer can be reset by the token handler
-  var i = this.ruleIndex, p, matched
+  var i = this._ruleIndex, p, matched
 
-  this.ruleIndex = 0
+  this._ruleIndex = 0
   this._resetRuleIndex = false
 
   for (
@@ -134,7 +141,7 @@ Atok.prototype._tokenize = function () {
     matched = p.test(this.buffer, this.offset)
     if ( matched >= 0 ) {
       this.offset += matched
-      this.ruleIndex = i
+      this._ruleIndex = i
       // Is the token to be processed?
       if ( !p.ignore ) {
         // Emit the data by default, unless the handler is set
@@ -147,16 +154,16 @@ Atok.prototype._tokenize = function () {
       // Rule set may have changed...
       if (this._resetRuleIndex) {
         this._resetRuleIndex = false
-        i = this.ruleIndex - 1
+        i = this._ruleIndex - 1
       // Continue?
       } else if (p.continue !== null) {
         i += p.continue
         // Keep track of the rule index we are at
-        this.ruleIndex = i + 1
+        this._ruleIndex = i + 1
         // Skip the token and keep going, unless rule returned 0
       } else if (matched > 0) {
         i = -1
-        this.ruleIndex = 0
+        this._ruleIndex = 0
       }
 
       if (p.break) break
@@ -164,14 +171,14 @@ Atok.prototype._tokenize = function () {
       // Hold on if the stream was paused
       if (this.paused) {
         // Keep track of the rule index we are at
-        this.ruleIndex = i + 1
+        this._ruleIndex = i + 1
         this.needDrain = true
         return false
       }
     } else if (p.continueOnFail !== null) {
       i += p.continueOnFail
       // Keep track of the rule index we are at
-      this.ruleIndex = i + 1
+      this._ruleIndex = i + 1
     }
   }
 
@@ -195,10 +202,10 @@ Atok.prototype._tokenize = function () {
           if (p.next) this.loadRuleSet(p.next, p.nextIndex)
 
           if (this._resetRuleIndex) this._resetRuleIndex = false
-          else if (p.continue !== null) this.ruleIndex = i + 1
+          else if (p.continue !== null) this._ruleIndex = i + 1
 
           if (this.paused) {
-            this.ruleIndex = i + 1
+            this._ruleIndex = i + 1
             this.needDrain = true
             return false
           }
@@ -209,7 +216,7 @@ Atok.prototype._tokenize = function () {
       this.offset = this.offset - this.length
       this.buffer = this._bufferMode ? new Buffer : ''
     } else {
-      this.buffer = this._slice(this.offset)
+      this.buffer = this.slice(this.offset)
       this.offset = 0
     }
   }

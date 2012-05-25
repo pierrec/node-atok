@@ -210,8 +210,9 @@ Atok.prototype.loadRuleSet = function (name, index) {
   this.currentRule = name
   this._rules = ruleSet.rules
   this._emptyHandler = ruleSet.emptyHandler
+  this._rulesToResolve = false
   // Set the rule index
-  this.ruleIndex = typeof index === 'number' ? index : 0
+  this._ruleIndex = typeof index === 'number' ? index : 0
   this._resetRuleIndex = true
 
   return this
@@ -236,8 +237,7 @@ Atok.prototype.removeRuleSet = function (name) {
  * - check continue() stay within bounds
  *
  * @param {string} name of the rule set (optional)
- * @return {Atok}
- * @api public
+ * @api private
  */
 Atok.prototype._resolveRules = function (name) {
   // Check and set the continue values
@@ -254,11 +254,68 @@ Atok.prototype._resolveRules = function (name) {
       rule.continue = i - j
     }
     // Check the continue boundaries
-    if (rule.continue < -1 || rule.continue > rules.length)
-      this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule.continue) )
+    j = i + rule.continue
+    if (j < 0 || j > rules.length)
+      this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule.continue + ' index ' + i) )
   }
 
-  if (!name) this._rulesToResolve = false
+  this._rulesToResolve = false
+
+  // Adjust continue jumps according to groups
+  for (i = 0; i < n; i++) {
+    rule = rules[i]
+    // Check each rule continue property
+    if (rule.continue !== null) {
+      if (rule.continue > 0) {
+        // Positive jump
+        for (var j = 1, m = rule.continue + 1; j < m; j++) {
+          // Scan all rules from the current one to the target one
+          rule.continue += rules[i + j].groupEnd > 0
+            ? rules[i + j].groupEnd - rules[i + j].groupStart
+            : 0
+        }
+      } else if (rule.continue < -1) {
+        // Negative jump
+        for (var j = 1, m = -rule.continue; j < m; j++) {
+          // Scan all rules from the current one to the target one
+          rule.continue -= rules[i - j].groupEnd > 0
+            ? rules[i - j].groupEnd - rules[i - j].groupStart
+            : 0
+        }
+      }
+    }
+  }
+}
+/**
+ * Bind rules to the same index
+ *
+ * @param {Boolean} toggle grouping on/off
+ * @return {Atok}
+ * @api public
+ */
+Atok.prototype.groupRule = function (flag) {
+  var rules = this._rules
+
+  if (flag !== true) {
+    // 1 or 0 rule, group is ignored
+    if (rules.length - this._groupStart < 2) {
+      for (var i = 0, n = rules.length; i < n; i++) {
+        rules[i].groupStart = 0
+        rules[i].groupEnd = 0
+      }
+    } else {
+      // Set the last index of the group to all rules
+      for (var i = this._groupStart, n = rules.length; i < n; i++)
+        rules[i].groupEnd = n - 1
+    }
+
+    this._groupStart = 0
+    this._groupEnd = 0
+
+    return this
+  }
+
+  this._groupStart = this._rules.length
 
   return this
 }
