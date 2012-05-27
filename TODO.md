@@ -9,6 +9,7 @@
 
 ## 0.3.0
 
+* continue(0) on last rule aborts the rule set -> should throw at resolve() or ignore continue(0)
 * subrules linked execution
 
 
