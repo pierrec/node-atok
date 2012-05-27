@@ -6,6 +6,28 @@ var assert = require('assert')
 var Tokenizer = require('..')
 
 describe('Tokenizer Grouped Rules', function () {
+  describe('with a zero jump', function () {
+    var p = new Tokenizer
+
+    it('should trigger on match', function (done) {
+      function error () {
+        done( new Error('Should not trigger') )
+      }
+      p.continue(0)
+      p.addRule('a', 'first')
+      p.continue()
+      p.groupRule(true)
+        p.addRule('a', function () {
+          done()
+        })
+        p.addRule('a', error)
+      p.groupRule()
+      p.addRule('a', error)
+
+      p.write('aa')
+    })
+  })
+
   describe('with a positive jump and 1 group', function () {
     var p = new Tokenizer
 
@@ -50,6 +72,29 @@ describe('Tokenizer Grouped Rules', function () {
       p.addRule('a', function () {
         done()
       })
+
+      p.write('aa')
+    })
+  })
+
+  describe('with a -1 jump', function () {
+    var p = new Tokenizer
+
+    it('should trigger on match', function (done) {
+      function error () {
+        done( new Error('Should not trigger') )
+      }
+      var i = 0
+
+      p.continue(-1)
+      p.addRule('a', function () {
+        if (++i === 2) done()
+      })
+      p.continue()
+      p.groupRule(true)
+        p.addRule('a', error)
+        p.addRule('a', error)
+      p.groupRule()
 
       p.write('aa')
     })
