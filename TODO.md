@@ -9,7 +9,7 @@
 
 ## 0.3.0
 
-* continue(0) on last rule aborts the rule set -> should throw at resolve() or ignore continue(0)
+* infinite loop in some cases (no other rule for instance) on single custom subrule since it returns 0
 * subrules linked execution
 
 

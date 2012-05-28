@@ -1,6 +1,6 @@
 /*
  * Custom rule tests
-**/
+ */
 var assert = require('assert')
 
 var Tokenizer = require('..')
@@ -15,14 +15,14 @@ describe('Tokenizer Custom Rules', function () {
 
       p.addRule(function (data, start) {
           flag = true
-          return start > 0
+          return 1
         }
       , function (token, idx, type) {
           assert.equal(flag, true)
           done()
         }
       )
-      p.write('abc')
+      p.write('a')
     })
   })
 })

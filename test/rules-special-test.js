@@ -9,13 +9,20 @@ var options = {}
 describe('Tokenizer Special Rules', function () {
   describe('single function', function () {
     var p = new Tokenizer(options)
+    var i = 0
 
     it('should return 0 match', function (done) {
+      p.continue(0)
       p.addRule(function (matched) {
         assert.equal(matched, 0)
-        done()
+        i++
       })
+      p.continue()
+      p.addRule(1, 'consume')
       p.write('abc')
+
+      assert.equal(i, 3)
+      done()
     })
   })
 
