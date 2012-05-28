@@ -103,8 +103,4 @@ Atok.prototype._error = function (err) {
   return this
 }
 
-Atok.prototype.__defineGetter__('length', function () {
-  return this.buffer.length
-})
-
 //include("methods_*.js")

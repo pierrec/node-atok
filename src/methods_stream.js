@@ -21,6 +21,7 @@ Atok.prototype.write = function (data) {
     this.length += data.length
   } else {
     this.buffer += this._stringDecoder.write(data)
+    this.length = this.buffer.length
   }
   // ... hold on until tokenization completed on the current data set
   // or consume the data
@@ -220,6 +221,7 @@ Atok.prototype._tokenize = function () {
       this.buffer = this.slice(this.offset)
       this.offset = 0
     }
+    this.length = this.buffer.length
   }
   
   return this._done()

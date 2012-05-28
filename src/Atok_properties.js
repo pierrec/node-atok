@@ -1,5 +1,6 @@
   // Public properties
   this.buffer = this._bufferMode ? new Buffer : ''
+  this.length = 0
   this.offset = 0
   this.offsetBuffer = -1    // Flag indicating whether the buffer should be kept when write() ends
 
