@@ -6,21 +6,23 @@
   * `loadProps()` -> `setProps()`
   * `escaped()` -> `escape()`
   * renamed internal properties with a leading _
+  * `offsetBuffer` -> `markedOffset`
 * Deprecated
   * `saveProps()`: use `getProps()` to retrieve all properties
   * `existsRule()`
   * `getAllRuleSet()`
   * `bytesRead` property
   * `seek()`: use the `offset` property directly
-  * `ruleIndex` is now private (`_ruleIndex`)
-* Use of Node's StringDecoder
-* continue(string|function): resolution automatically performed on saveRuleSet() and write(). This means that stricter checks are imposed:
-  * continue(+x) with x>=0 cannot be set on the last rule
-  * continue(-x) with x<-1 cannot be set on the first rule
-* Better Stream compliance:
-  * `writable` and `readable` set to false after an error, `end()` and `destroy()`
-* Added `slice(startIndex, endIndex)`: returns a slice of the buffer
-* Added `groupRule(boolean)`: bind the following rules to the same index
+  * `ruleIndex` is now private (`_ruleIndex`) and not systematically updated during parsing
+* Use of Node's StringDecoder for utf-8 encoding
+* continue(string|function): resolution automatically performed on `saveRuleSet()` and `write()`. This means that stricter checks are imposed:
+  * `continue(+x)` with x>=0 cannot be set on the last rule
+  * `continue(-x)` with x<-1 cannot be set on the first rule
+* Better compliance with Nodejs Stream API:
+  * `writable` and `readable` properties are set to false after an error, `end()` and `destroy()`
+* Added `slice([startIndex[, endIndex]])`: returns a slice of the buffer. NB. the buffer is _not_ altered.
+* Added `groupRule(boolean)`: bind the following rules to the same index (useful for writing helpers and make them behave as a single rule)
+* the buffer is always truncated from min(`offset`, `markedOffset`) to try and minimize memory usage
 
 
 0.2.6 / 2012-05-23

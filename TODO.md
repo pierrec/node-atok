@@ -9,7 +9,6 @@
 
 ## 0.3.0
 
-* infinite loop in some cases (no other rule for instance) on single custom subrule since it returns 0
 * subrules linked execution
 
 

@@ -23,9 +23,9 @@ Atok.prototype.addRuleFirst = function (rule, /*rule, ... */ type) {
  */
 Atok.prototype._getRuleIndex = function (id) {
   for (var rules = this._rules, i = 0, n = rules.length; i < n; i++)
-    if (rules[i].id === id) break
+    if (rules[i].id === id) return i
   
-  return i === n ? -1 : i
+  return -1
 }
 /**
  * Add a rule before an existing one
@@ -111,6 +111,7 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
     }
   }
 
+  // Rules have been modified, force a resolve when required
   this._rulesToResolve = true
 
   // first === 0: following arguments are ignored
@@ -152,6 +153,7 @@ Atok.prototype.removeRule = function (/* name ... */) {
       this._rules.splice(idx, 1)
   }
 
+  // Rules have been modified, force a resolve when required
   this._rulesToResolve = true
 
   return this
@@ -246,8 +248,10 @@ Atok.prototype._resolveRules = function (name) {
 
   // Perform various checks on a continue type property
   function check (prop) {
-    // Process the property
-    if (rule[prop] !== null && typeof rule[prop] !== 'number') {
+    if (rule[prop] === null) return
+
+    // Resolve the property to an index
+    if (typeof rule[prop] !== 'number') {
       j = this._getRuleIndex(rule.id)
       if (j < 0)
         this._error( new Error('Atok#_resolveRules: continue() value not found: ' + rule.id) )
@@ -255,11 +259,13 @@ Atok.prototype._resolveRules = function (name) {
       rule[prop] = i - j
     }
     // Check the continue boundaries
-    if (rule[prop] !== null) {
-      j = i + rule[prop] + 1
-      if (j < 0 || j > rules.length - 1)
-        this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule[prop] + ' index ' + i) )
-    }
+    j = i + rule[prop] + 1
+    // Cannot jump to a rule before the first one
+    // or beyond the last one.
+    // NB. jumping to a rule right after the last one is accepted since
+    // it will simply stop the parsing
+    if (j < 0 || j > rules.length)
+      this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule[prop] + ' index ' + i) )
   }
 
   // Process all rules

@@ -8,7 +8,7 @@ var Tokenizer = require('..')
 describe('Tokenizer Supported Properties', function () {
   var props = {
     offset: isNumber
-  , offsetBuffer: isNumber
+  , markedOffset: isNumber
   , length: isNumber
   , buffer: isString
   , writable: isBoolean
