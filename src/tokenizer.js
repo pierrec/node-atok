@@ -82,6 +82,15 @@ function Atok (options) {
 
 //include("Atok_rule_properties.js")
 
+
+  this._defaultProps = Object.keys(this)
+    .filter(function (prop) {
+      return prop.substr(0, 3) === '_p_'
+        && !/_p_(continueOnFail|nextIndex)/.test(prop)
+    })
+    .map(function (prop) {
+      return prop.substr(3)
+    })
 }
 inherits(Atok, EV, Stream.prototype)
 

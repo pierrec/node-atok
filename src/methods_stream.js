@@ -175,7 +175,8 @@ Atok.prototype._tokenize = function () {
         this.needDrain = true
         return false
       }
-    } else if (p.continueOnFail !== null) {
+    // } else if (p.continueOnFail !== null) {
+    } else {
       i += p.continueOnFail
       // Keep track of the rule index we are at
       this._ruleIndex = i + 1

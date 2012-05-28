@@ -17,12 +17,11 @@ natok.addRule(0, handler)
 
 var s = 'a'
 
-exports.compare = {
-	"current" : function () {
-		atok.clear(true).write(s)
-	}
-, "new" : function () {
-		natok.clear(true).write(s)
-	}
+var compare = exports.compare = {}
+compare[Atok.version] = function () {
+	atok.clear(true).write(s)
+}
+compare[newAtok.version] = function () {
+	natok.clear(true).write(s)
 }
 require("bench").runMain()

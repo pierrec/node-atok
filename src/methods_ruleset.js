@@ -244,21 +244,31 @@ Atok.prototype._resolveRules = function (name) {
   var rules = name ? this._savedRules[name].rules : this._rules
   var rule, j
 
-  for (var i = 0, n = rules.length; i < n; i++) {
-    rule = rules[i]
-    if (rule.continue !== null && typeof rule.continue !== 'number') {
+  // Perform various checks on a continue type property
+  function check (prop) {
+    // Process the property
+    if (rule[prop] !== null && typeof rule[prop] !== 'number') {
       j = this._getRuleIndex(rule.id)
       if (j < 0)
         this._error( new Error('Atok#_resolveRules: continue() value not found: ' + rule.id) )
       
-      rule.continue = i - j
+      rule[prop] = i - j
     }
     // Check the continue boundaries
-    if (rule.continue !== null) {
-      j = i + rule.continue + 1
+    if (rule[prop] !== null) {
+      j = i + rule[prop] + 1
       if (j < 0 || j > rules.length - 1)
-        this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule.continue + ' index ' + i) )
+        this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule[prop] + ' index ' + i) )
     }
+  }
+
+  // Process all rules
+  for (var i = 0, n = rules.length; i < n; i++) {
+    rule = rules[i]
+    // Check the continue property
+    check.call(this, 'continue')
+    // Check the continueOnFail property
+    check.call(this, 'continueOnFail')
   }
 
   this._rulesToResolve = false
