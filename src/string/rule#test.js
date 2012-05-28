@@ -33,7 +33,7 @@ function (data, offset) {
         'Rule#test'
     ,   'subrule-START'
     , [ 
-        this.handler !== null ? (this.handler.name || '#emit()') : this.type
+        this._id
       , i + 1
       , n
       , start

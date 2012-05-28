@@ -245,6 +245,7 @@ describe('Tokenizer Properties Methods', function () {
           })
         })
         p.break().continue()
+        p.addRule(1, 'dummy') // To avoid error as continue(0) is set on the last rule
         p.write('a')
         p.write('a')
         assert.equal(i, 2)
@@ -527,6 +528,7 @@ describe('Tokenizer Properties Methods', function () {
         p.addRule('a', function (token, idx, type) {
           p.loadRuleSet('b')
         })
+        p.continue()
         p.addRule('b', function (token, idx, type) {
           done( new Error('Should not trigger') )
         })
@@ -549,6 +551,7 @@ describe('Tokenizer Properties Methods', function () {
         p.addRule('', function (token, idx, type) {
           done( new Error('Should not trigger') )
         })
+        p.addRule(1, 'dummy') // To avoid error as continue(0) is set on the last rule
         p.saveRuleSet('a')
 
         p.loadRuleSet('a')

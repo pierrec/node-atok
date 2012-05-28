@@ -138,6 +138,7 @@ describe('Tokenizer Special Rules', function () {
       p.ignore(true).addRule(1, 'consume').ignore()
       p.continue(0)
       p.addRule(0, function () {})
+      p.continue()
       p.addRule('a', function () {
         triggered = true
       })

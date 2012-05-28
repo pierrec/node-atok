@@ -49,6 +49,8 @@ function Rule (subrules, type, handler, options) {
   this.handler = handler
   this.prevHandler = null
   this.id = this.type !== null ? this.type : handler
+  // Id for debug
+  this._id = handler !== null ? (handler.name || '#emit()') : this.type
 
   this.rules = []
   this.idx = -1     // Subrule pattern index that matched (-1 if only 1 pattern)
@@ -128,7 +130,7 @@ Rule.prototype.setDebug = function (init) {
     // Wrap/unwrap handlers
     if (debug) {
       var handler = this.handler
-      var id = handler !== null ? (handler.name || '#emit()') : this.type
+      var id = this._id
 
       // Save the previous handler
       this.prevHandler = handler

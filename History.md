@@ -1,4 +1,4 @@
-0.3.0 / 2012-05-25
+0.3.0 / 2012-05-28
 ==================
 
 * cleanups
@@ -14,7 +14,9 @@
   * `seek()`: use the `offset` property directly
   * `ruleIndex` is now private (`_ruleIndex`)
 * Use of Node's StringDecoder
-* continue(string|function): resolution automatically performed on saveRuleSet() and write()
+* continue(string|function): resolution automatically performed on saveRuleSet() and write(). This means that stricter checks are imposed:
+  * continue(+x) with x>=0 cannot be set on the last rule
+  * continue(-x) with x<-1 cannot be set on the first rule
 * Better Stream compliance:
   * `writable` and `readable` set to false after an error, `end()` and `destroy()`
 * Added `slice(startIndex, endIndex)`: returns a slice of the buffer

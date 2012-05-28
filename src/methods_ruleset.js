@@ -254,9 +254,11 @@ Atok.prototype._resolveRules = function (name) {
       rule.continue = i - j
     }
     // Check the continue boundaries
-    j = i + rule.continue + 1
-    if (j < 0 || j > rules.length)
-      this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule.continue + ' index ' + i) )
+    if (rule.continue !== null) {
+      j = i + rule.continue + 1
+      if (j < 0 || j > rules.length - 1)
+        this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule.continue + ' index ' + i) )
+    }
   }
 
   this._rulesToResolve = false
