@@ -653,7 +653,7 @@
           "undefined"
         ],
         "name": "when",
-        "description": "the rule fails, number of rules to skip before continuing (must be positive)"
+        "description": "the rule fails, number of rules to skip before continuing"
       },
       {
         "type": "return",
@@ -674,7 +674,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.continue = function (jump, jumpOnFail) {\n  if (arguments.length === 0) {\n    this._p_continue = null\n    this._p_continueOnFail = null\n\n    return this\n  }\n\n  if ( jump !== null && !/(number|string|function)/.test(typeof jump) )\n    this._error( new Error('Atok#continue: Invalid jump (must be an integer/function/string): ' + jump) )\n  \n  if (arguments.length === 1)\n    jumpOnFail = null\n  else if (\n        jumpOnFail !== null\n    && (    !/(number|string|function)/.test(typeof jumpOnFail)\n        ||  (typeof jumpOnFail === 'number' && jumpOnFail < 0)\n       )\n    )\n      this._error( new Error('Atok#continue: Invalid jump (must be a positive integer/function/string): ' + jumpOnFail) )\n  \n  this._p_continue = jump\n  this._p_continueOnFail = jumpOnFail\n\n  return this\n}",
+    "code": "Atok.prototype.continue = function (jump, jumpOnFail) {\n  if (arguments.length === 0) {\n    this._p_continue = null\n    this._p_continueOnFail = null\n\n    return this\n  }\n\n  if ( jump !== null && !/(number|string|function)/.test(typeof jump) )\n    this._error( new Error('Atok#continue: Invalid jump (must be an integer/function/string): ' + jump) )\n  \n  if (arguments.length === 1)\n    jumpOnFail = null\n  else if ( jumpOnFail !== null && !/(number|string|function)/.test(typeof jumpOnFail) )\n    this._error( new Error('Atok#continue: Invalid jump (must be an integer/function/string): ' + jumpOnFail) )\n  \n  this._p_continue = jump\n  this._p_continueOnFail = jumpOnFail\n\n  return this\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",

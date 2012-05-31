@@ -320,21 +320,6 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
-    describe('with negative second argument', function () {
-      var p = new Tokenizer(options)
-      it('should throw', function (done) {
-        assert.throws(
-          function () {
-            p.continue(null, -1)
-          }
-        , function (err) {
-            if (err instanceof Error) return true
-          }
-        )
-        done()
-      })
-    })
-
     describe('with a positive jump', function () {
       var p = new Tokenizer(options)
       it('should upon match continue at the indexed rule', function (done) {
@@ -366,6 +351,41 @@ describe('Tokenizer Properties Methods', function () {
           done()
         })
         p.write('aa')
+      })
+    })
+
+    describe('with a positive second argument', function () {
+      var p = new Tokenizer(options)
+      it('should upon failure continue at the specified indexed rule', function (done) {
+        var i = 0
+        p.continue(null, 1)
+        p.addRule('a', 'first')
+        p.continue()
+        p.addRule('a', function () {
+          done( new Error('Shoud not trigger') )
+        })
+        p.addRule('b', function (token, idx, type) {
+          done()
+        })
+        p.write('b')
+      })
+    })
+
+    describe('with a negative second argument', function () {
+      var p = new Tokenizer(options)
+      it('should upon failure continue at the specified indexed rule', function (done) {
+        var i = 0
+        p.addRule('b', function (token, idx, type) {
+          done()
+        })
+        p.continue(0)
+        p.addRule('a', 'first')
+        p.continue(null, -3)
+        p.addRule('a', function () {
+          done( new Error('Shoud not trigger') )
+        })
+        p.continue()
+        p.write('ab')
       })
     })
 
