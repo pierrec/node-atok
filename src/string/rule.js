@@ -40,6 +40,7 @@ function Rule (subrules, type, handler, options) {
   this.break = options._p_break
 
   this.bufferMode = (options._bufferMode === true)
+  this.group = options._group
   this.groupStart = options._groupStart
   this.groupEnd = options._groupEnd
 

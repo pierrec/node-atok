@@ -5,11 +5,11 @@
 * Subrules no longer extract tokens (only a number is returned) -> simplify code and allow Buffer support
 * Buffer support
 * Returns Buffer instances instead of strings unless setEncoding() was used (Stream compliance)
+* subrules linked execution
 
 
 ## 0.3.0
 
-* subrules linked execution
 
 
 ## 0.2.6

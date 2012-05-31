@@ -14,14 +14,14 @@ Atok.prototype.clear = function (keepRules) {
   return this
 }
 /**
- * Extract data from the buffer
+ * Extract data from the buffer (Atok#slice)
  *
  * @param {number} starting index
  * @param {number} ending index
  * @return {Object} extracted data
  * @api public
  */
-Atok.prototype.slice = function (start, end) {
+Atok.prototype._sliceBuffer = function (start, end) {
   switch (arguments.length) {
     case 0:
       start = this.offset
@@ -29,9 +29,17 @@ Atok.prototype.slice = function (start, end) {
       end = this.length
   }
 
-  return this._bufferMode
-    ? this.buffer.slice(start, end)
-    : this.buffer.substr(start, end - start)
+  return this.buffer.slice(start, end)
+}
+Atok.prototype._sliceString = function (start, end) {
+  switch (arguments.length) {
+    case 0:
+      start = this.offset
+    case 1:
+      end = this.length
+  }
+
+  return this.buffer.substr(start, end - start)
 }
 /**
  * Terminate the current tokenizing and return the current buffer

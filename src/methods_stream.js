@@ -158,19 +158,22 @@ Atok.prototype._tokenize = function () {
       // Continue?
       } else if (typeof p.continue === 'number') {
         i += p.continue
-        // Keep track of the rule index we are at
-        this._ruleIndex = i + 1
-        // Skip the token and keep going, unless rule returned 0
+      // Skip the token and keep going, unless rule returned 0
       } else if (matched > 0) {
         i = -1
-        // Keep track of the rule index we are at
-        this._ruleIndex = 0
       }
 
-      if (p.break) break
+      // NB. `break()` prevails over `pause()`
+      if (p.break) {
+        // Keep track of the rule index we are at
+        this._ruleIndex = i + 1
+        break
+      }
 
       // Hold on if the stream was paused
       if (this.paused) {
+        // Keep track of the rule index we are at
+        this._ruleIndex = i + 1
         this.needDrain = true
         return false
       }

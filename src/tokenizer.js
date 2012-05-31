@@ -91,6 +91,8 @@ function Atok (options) {
     .map(function (prop) {
       return prop.substr(3)
     })
+
+  this.slice = this._bufferMode ? this._sliceBuffer : this._sliceString
 }
 inherits(Atok, EV, Stream.prototype)
 
