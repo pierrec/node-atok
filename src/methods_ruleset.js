@@ -237,45 +237,39 @@ Atok.prototype.removeRuleSet = function (name) {
  * Resolve a rule or all of them if none specified:
  * - translate non number continue() to numbers
  * - check continue() stay within bounds
+ * - adjust the continue() jumps based on groups
  *
  * @param {string} name of the rule set (optional)
  * @api private
  */
 Atok.prototype._resolveRules = function (name) {
+  var self = this
   // Check and set the continue values
   var rules = name ? this._savedRules[name].rules : this._rules
-  var rule, j
 
   // Perform various checks on a continue type property
-  function check (prop) {
+  function resolveId (prop) {
     if (rule[prop] === null) return
 
     // Resolve the property to an index
     if (typeof rule[prop] !== 'number') {
-      j = this._getRuleIndex(rule.id)
+      var j = self._getRuleIndex(rule.id)
       if (j < 0)
-        this._error( new Error('Atok#_resolveRules: continue() value not found: ' + rule.id) )
+        self._error( new Error('Atok#_resolveRules: continue() value not found: ' + rule.id) )
       
       rule[prop] = i - j
     }
-
-    // Check the continue boundaries
-    j = i + rule[prop] + 1
-    // Cannot jump to a rule before the first one
-    // or beyond the last one.
-    // NB. jumping to a rule right after the last one is accepted since
-    // it will simply stop the parsing
-    if (j < 0 || j > rules.length)
-      this._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule[prop] + ' index ' + i) )
   }
 
   // Process all rules
   for (var i = 0, n = rules.length; i < n; i++) {
     rule = rules[i]
     // Check the continue property
-    check.call(this, 'continue')
+    resolveId('continue')
+
     // Check the continueOnFail property
-    check.call(this, 'continueOnFail')
+    resolveId('continueOnFail')
+
     // Check the group is terminated
     if (rule.group >= 0 && rule.groupEnd === 0)
       this._error( new Error('Atok#_resolveRules: non terminated group starting at index ' + rule.groupStart ) )
@@ -283,45 +277,66 @@ Atok.prototype._resolveRules = function (name) {
 
   this._rulesToResolve = false
 
-  // Adjust continue jumps according to groups
-  for (i = 0; i < n; i++) {
-    rule = rules[i]
-    // Check each rule continue property
-    if (rule.continue !== null) {
-      if (rule.continue > 0) {
-        // Positive jump
-        // j = index to scan
-        // count = number of indexes to scan
-        for (var j = i + 1, count = 0, m = rule.continue; count < m; j++, count++) {
-          // Scan all rules from the current one to the target one
-          var _rule = rules[j]
-          // Only process rules bound to a group
-          if (_rule.group >= 0) {
-            // Get to the right group
-            while (_rule.group > rule.group + 1) {
-              j += _rule.groupEnd - _rule.groupStart + 1
-              _rule = rules[j]
+  // prop: continue type property
+  function checkContinue (prop) {
+    // incr: 1 or -1 (positive/negative continue)
+    // offset: 0 or 1 (positive/negative continue)
+    function setContinue (incr, offset) {
+      // j = current index to be checked
+      // count = number of indexes to check
+      console.log('___', prop, '___')
+      for (
+        var j = i + incr, count = 0, m = Math.abs(rule[prop] + offset)
+      ; count < m
+      ; j += incr, count++
+      ) {
+        // Scan all rules from the current one to the target one
+        var _rule = rules[j]
+        // Only process rules bound to a group below the current one
+        console.log(_rule.group, '/', rule.group)
+        if (_rule.group > rule.group) {
+          // Get to the right group
+          while (_rule.group > rule.group + 1) {
+            j += incr * (_rule.groupEnd - _rule.groupStart + 1)
+            // Jump to the end of the rules is ignored
+            if (j > n) {
+              rule[prop] = null
+              return
             }
-            rule.continue += _rule.groupEnd - _rule.groupStart
+
+            _rule = rules[j]
           }
-        }
-      } else if (rule.continue < -1) {
-        // Negative jump
-        for (var j = i - 1, count = 0, m = -(rule.continue + 1); count < m; j--, count++) {
-          // Scan all rules from the current one to the target one
-          var _rule = rules[j]
-          // Only process rules bound to a group
-          if (_rule.group >= 0) {
-            // Get to the right group
-            while (_rule.group > rule.group + 1) {
-              j -= _rule.groupEnd - _rule.groupStart + 1
-              _rule = rules[j]
-            }
-            rule.continue -= _rule.groupEnd - _rule.groupStart
-          }
+          rule[prop] += incr * (_rule.groupEnd - _rule.groupStart)
+        console.log('>prop', rule[prop])
         }
       }
     }
+
+    if (rule[prop] !== null) {
+      // continue(0) and continue(-1) do not need any update
+      if (rule[prop] > 0)
+        // Positive jump
+        setContinue(1, 0)
+      else if (rule.continue < -1)
+        // Negative jump
+        setContinue(-1, 1)
+
+      // Check the continue boundaries
+      var j = i + rule[prop] + 1
+      // Cannot jump to a rule before the first one or beyond the last one.
+      // NB. jumping to a rule right after the last one is accepted since
+      // it will simply stop the parsing
+      if (j < 0 || j > n)
+        self._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule[prop] + ' index ' + i) )
+    }
+  }
+
+  // Adjust continue jumps according to groups
+  for (i = 0; i < n; i++) {
+    var rule = rules[i]
+    // Check each rule continue property
+    checkContinue('continue')
+    checkContinue('continueOnFail')
   }
 }
 /**
@@ -334,39 +349,34 @@ Atok.prototype._resolveRules = function (name) {
 Atok.prototype.groupRule = function (flag) {
   var rules = this._rules
 
-  if (flag !== true) {
-    // Ignore invalid groupRule()
-    if (this._group < 0) return this
-    
-    // 1 or 0 rule, group is ignored
-    if (rules.length - this._groupStart < 2) {
-      for (var i = this._groupStart, n = rules.length; i < n; i++) {
-        rules[i].group = -1
-        rules[i].groupStart = 0
-        rules[i].groupEnd = 0
-      }
-    } else {
-      // Set the last index of the group to all rules belonging to the current group
-      for (var i = this._groupStart, n = rules.length; i < n; i++)
-        if (rules[i].group === this._group)
-          rules[i].groupEnd = n - 1
-    }
-
-    // Reset the groupStart
-    if (this._groupStart > 0) {
-      var prevRule = rules[ this._groupStart - 1 ]
-      if (prevRule.group >= 0)
-        this._groupStart = prevRule.groupStart
-    }
-    this._groupEnd = 0
-
-    this._group--
+  if (flag) {
+    this._group++
+    this._groupStartPrev.push(this._groupStart)
+    this._groupStart = rules.length
 
     return this
   }
 
-  this._group++
-  this._groupStart = this._rules.length
+  // Ignore invalid groupRule()
+  if (this._group < 0) return this
+  
+  // 1 or 0 rule within the group, ignored it
+  if (rules.length - this._groupStart < 2) {
+    for (var i = this._groupStart, n = rules.length; i < n; i++) {
+      rules[i].group = -1
+      rules[i].groupStart = 0
+      rules[i].groupEnd = 0
+    }
+  } else {
+    // Set the last index of the group to all rules belonging to the current group
+    for (var i = this._groupStart, n = rules.length; i < n; i++)
+      if (rules[i].group === this._group)
+        rules[i].groupEnd = n - 1
+  }
+
+  this._group--
+  this._groupStart = this._groupStartPrev.pop() || 0
+  this._groupEnd = 0
 
   return this
 }

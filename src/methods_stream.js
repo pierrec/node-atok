@@ -163,17 +163,14 @@ Atok.prototype._tokenize = function () {
         i = -1
       }
 
+      // Keep track of the rule index we are at
+      this._ruleIndex = i + 1
+
       // NB. `break()` prevails over `pause()`
-      if (p.break) {
-        // Keep track of the rule index we are at
-        this._ruleIndex = i + 1
-        break
-      }
+      if (p.break) break
 
       // Hold on if the stream was paused
       if (this.paused) {
-        // Keep track of the rule index we are at
-        this._ruleIndex = i + 1
         this.needDrain = true
         return false
       }

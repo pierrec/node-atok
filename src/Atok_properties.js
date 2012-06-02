@@ -12,6 +12,7 @@
   this._group = -1
   this._groupStart = 0
   this._groupEnd = 0
+  this._groupStartPrev = []
 
 //if(keepRules)
   if (!keepRules) {

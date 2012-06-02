@@ -356,4 +356,87 @@ describe('Tokenizer Grouped Rules', function () {
       p.write('aca')
     })
   })
+
+  describe('with a negative jump and 2 consecutive groups', function () {
+    var p = new Tokenizer
+
+    it('should trigger on match', function (done) {
+      function error (token, idx, type) {
+        if (/^error/.test(type)) done( new Error( type + ' should not trigger') )
+      }
+      p.setDefaultHandler(error)
+      p.continue(1)
+      p.addRule('a', 'first')
+      p.addRule('c', function () {
+        done()
+      })
+      p.continue()
+      p.groupRule(true)
+        p.addRule('b', 'error-1')
+        p.addRule('b', 'error-2')
+      p.groupRule()
+        p.addRule('b', 'error-2')
+      p.groupRule(true)
+        p.addRule('b', 'error-3')
+        p.addRule('b', 'error-4')
+      p.groupRule()
+      p.continue(-5)
+      p.addRule('c', 'second')
+      p.continue()
+
+      p.write('acc')
+    })
+  })
+
+  false&&describe('in a grouped group', function () {
+    describe('with a zero jump', function () {
+      var p = new Tokenizer
+
+      it('should trigger on match', function (done) {
+        function error (token, idx, type) {
+          if (/^error/.test(type)) done( new Error( type + ' should not trigger') )
+        }
+        p.setDefaultHandler(error)
+        p.groupRule(true)
+          p.continue(0)
+          p.addRule('a', 'first')
+          p.continue()
+          p.groupRule(true)
+            p.addRule('a', function () {
+              done()
+            })
+            p.addRule('a', 'error-1')
+          p.groupRule()
+          p.addRule('a', 'error-2')
+        p.groupRule()
+
+        p.write('aa')
+      })
+    })
+  })
+
+  describe('with a positive jump', function () {
+      var p = new Tokenizer
+
+      it('should trigger on match', function (done) {
+        function error (token, idx, type) {
+          if (/^error/.test(type)) done( new Error( type + ' should not trigger') )
+        }
+        p.setDefaultHandler(error)
+        p.groupRule(true)
+          p.continue(1)
+          p.addRule('a', 'first')
+          p.continue()
+          p.groupRule(true)
+            p.addRule('a', 'error-1')
+            p.addRule('a', 'error-2')
+          p.groupRule()
+          p.addRule('a', function () {
+            done()
+          })
+        p.groupRule()
+
+        p.write('aa')
+      })
+    })
 })

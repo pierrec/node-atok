@@ -597,6 +597,20 @@ describe('Tokenizer Properties Methods', function () {
         p.write('ab')
       })
     })
+
+    describe('with split data', function () {
+      var p = new Tokenizer(options)
+      it('should not reset the index', function (done) {
+        p.continue(0)
+        p.addRule('a', 'a')
+        p.addRule('a', function (token, idx, type) {
+          done()
+        })
+        
+        p.write('a')
+        p.write('a')
+      })
+    })
   })
 
   describe('#getProps', function () {
