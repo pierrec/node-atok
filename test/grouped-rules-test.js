@@ -48,6 +48,8 @@ describe('Tokenizer Grouped Rules', function () {
         done()
       })
 
+      p._resolveRules()
+
       p.write('aa')
     })
   })
@@ -82,7 +84,7 @@ describe('Tokenizer Grouped Rules', function () {
         if (/^error/.test(type)) done( new Error( type + ' should not trigger') )
       }
       p.setDefaultHandler(error)
-      p.continue(3)
+      p.continue(4)
       p.addRule('a', 'first')
       p.continue()
       p.groupRule(true)
@@ -94,6 +96,7 @@ describe('Tokenizer Grouped Rules', function () {
         p.addRule('a', 'error-3')
         p.addRule('a', 'error-4')
       p.groupRule()
+      p.addRule('a', 'error-5')
       p.addRule('a', function () {
         done()
       })

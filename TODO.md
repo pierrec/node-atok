@@ -10,7 +10,6 @@
 
 ## 0.3.0
 
-* resolveRules(): swap str/fn resolution with continue/group processing - make sure id found is part of the same group (loop from groupStart to groupEnd even for group -1)
 
 
 ## 0.2.6
