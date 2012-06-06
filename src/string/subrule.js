@@ -2,7 +2,7 @@ module.exports = SubRule
 
 var isArray = require('util').isArray
 
-var emptyRule = { token: true, exec: null }
+var emptyRule = { token: true, exec: null, length: 0 }
 
 //include("utils.js", "*_SubRule.js")
 
