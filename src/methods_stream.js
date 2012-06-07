@@ -158,8 +158,9 @@ Atok.prototype._tokenize = function () {
       // Continue?
       } else if (typeof p.continue === 'number') {
         i += p.continue
-      // Skip the token and keep going, unless rule returned 0
-      } else if (matched > 0) {
+      // Reset the rule index if data was matched
+      // or unless rule has a valid length
+      } else if (matched > 0 || p.length >= 0) {
         i = -1
       }
 

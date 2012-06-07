@@ -10,12 +10,12 @@
 
 ## 0.3.0
 
+* .continue(-1).ignore(true).next().addRule(subrule, handler): can be optimized with a while()
 
 
 ## 0.2.6
 
 * first match should always be 100% validated (check remaining size in buffer vs firstmatch length)
-* .continue(-1).ignore(true).next().addRule(subrule, handler): can be optimized with a while()
 
 
 ## Documentation

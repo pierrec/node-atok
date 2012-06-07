@@ -1,9 +1,9 @@
-0.3.0 / 2012-05-28
+0.3.0 / 2012-06-07
 ==================
 
 * cleanups
   * `deleteRuleSet()` -> `removeRuleSet()`
-  * `loadProps()` -> `setProps()`
+  * `loadProps()` -> `setProps()`: all or a subset of properties are returned
   * `escaped()` -> `escape()`
   * renamed internal properties with a leading _
   * `offsetBuffer` -> `markedOffset`
@@ -13,7 +13,7 @@
   * `getAllRuleSet()`
   * `bytesRead` property
   * `seek()`: use the `offset` property directly
-  * `ruleIndex` is now private (`_ruleIndex`) and not systematically updated during parsing
+  * `ruleIndex` is now private (`_ruleIndex`) and may not be systematically updated during parsing
 * Use of Node's StringDecoder for utf-8 encoding
 * continue(string|function): resolution automatically performed on `saveRuleSet()` and `write()`. This means that stricter checks are imposed:
   * `continue(+x)` with x>=0 cannot be set on the last rule
@@ -21,9 +21,10 @@
 * Better compliance with Nodejs Stream API:
   * `writable` and `readable` properties are set to false after an error, `end()` and `destroy()`
 * Added `slice([startIndex[, endIndex]])`: returns a slice of the buffer. NB. the buffer is _not_ altered.
-* Added `groupRule(boolean)`: bind the following rules to the same index (useful for writing helpers and make them behave as a single rule)
+* Added `groupRule(boolean)`: bind the following rules to the same index (useful for writing helpers and make them behave as a single rule). Groups can be set at any level. Empty or 1 rule groups are ignored.
 * the buffer is always truncated from min(`offset`, `markedOffset`) to try and minimize memory usage
-
+* `addRule(function)` is now considered a successful rule
+* Infinite loop detection. Cannot detect rule handlers changing the offset property to the one before the rule execution.
 
 0.2.6 / 2012-05-23
 ==================

@@ -26,6 +26,26 @@ describe('Tokenizer Special Rules', function () {
     })
   })
 
+  describe('single function and single rule', function () {
+    var p = new Tokenizer(options)
+    var i = 0
+
+    it('should throw an error (infinite loop)', function (done) {
+      p.addRule(function (matched) {})
+
+      assert.throws(
+        function () {
+          p.write('abc')
+        }
+      , function (err) {
+          if (err instanceof Error) return true
+        }
+      )
+
+      done()
+    })
+  })
+
   describe('single subrule', function () {
 
     describe('with quiet()', function () {

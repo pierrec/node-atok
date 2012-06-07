@@ -73,6 +73,8 @@ function Rule (subrules, type, handler, options) {
     return this
   }
 
+  // To ensure rule index is not reset if single subrule has no length
+  this.length = -1
   // Instantiate all sub rules
   for (var r, i = 0, n = subrules.length; i < n; i++) {
     r = SubRuleString(subrules[i], i, n, this)

@@ -15,10 +15,13 @@ describe('Tokenizer Custom Rules', function () {
 
       p.addRule(function (data, start) {
           flag = true
-          return 1
+          return 0
         }
       , function (token, idx, type) {
-          assert.equal(flag, true)
+          assert(flag)
+          assert.equal(token, 0)
+          assert.equal(idx, -1)
+          assert.equal(type, null)
           done()
         }
       )

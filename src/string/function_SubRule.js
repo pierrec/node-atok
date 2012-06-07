@@ -3,7 +3,7 @@ function function_SubRule (list) {
 	this.idx = -1
 	this.token = false
 	this.list = list
-	this.length = 0
+	this.length = -1
 }
 
 function_SubRule.prototype.exec = function (s, start) {

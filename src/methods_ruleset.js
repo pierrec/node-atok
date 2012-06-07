@@ -239,6 +239,8 @@ Atok.prototype.removeRuleSet = function (name) {
  * - check continue() stay within bounds
  * - adjust the continue() jumps based on groups
  *
+ * Also detects infinite loops
+ *
  * @param {string} name of the rule set (optional)
  * @api private
  */
@@ -333,6 +335,17 @@ Atok.prototype._resolveRules = function (name) {
     // Check the group is terminated
     if (rule.group >= 0 && rule.groupEnd === 0)
       this._error( new Error('Atok#_resolveRules: non terminated group starting at index ' + rule.groupStart ) )
+
+    // An infinite loop is created when a 0 length rule points
+    // to another 0 length one
+    if (rule.length === 0) {
+      var nextRule = rule.continue === null
+        ? rules[0]
+        : rules[ i + 1 + rule.continue ]
+
+      if (nextRule && nextRule.length === 0)
+        this._error( new Error('Atok#_resolveRules: infinite loop at index ' + i ) )
+    }
   }
 
   // Resolution successfully completed
