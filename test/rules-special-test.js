@@ -26,6 +26,23 @@ describe('Tokenizer Special Rules', function () {
     })
   })
 
+  describe('single function is a successful rule', function () {
+    var p = new Tokenizer(options)
+
+    it('should return 0 match', function (done) {
+      p.continue(0)
+      p.addRule(1, 'consume')
+      p.continue()
+      p.addRule(function () {})
+      p.addRule(function () {
+        assert(false)
+      })
+      p.write('abc')
+
+      done()
+    })
+  })
+
   describe('single function and single rule', function () {
     var p = new Tokenizer(options)
     var i = 0
