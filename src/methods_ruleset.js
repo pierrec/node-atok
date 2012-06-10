@@ -111,8 +111,7 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
     }
   }
 
-  // Rules have been modified, force a resolve when required
-  this._rulesToResolve = true
+  this._checkResolveRules()
 
   // first === 0: following arguments are ignored
   // Empty buffer rule
@@ -152,11 +151,21 @@ Atok.prototype.removeRule = function (/* name ... */) {
     if (idx >= 0)
       this._rules.splice(idx, 1)
   }
-
-  // Rules have been modified, force a resolve when required
-  this._rulesToResolve = true
+  this._checkResolveRules()
 
   return this
+}
+/**
+ * Resolve rules righ away or delay it
+ *
+ * @api private
+ */
+Atok.prototype._checkResolveRules = function () {
+  // Rules have been modified, force a resolve when required
+  if (this._tokenizing)
+    this._resolveRules()
+  else
+    this._rulesToResolve = true
 }
 /**
  * Remove all rules
@@ -251,35 +260,38 @@ Atok.prototype._resolveRules = function (name) {
 
   // Perform various checks on a continue type property
   function resolveId (prop) {
-    if (rule[prop] === null) return
+    if (rule[prop] === null || typeof rule[prop] === 'number') return
 
     // Resolve the property to an index
-    if (typeof rule[prop] !== 'number') {
-      var j = self._getRuleIndex(rule.id)
-      if (j < 0)
-        self._error( new Error('Atok#_resolveRules: continue() value not found: ' + rule.id) )
+    var j = self._getRuleIndex(rule.id)
+    if (j < 0)
+      self._error( new Error('Atok#_resolveRules: ' + prop + '() value not found: ' + rule.id) )
       
-      rule[prop] = i - j
-    }
+    rule[prop] = i - j
   }
 
   // prop: continue type property
   function checkContinue (prop) {
+    if (typeof rule[prop] !== 'number') return
+
     // incr: 1 or -1 (positive/negative continue)
     // offset: 0 or 1 (positive/negative continue)
     function setContinue (incr, offset) {
       // j = current index to be checked
       // count = number of indexes to check
       for (
-        var j = i + incr, count = 0, m = Math.abs(rule[prop] + offset)
+        var j = i + incr, count = 0, m = Math.abs(cont + offset)
       ; count < m
       ; j += incr, count++
       ) {
         // Scan all rules from the current one to the target one
         var _rule = rules[j]
 
-        if (j < 0 || j > n - 1)
-          self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + rule[prop] + ' index ' + i) )
+        // Jumping to the last rule is valid
+        if (j === n && count === m - 1) return
+
+        if (j < 0 || j > n)
+          self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + ' index ' + i) )
 
         // Only process rules bound to a group below the current one
         // Or at the same level but different
@@ -291,35 +303,38 @@ Atok.prototype._resolveRules = function (name) {
             j = incr > 0 ? _rule.groupEnd + 1 : _rule.groupStart - 1
             // Jump to the end of the rules is ignored
             if (j > n) {
-              rule[prop] = null
+              cont = null
               return
             }
 
             _rule = rules[j]
           }
           j = incr > 0 ? _rule.groupEnd : _rule.groupStart
-          rule[prop] += incr * (_rule.groupEnd - _rule.groupStart)
+          cont += incr * (_rule.groupEnd - _rule.groupStart)
         }
       }
     }
 
-    if (typeof rule[prop] === 'number') {
-      // continue(0) and continue(-1) do not need any update
-      if (rule[prop] > 0)
-        // Positive jump
-        setContinue(1, 0)
-      else if (rule[prop] < -1)
-        // Negative jump
-        setContinue(-1, 1)
+    // Use the backup value
+    var cont = rule.backup[prop]
 
-      // Check the continue boundaries
-      var j = i + rule[prop] + 1
-      // Cannot jump to a rule before the first one or beyond the last one.
-      // NB. jumping to a rule right after the last one is accepted since
-      // it will simply stop the parsing
-      if (j < 0 || j > n)
-        self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + rule[prop] + ' index ' + i) )
-    }
+    // continue(0) and continue(-1) do not need any update
+    if (cont > 0)
+      // Positive jump
+      setContinue(1, 0)
+    else if (cont < -1)
+      // Negative jump
+      setContinue(-1, 1)
+
+    // Check the continue boundaries
+    var j = i + cont + 1
+    // Cannot jump to a rule before the first one or beyond the last one.
+    // NB. jumping to a rule right after the last one is accepted since
+    // it will simply stop the parsing
+    if (j < 0 || j > n)
+      self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + ' index ' + i) )
+
+    rule[prop] = cont
   }
 
   // Process all rules

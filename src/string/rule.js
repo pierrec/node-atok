@@ -39,6 +39,9 @@ function Rule (subrules, type, handler, options) {
   this.continueOnFail = options._p_continueOnFail
   this.break = options._p_break
 
+  // Backup continue values for Atok#resolveRules()
+  this.backup = { continue: this.continue, continueOnFail: this.continueOnFail }
+
   this.bufferMode = (options._bufferMode === true)
   this.group = options._group
   this.groupStart = options._groupStart

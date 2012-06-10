@@ -6,6 +6,52 @@ var assert = require('assert')
 var Tokenizer = require('..')
 
 describe('Tokenizer Grouped Rules', function () {
+  describe('Modifying resolved rules', function () {
+    var p = new Tokenizer
+
+    describe('after a saveRuleSet()', function () {
+      it('should not corrupt the rules', function (done) {
+        function error (token, idx, type) {
+          if (/^error/.test(type)) done( new Error( type + ' should not trigger') )
+        }
+        p.addRule('a', 'error-1')
+        p.groupRule(true)
+          p.continue(1)
+          p.addRule('b', 'b')
+          p.continue()
+        p.groupRule()
+        p.addRule('a', 'error-2')
+        p.saveRuleSet('main')
+        p.addRule('a', 'ok')
+
+        p.write('ba')
+        done()
+      })
+    })
+
+    describe('within a handler', function () {
+      it('should not corrupt the rules', function (done) {
+        function error (token, idx, type) {
+          if (/^error/.test(type)) done( new Error( type + ' should not trigger') )
+        }
+        p.addRule('a', 'error-1')
+        p.groupRule(true)
+          p.continue(1)
+          p.addRule('b', function () {
+            p.addRule('a', 'error-3')
+          })
+          p.continue()
+        p.groupRule()
+        p.addRule('a', 'error-2')
+        p.saveRuleSet('main')
+        p.addRule('a', 'ok')
+
+        p.write('ba')
+        done()
+      })
+    })
+  })
+
   describe('with a zero jump', function () {
     var p = new Tokenizer
 

@@ -123,6 +123,8 @@ Atok.prototype._done = function () {
  * @private
  */
 Atok.prototype._tokenize = function () {
+  this._tokenizing = true
+
   // NB. Rules and buffer can be reset by the token handler
   var i = this._ruleIndex, p, matched
 
@@ -173,6 +175,7 @@ Atok.prototype._tokenize = function () {
       // Hold on if the stream was paused
       if (this.paused) {
         this.needDrain = true
+        this._tokenizing = false
         return false
       }
     } else if (typeof p.continueOnFail === 'number') {
@@ -203,6 +206,7 @@ Atok.prototype._tokenize = function () {
       if (this.paused) {
         this._ruleIndex = i + 1
         this.needDrain = true
+        this._tokenizing = false
         return false
       }
     }
@@ -256,6 +260,8 @@ Atok.prototype._tokenize = function () {
     }
   }
   this.length = this.buffer.length
+
+  this._tokenizing = false
   
   return this._done()
 }

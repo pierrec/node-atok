@@ -5,6 +5,7 @@
   this.markedOffset = -1    // Flag indicating whether the buffer should be kept when write() ends
 
   // Private properties
+  this._tokenizing = false
   this._ruleIndex = 0
   this._resetRuleIndex = false
   this._stringDecoder = new StringDecoder(this._encoding)
