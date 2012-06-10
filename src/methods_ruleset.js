@@ -277,6 +277,10 @@ Atok.prototype._resolveRules = function (name) {
       ) {
         // Scan all rules from the current one to the target one
         var _rule = rules[j]
+
+        if (j < 0 || j > n - 1)
+          self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + rule[prop] + ' index ' + i) )
+
         // Only process rules bound to a group below the current one
         // Or at the same level but different
         if (_rule.group > rule.group
@@ -314,7 +318,7 @@ Atok.prototype._resolveRules = function (name) {
       // NB. jumping to a rule right after the last one is accepted since
       // it will simply stop the parsing
       if (j < 0 || j > n)
-        self._error( new Error('Atok#_resolveRules: continue() value out of bounds: ' + rule[prop] + ' index ' + i) )
+        self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + rule[prop] + ' index ' + i) )
     }
   }
 

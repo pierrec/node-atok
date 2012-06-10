@@ -11,6 +11,7 @@
 ## 0.3.0
 
 * .continue(-1).ignore(true).next().addRule(subrule, handler): can be optimized with a while()
+* move subrule.js initializations to subruleObject#init()
 
 
 ## 0.2.6
