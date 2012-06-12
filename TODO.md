@@ -12,6 +12,7 @@
 
 * .continue(-1).ignore(true).next().addRule(subrule, handler): can be optimized with a while()
 * move subrule.js initializations to subruleObject#init()
+* remove the first subrule length test (breaks many rules, use the wait() helper to emulate)
 
 
 ## 0.2.6

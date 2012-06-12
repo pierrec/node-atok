@@ -1,10 +1,9 @@
 // The content of this file was automatically generated during build time
 function _MaskSetter (method /* , flag1, flag2... */) {
-  for (var int = 0, j = 33; --j;) {
-    int = int | (arguments[j] ? 1 : 0)
-    if (j > 1) int = int << 1
+  for (var list = new Array(32), i = 0; i < 32; i++) {
+    list[i] = arguments[32 - i] ? 1 : 0
   }
-  this[method] = this[ method + "_" + int ]
+  this[method] = this[ method + "_" + parseInt(list.join(""), 2) ]
 }
 
 // RULE_GENERATES_TOKEN=0,RULE_TRIMLEFT=0,RULE_TRIMRIGHT=0,DEBUG=0

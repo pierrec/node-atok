@@ -108,20 +108,8 @@ describe('Tokenizer RuleSet Methods', function () {
           assert.equal(type, 'test')
           done()
         })
-        p.addRule('a', false, 'ignore')
+        p.addRule('a', false)
         p.addRule('a', 'test')
-        p.write('a')
-      })
-    })
-
-    describe('with true subrule', function () {
-      var p = new Tokenizer(options)
-      it('should use the rule', function (done) {
-        p.setDefaultHandler(function (token, idx, type) {
-          assert.equal(type, 'test')
-          done()
-        })
-        p.addRule('a', true, 'test')
         p.write('a')
       })
     })

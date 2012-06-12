@@ -83,10 +83,11 @@ function SubRule (rule, i, n, mainRule) {
           ? new endNumberSingleRange_SubRule(rule.end)
           : new endSingleRange_SubRule(rule.end)
 
-      } else if ( rule.hasOwnProperty('firstOf') && isArray( rule.firstOf ) ) {
+      } else if ( rule.hasOwnProperty('firstOf') && ( isArray( rule.firstOf ) || typeof rule.firstOf === 'string' ) ) {
         if (rule.firstOf.length < 2)
           throw new Error('Tokenizer#addRule: Invalid Array size for firstOf (must be >= 2): ' + rule.firstOf.length)
 
+        if ( !isArray( rule.firstOf ) ) rule.firstOf = rule.firstOf.split('')
         if (mainRule.escape === false) {
           if (i !== (n-1))
             return new firstOf_SubRule(rule.firstOf)
