@@ -33,11 +33,13 @@ function Rule (subrules, type, handler, options) {
   this.ignore = options._p_ignore
   this.quiet = options._p_quiet
   this.escape = options._p_escape
-  this.next = (typeof options._p_next === 'string') ? options._p_next : null
+  this.next = options._p_next
   this.nextIndex = options._p_nextIndex
   this.continue = options._p_continue
   this.continueOnFail = options._p_continueOnFail
   this.break = options._p_break
+  this.continueGroup = options._p_continueGroup
+  this.continueOnFailGroup = options._p_continueOnFailGroup
 
   // Backup continue values for Atok#resolveRules()
   this.backup = { continue: this.continue, continueOnFail: this.continueOnFail }
@@ -46,6 +48,7 @@ function Rule (subrules, type, handler, options) {
   this.group = options._group
   this.groupStart = options._groupStart
   this.groupEnd = options._groupEnd
+  this.currentRule = options.currentRule
 
   this.atok = options
 
@@ -54,7 +57,10 @@ function Rule (subrules, type, handler, options) {
   this.prevHandler = null
   this.id = this.type !== null ? this.type : handler
   // Id for debug
-  this._id = handler !== null ? (handler.name || '#emit()') : this.type
+  this._id = (handler !== null ? (handler.name || '#emit()') : this.type)
+
+  if (this.currentRule)
+    this._id += '@' + this.currentRule
 
   this.rules = []
   this.idx = -1     // Subrule pattern index that matched (-1 if only 1 pattern)
@@ -66,9 +72,15 @@ function Rule (subrules, type, handler, options) {
   // In some cases, we know the token will be empty, no matter what
   // NB. this.noToken is tested before emptyToken
   this.emptyToken = false
+  // Rule index (only used with addRule(0) since it is invoked out of normal rules list)
+  this.ruleIndex = -1
 
   // Special case: addRule(0)
-  if (subrules === 0) return this
+  if (subrules === 0) {
+    // Rule is not added to the list so index _is_ the list length
+    this.ruleIndex = this.atok._rules.length
+    return this
+  }
 
   // Special case: addRule()
   if (subrules.length === 0) {

@@ -156,33 +156,29 @@ Atok.prototype._tokenize = function () {
       if (this._resetRuleIndex) {
         this._resetRuleIndex = false
         i = this._ruleIndex - 1
-      // Continue?
-      } else if (typeof p.continue === 'number') {
+      } else if (matched > 0)
         i += p.continue
-      // Reset the rule index if data was matched
-      // or unless rule has a valid length
-      } else if (matched > 0) {
-        i = -1
-      }
-
-      // Keep track of the rule index we are at
-      this._ruleIndex = i + 1
 
       // NB. `break()` prevails over `pause()`
-      if (p.break) break
+      if (p.break) {
+        i++
+        break
+      }
 
       // Hold on if the stream was paused
       if (this.paused) {
+      this._ruleIndex = i + 1
         this.needDrain = true
         this._tokenizing = false
         return false
       }
-    } else if (typeof p.continueOnFail === 'number') {
+    } else {
       i += p.continueOnFail
-      // Keep track of the rule index we are at
-      this._ruleIndex = i + 1
     }
   }
+  
+  // Keep track of the rule index we are at
+  this._ruleIndex = i
 
   // End of buffer reached
   if (this.offset === this.length) {
@@ -198,12 +194,18 @@ Atok.prototype._tokenize = function () {
 
       if (p.next) this.loadRuleSet(p.next, p.nextIndex)
 
-      if (this._resetRuleIndex) this._resetRuleIndex = false
-      else if (p.continue !== null) this._ruleIndex = i + 1
+      if (this._resetRuleIndex)
+        this._resetRuleIndex = false
+      else 
+        this._ruleIndex = p.continue === null
+          ? 0
+          : p.ruleIndex + p.continue
 
       // NB. subsequent empty handlers will not be called
       if (this.paused) {
-        this._ruleIndex = i + 1
+        this._ruleIndex = p.continue === null
+          ? 0
+          : p.ruleIndex + p.continue
         this.needDrain = true
         this._tokenizing = false
         return false

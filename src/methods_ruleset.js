@@ -250,6 +250,7 @@ Atok.prototype._resolveRules = function (name) {
   var self = this
   // Check and set the continue values
   var rules = name ? this._savedRules[name].rules : this._rules
+  var groupStartPrev = this._groupStartPrev
 
   // Perform various checks on a continue type property
   function resolveId (prop) {
@@ -318,7 +319,7 @@ Atok.prototype._resolveRules = function (name) {
     else if (cont < -1)
       // Negative jump
       setContinue(-1, 1)
-
+    
     // Check the continue boundaries
     var j = i + cont + 1
     // Cannot jump to a rule before the first one or beyond the last one.
@@ -327,6 +328,7 @@ Atok.prototype._resolveRules = function (name) {
     if (j < 0 || j > n)
       self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + ' index ' + i) )
 
+    // Save the next rule index
     rule[prop] = cont
   }
 
@@ -337,6 +339,15 @@ Atok.prototype._resolveRules = function (name) {
     // Check each rule continue property
     checkContinue('continue')
     checkContinue('continueOnFail')
+
+    // Set values for null
+    if (rule.continue === null)
+      // Go to the start of the rule set
+      rule.continue = -(i + 1)
+
+    if (rule.continueOnFail === null)
+      // Go to the next rule
+      rule.continueOnFail = 0
 
     // Check the continue property
     resolveId('continue')
