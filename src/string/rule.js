@@ -48,7 +48,6 @@ function Rule (subrules, type, handler, options) {
   this.group = options._group
   this.groupStart = options._groupStart
   this.groupEnd = options._groupEnd
-  this.currentRule = options.currentRule
 
   this.atok = options
 
@@ -58,9 +57,6 @@ function Rule (subrules, type, handler, options) {
   this.id = this.type !== null ? this.type : handler
   // Id for debug
   this._id = (handler !== null ? (handler.name || '#emit()') : this.type)
-
-  if (this.currentRule)
-    this._id += '@' + this.currentRule
 
   this.rules = []
   this.idx = -1     // Subrule pattern index that matched (-1 if only 1 pattern)

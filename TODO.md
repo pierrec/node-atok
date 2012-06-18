@@ -3,6 +3,7 @@
 ## 0.4.0
 
 * Subrules no longer extract tokens (only a number is returned) -> simplify code and allow Buffer support
+* single subrule optimization: merge subrule object with rule object
 * Buffer support
 * Returns Buffer instances instead of strings unless setEncoding() was used (Stream compliance)
 * subrules linked execution
@@ -11,8 +12,7 @@
 ## 0.3.0
 
 * .continue(-1).ignore(true).next().addRule(subrule, handler): can be optimized with a while()
-* move subrule.js initializations to subruleObject#init()
-* remove the first subrule length test (breaks many rules, use the wait() helper to emulate)
+* merge rules when next() is used
 
 
 ## 0.2.6

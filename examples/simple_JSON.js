@@ -65,5 +65,8 @@ tok.on('data', function (token, idx, type) {
     }
 })
 
+// To turn debug on
+// tok.debug(true).on('debug', console.log)
+
 // Send some data to be parsed!
 tok.write('[ "Hello", "world!" ]')
