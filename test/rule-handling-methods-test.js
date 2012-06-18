@@ -398,21 +398,6 @@ describe('Tokenizer RuleSet Methods', function () {
       })
     })
 
-    describe('on empty buffer', function () {
-      var p = new Tokenizer(options)
-      it('should set the next rule', function (done) {
-        p.setDefaultHandler(nextHandler(done))
-        p.addRule('b', 'second')
-        p.saveRuleSet('myRules')
-        p.clearRule()
-        p.addRule('a', 'first')
-        p.next('myRules')
-        p.addRule(0, 'set next rule set')
-        p.write('a')
-        p.write('b')
-      })
-    })
-
     describe('with given index', function () {
       var p = new Tokenizer(options)
       it('should set the next rule at the given index', function (done) {

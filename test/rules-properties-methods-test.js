@@ -24,7 +24,7 @@ describe('Tokenizer Properties Methods', function () {
     })
 
     // This makes non sense but is possible...
-    describe('on empty buffer', function () {
+    false&&describe('on empty buffer', function () {
       var p = new Tokenizer(options)
       var flag = false
 
@@ -346,7 +346,7 @@ describe('Tokenizer Properties Methods', function () {
           i++
         })
         p.continue()
-        p.addRule(0, function (token, idx, type) {
+        p.on('empty', function (token, idx, type) {
           assert(i, 2)
           done()
         })

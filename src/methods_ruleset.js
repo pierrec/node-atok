@@ -101,22 +101,14 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
       type = last
       break
     default:
-      return this._error( new Error('Atok#addRule: invalid type/handler, must be Number/String/Function') )
+      this._error( new Error('Atok#addRule: invalid type/handler, must be Number/String/Function') )
+      return this
   }
 
   this._checkResolveRules()
 
-  // first === 0: following arguments are ignored
-  // Empty buffer rule
   if ( first === 0 )
-    this._emptyHandler.push(
-      RuleString(
-        0
-      , type
-      , handler
-      , this
-      )
-    )
+    this._error( new Error('Atok#addRule: invalid first subrule, must be > 0') )
   else
     this._rules.push(
       RuleString(

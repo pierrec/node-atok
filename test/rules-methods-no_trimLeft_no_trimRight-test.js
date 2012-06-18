@@ -145,16 +145,6 @@ describe('Tokenizer Rules Methods with trimLeft and trimRight disabled', functio
         })
       })
 
-      describe('#addRule(0)', function () {
-        it('should trigger on empty buffer', function (done) {
-          p.addRule(1, 'consume data')
-          p.addRule(0, function (token, idx, type) {
-            done()
-          })
-          .write('abc')
-        })
-      })
-
       describe('#addRule("a", 0)', function () {
         it('should trigger on empty buffer', function (done) {
           p.addRule('a', 0, function (token, idx, type) {

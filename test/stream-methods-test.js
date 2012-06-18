@@ -80,7 +80,7 @@ describe('Tokenizer Stream Methods', function () {
         done()
       })
       p.addRule(1, 'data')
-      p.addRule(0, function () {
+      p.on('empty', function () {
         p.end()
       })
       p.pipe(output)

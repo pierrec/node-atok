@@ -1,7 +1,7 @@
-0.3.0 / 2012-06-12
+0.3.0 / 2012-06-18
 ==================
 
-* cleanups
+* Cleanups
   * `deleteRuleSet()` -> `removeRuleSet()`
   * `loadProps()` -> `setProps()`: all or a subset of properties are returned
   * `escaped()` -> `escape()`
@@ -15,6 +15,7 @@
   * `seek()`: use the `offset` property directly
   * `ruleIndex` is now private (`_ruleIndex`) and may not be systematically updated during parsing
   * Boolean subrules in `addRule()`: set the handler/type to `false` to get the same behaviour
+  * `addRule(0)`: use the [empty] event (NB. addRule(..., 0, ...)) is still supported.
 
 * Internals
   * Use of Node's StringDecoder for utf-8 encoding

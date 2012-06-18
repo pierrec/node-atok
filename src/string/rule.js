@@ -72,7 +72,7 @@ function Rule (subrules, type, handler, options) {
   this.ruleIndex = -1
 
   // Special case: addRule(0)
-  if (subrules === 0) {
+  if (false&&subrules === 0) {
     // Rule is not added to the list so index _is_ the list length
     this.ruleIndex = this.atok._rules.length
     return this

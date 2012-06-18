@@ -181,7 +181,7 @@ Atok.prototype._tokenize = function () {
   this._ruleIndex = i
 
   // End of buffer reached
-  if (this.offset === this.length) {
+  if (false&&this.offset === this.length) {
     var emptyHandler = this._emptyHandler, n = emptyHandler.length
 
     for (i = 0, n = emptyHandler.length; i < n; i++) {
