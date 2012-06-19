@@ -178,40 +178,7 @@ Atok.prototype._tokenize = function () {
   }
   
   // Keep track of the rule index we are at
-  this._ruleIndex = i
-
-  // End of buffer reached
-  if (false&&this.offset === this.length) {
-    var emptyHandler = this._emptyHandler, n = emptyHandler.length
-
-    for (i = 0, n = emptyHandler.length; i < n; i++) {
-      p = emptyHandler[i]
-
-      if ( !p.ignore ) {
-        if (p.handler) p.handler(this.ending)
-        else this.emit_data(p.token, p.idx, p.type)
-      }
-
-      if (p.next) this.loadRuleSet(p.next, p.nextIndex)
-
-      if (this._resetRuleIndex)
-        this._resetRuleIndex = false
-      else 
-        this._ruleIndex = p.continue === null
-          ? 0
-          : p.ruleIndex + p.continue
-
-      // NB. subsequent empty handlers will not be called
-      if (this.paused) {
-        this._ruleIndex = p.continue === null
-          ? 0
-          : p.ruleIndex + p.continue
-        this.needDrain = true
-        this._tokenizing = false
-        return false
-      }
-    }
-  }
+  this._ruleIndex = i < this._rules.length ? i : 0
 
   // Truncate the buffer if possible: min(offset, markedOffset)
   if (this.markedOffset < 0) {

@@ -14,12 +14,10 @@ function SubRule (rule, i, n, mainRule) {
     case 'number':
       if (rule < 0)
         throw new Error('SubRule: Number cannot be negative: ' + rule)
-      return rule === 0
-        ? new zero_SubRule(rule)
-        // Do not extract token if noToken and last subrule
-        : mainRule.noToken && i === (n-1)
-          ? new numberNoToken_SubRule(rule)
-          : new number_SubRule(rule)
+      // Do not extract token if noToken and last subrule
+      return mainRule.noToken && i === (n-1)
+        ? new numberNoToken_SubRule(rule)
+        : new number_SubRule(rule)
     case 'string':
       if (rule.length === 0)
         return emptyRule

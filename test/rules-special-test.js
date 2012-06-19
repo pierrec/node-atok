@@ -63,6 +63,18 @@ describe('Tokenizer Special Rules', function () {
     })
   })
 
+  describe('rule matched on next write', function () {
+    var p = new Tokenizer(options)
+    var i = 0
+
+    it('should trigger', function (done) {
+      p.addRule('', '_', function () { done() })
+
+      p.write('abc')
+      p.write('abc_')
+    })
+  })
+
   describe('single subrule', function () {
 
     describe('with quiet()', function () {

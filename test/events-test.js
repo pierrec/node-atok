@@ -110,7 +110,7 @@ describe('Tokenizer Events', function () {
       p.addRule(1, function myHandler () {})
       p.saveRuleSet('test')
       p.on('debug', function (type, method, args) {
-        if (type === 'Handler' && method === 'myHandler') {
+        if (type === 'Handler' && method === 'myHandler@test') {
           handler_flag = true
         }
       })

@@ -241,8 +241,16 @@ Atok.prototype.removeRuleSet = function (name) {
 Atok.prototype._resolveRules = function (name) {
   var self = this
   // Check and set the continue values
-  var rules = name ? this._savedRules[name].rules : this._rules
+  var rules = name ? this._savedRules[name].rules : ( name = this.currentRule, this._rules )
   var groupStartPrev = this._groupStartPrev
+
+  function getErrorData (i) {
+    return ( name ? '@' + name : ' ' )
+      + (arguments.length > 0
+          ? '[' + i + ']'
+          : ''
+        )
+  }
 
   // Perform various checks on a continue type property
   function resolveId (prop) {
@@ -277,7 +285,7 @@ Atok.prototype._resolveRules = function (name) {
         if (j === n && count === m - 1) return
 
         if (j < 0 || j > n)
-          self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + ' index ' + i) )
+          self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + getErrorData(i)) )
 
         // Only process rules bound to a group below the current one
         // Or at the same level but different
@@ -318,7 +326,7 @@ Atok.prototype._resolveRules = function (name) {
     // NB. jumping to a rule right after the last one is accepted since
     // it will simply stop the parsing
     if (j < 0 || j > n)
-      self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + ' index ' + i) )
+      self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + getErrorData(i)) )
 
     // Save the next rule index
     rule[prop] = cont
@@ -359,7 +367,7 @@ Atok.prototype._resolveRules = function (name) {
         : rules[ i + 1 + rule.continue ]
 
       if (nextRule && nextRule.length === 0)
-        this._error( new Error('Atok#_resolveRules: infinite loop at index ' + i + (name ? ' in ' + name : '')) )
+        this._error( new Error('Atok#_resolveRules: infinite loop' + getErrorData(i)) )
     }
   }
 
