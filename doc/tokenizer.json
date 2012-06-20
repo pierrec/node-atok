@@ -1229,7 +1229,7 @@
       "body": ""
     },
     "ignore": false,
-    "code": "{\n  if (arguments.length === 0) return this\n  \n  for (var idx, i = 0, n = arguments.length; i < n; i++) {\n    idx = this._getRuleIndex(arguments[i])\n    if (idx >= 0)\n      this._rules.splice(idx, 1)\n  }\n  this._checkResolveRules()\n\n  return this\n}"
+    "code": "{\n  if (arguments.length === 0) return this\n  \n  for (var idx, i = 0, n = arguments.length; i < n; i++) {\n    idx = this._getRuleIndex(arguments[i])\n    if (idx >= 0) {\n      this._rules = this._rules.slice()\n      this._rules.splice(idx, 1)\n    }\n  }\n  this._checkResolveRules()\n\n  return this\n}"
   },
   {
     "tags": [
