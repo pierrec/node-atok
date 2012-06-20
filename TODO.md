@@ -11,7 +11,6 @@
 
 ## 0.3.0
 
-* .continue(-1).ignore(true).next().addRule(subrule, handler): can be optimized with a while()
 * merge rules when next() is used
 
 

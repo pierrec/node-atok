@@ -22,6 +22,7 @@
   * Better compliance with Nodejs Stream API:
     * `writable` and `readable` properties are set to false after an error, `end()` and `destroy()`
   * The buffer is always truncated from min(`offset`, `markedOffset`) to try and minimize memory usage
+  * .continue(-1).ignore(true).next().addRule(subrule, handler) are optimized with a while()
 
 * Features
   * continue(string|function): resolution automatically performed on `saveRuleSet()` and `write()`. This means that stricter checks are imposed:

@@ -10,6 +10,8 @@ function SubRule (rule, i, n, mainRule) {
   if (rule === null || rule === undefined)
     throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
 
+  var toLoop = mainRule.ignore && mainRule.continue === -1 && !mainRule.next
+
   switch ( typeof rule ) {
     case 'number':
       if (rule < 0)
@@ -22,9 +24,15 @@ function SubRule (rule, i, n, mainRule) {
       if (rule.length === 0)
         return emptyRule
       if (rule.length === 1 && i === 0)
-        return new firstChar_SubRule(rule)
+        return (toLoop
+            ? new firstCharLoop_SubRule(rule)
+            : new firstChar_SubRule(rule)
+          )
       if (i === 0)
-        return new firstString_SubRule(rule)
+        return (toLoop
+            ? new firstStringLoop_SubRule(rule)
+            : new firstString_SubRule(rule)
+          )
       if (mainRule.escape === false)
         return new string_SubRule(rule)
       return new escapedString_SubRule(rule, mainRule.escape)
@@ -50,9 +58,15 @@ function SubRule (rule, i, n, mainRule) {
               case 0:
                 return emptyRule
               case 1:
-                return new firstSingleArray_SubRule(rule)
+                return (toLoop
+                    ? new firstSingleArrayLoop_SubRule(rule)
+                    : new firstSingleArray_SubRule(rule)
+                  )
               default:
-                return new firstArray_SubRule(rule)
+                return (toLoop
+                    ? new firstArrayLoop_SubRule(rule)
+                    : new firstArray_SubRule(rule)
+                  )
             }
           case 'function':
             if (rule.length === 1) break
@@ -61,25 +75,43 @@ function SubRule (rule, i, n, mainRule) {
             throw new Error('Invalid type in array: ' + type)
         }
       } else if ( i === 0 && rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
-        if (rule.start.length != rule.end.length)
+        if (rule.start.length !== rule.end.length)
           throw new Error('SubRule: start and end must be of same size: ' + rule.start + '/' + rule.end)
 
         return typeof rule.start === 'number'
             || (typeof rule.start === 'string' && rule.start.length === 1)
-          ? new startendNumberSingleRange_SubRule(rule.start, rule.end)
-          : new startendSingleRange_SubRule(rule.start, rule.end)
+          ? (toLoop
+              ? new startendNumberSingleRangeLoop_SubRule(rule.start, rule.end)
+              : new startendNumberSingleRange_SubRule(rule.start, rule.end)
+            )
+          : (toLoop
+              ? new startendSingleRangeLoop_SubRule(rule.start, rule.end)
+              : new startendSingleRange_SubRule(rule.start, rule.end)
+            )
 
       } else if ( i === 0 && rule.hasOwnProperty('start') && !rule.hasOwnProperty('end') ) {
         return typeof rule.start === 'number'
             || (typeof rule.start === 'string' && rule.start.length === 1)
-          ? new startNumberSingleRange_SubRule(rule.start)
-          : new startSingleRange_SubRule(rule.start)
+          ? (toLoop
+              ? new startNumberSingleRangeLoop_SubRule(rule.start)
+              : new startNumberSingleRange_SubRule(rule.start)
+            )
+          : (toLoop
+              ? new startSingleRangeLoop_SubRule(rule.start)
+              : new startSingleRange_SubRule(rule.start)
+            )
 
       } else if ( i === 0 && !rule.hasOwnProperty('start') && rule.hasOwnProperty('end') ) {
         return typeof rule.end === 'number'
             || (typeof rule.end === 'string' && rule.end.length === 1)
-          ? new endNumberSingleRange_SubRule(rule.end)
-          : new endSingleRange_SubRule(rule.end)
+          ? (toLoop
+              ? new endNumberSingleRangeLoop_SubRule(rule.end)
+              : new endNumberSingleRange_SubRule(rule.end)
+            )
+          : (toLoop
+              ? new endSingleRangeLoop_SubRule(rule.end)
+              : new endSingleRange_SubRule(rule.end)
+            )
 
       } else if ( rule.hasOwnProperty('firstOf') && ( isArray( rule.firstOf ) || typeof rule.firstOf === 'string' ) ) {
         if (rule.firstOf.length < 2)
