@@ -272,6 +272,18 @@ describe('Tokenizer RuleSet Methods', function () {
         done()
       })
     })
+
+    describe('an existing rule referenced in another rule set', function () {
+      var p = new Tokenizer(options)
+      it('should remove it but keep it in the other rule set', function (done) {
+        p.addRule('a', 'first')
+        p.saveRuleSet('test')
+        p.removeRule('first')
+        p.loadRuleSet('test')
+        p.addRuleAfter('first', 'a', 'second')
+        done()
+      })
+    })
   })
 
   // Clear rules

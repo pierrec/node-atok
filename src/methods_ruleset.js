@@ -138,8 +138,10 @@ Atok.prototype.removeRule = function (/* name ... */) {
   
   for (var idx, i = 0, n = arguments.length; i < n; i++) {
     idx = this._getRuleIndex(arguments[i])
-    if (idx >= 0)
+    if (idx >= 0) {
+      this.rules = this.rules.slice()
       this.rules.splice(idx, 1)
+    }
   }
 
   return this

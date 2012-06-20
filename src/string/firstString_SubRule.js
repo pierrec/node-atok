@@ -8,7 +8,7 @@ function firstString_SubRule (s) {
 }
 
 firstString_SubRule.prototype.exec = function (s, start) {
-	if (s.length < this.n) return -1
+	if (s.length < start + this.n) return -1
 	for (var p = this.str, i = 0, n = this.n; i < n; i++) {
 		if (s[i+start] !== p[i]) return -1
 	}
