@@ -125,6 +125,23 @@ describe('Tokenizer RuleSet Methods', function () {
         p.write('a')
       })
     })
+
+    describe('with saved rule set', function () {
+      var p = new Tokenizer(options)
+      var i = 0
+
+      it('should not affect the saved rule set', function (done) {
+        p.setDefaultHandler(function (token, idx, type) {
+          assert.equal(type, 'test')
+          if (++i === 2) done()
+        })
+        p.addRule('a', 'test')
+        p.saveRuleSet('test')
+        p.addRuleFirst('a', 'aa')
+        p.loadRuleSet('test')
+        p.write('aa')
+      })
+    })
   })
 
   // Add a rule before all existing ones

@@ -1,7 +1,8 @@
-0.2.6 / 2012-05-23
+0.2.7 / 2012-06-21
 ==================
 
 * Fix: `addRule(String)` now properly validates the remaining size
+* Fix: adding or removing a rule does not affect saved rule sets
 * Removed first rule validation enforcement
 
 0.2.6 / 2012-05-23

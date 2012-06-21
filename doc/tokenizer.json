@@ -1216,7 +1216,7 @@
       "body": ""
     },
     "ignore": false,
-    "code": "{\n  if (arguments.length === 0) return this\n  \n  for (var idx, i = 0, n = arguments.length; i < n; i++) {\n    idx = this._getRuleIndex(arguments[i])\n    if (idx >= 0) {\n      this.rules = this.rules.slice()\n      this.rules.splice(idx, 1)\n    }\n  }\n\n  return this\n}"
+    "code": "{\n  if (arguments.length === 0) return this\n  \n  for (var idx, i = 0, n = arguments.length; i < n; i++) {\n    idx = this._getRuleIndex(arguments[i])\n    if (idx >= 0) this.rules.splice(idx, 1)\n  }\n\n  return this\n}"
   },
   {
     "tags": [
@@ -1276,7 +1276,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.saveRuleSet = function (name) {\n  if (arguments.length === 0 || name === null)\n    return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )\n  \n  // Check and set the continue values\n  var rules = this.rules\n    , rule, id, j\n  for (var i = 0, n = rules.length; i < n; i++) {\n    rule = rules[i]\n    id = rule.type !== null ? rule.type : rule.handler\n    if (rule.continue !== null && typeof rule.continue !== 'number') {\n      j = this._getRuleIndex(id)\n      if (j < 0)\n        this._error( new Error('Atok#saveRuleSet: continue() value not found: ' + id) )\n      \n      rule.continue = i - j\n    }\n  }\n\n  this.saved[name] = {\n    rules: this.rules\n  , emptyHandler: this.emptyHandler\n  }\n  this.currentRule = name\n\n  return this\n}",
+    "code": "Atok.prototype.saveRuleSet = function (name) {\n  if (arguments.length === 0 || name === null)\n    return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )\n  \n  // Check and set the continue values\n  var rules = this.rules\n    , rule, id, j\n  for (var i = 0, n = rules.length; i < n; i++) {\n    rule = rules[i]\n    id = rule.type !== null ? rule.type : rule.handler\n    if (rule.continue !== null && typeof rule.continue !== 'number') {\n      j = this._getRuleIndex(id)\n      if (j < 0)\n        this._error( new Error('Atok#saveRuleSet: continue() value not found: ' + id) )\n      \n      rule.continue = i - j\n    }\n  }\n\n  this.saved[name] = {\n    rules: this.rules.slice() // Make sure to make a copy of the list\n  , emptyHandler: this.emptyHandler\n  }\n  this.currentRule = name\n\n  return this\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",

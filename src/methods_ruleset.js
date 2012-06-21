@@ -138,10 +138,7 @@ Atok.prototype.removeRule = function (/* name ... */) {
   
   for (var idx, i = 0, n = arguments.length; i < n; i++) {
     idx = this._getRuleIndex(arguments[i])
-    if (idx >= 0) {
-      this.rules = this.rules.slice()
-      this.rules.splice(idx, 1)
-    }
+    if (idx >= 0) this.rules.splice(idx, 1)
   }
 
   return this
@@ -186,7 +183,7 @@ Atok.prototype.saveRuleSet = function (name) {
   }
 
   this.saved[name] = {
-    rules: this.rules
+    rules: this.rules.slice() // Make sure to make a copy of the list
   , emptyHandler: this.emptyHandler
   }
   this.currentRule = name
