@@ -1311,7 +1311,7 @@
     },
     "isPrivate": false,
     "ignore": false,
-    "code": "Atok.prototype.saveRuleSet = function (name) {\n  if (arguments.length === 0 || name === null)\n    return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )\n  \n\n  this._savedRules[name] = {\n    rules: this._rules\n  , emptyHandler: this._emptyHandler\n  }\n  this.currentRule = name\n\n  // Resolve and check continues\n  this._resolveRules(name)\n\n  return this\n}",
+    "code": "Atok.prototype.saveRuleSet = function (name) {\n  if (arguments.length === 0 || name === null)\n    return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )\n  \n\n  this._savedRules[name] = {\n    rules: this._rules.slice() // Make sure to make a copy of the list\n  , emptyHandler: this._emptyHandler\n  }\n  this.currentRule = name\n\n  // Resolve and check continues\n  this._resolveRules(name)\n\n  return this\n}",
     "ctx": {
       "type": "method",
       "constructor": "Atok",

@@ -182,7 +182,7 @@ Atok.prototype.saveRuleSet = function (name) {
   
 
   this._savedRules[name] = {
-    rules: this._rules
+    rules: this._rules.slice() // Make sure to make a copy of the list
   , emptyHandler: this._emptyHandler
   }
   this.currentRule = name
