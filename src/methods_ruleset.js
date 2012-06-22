@@ -183,7 +183,6 @@ Atok.prototype.saveRuleSet = function (name) {
 
   this._savedRules[name] = {
     rules: this._rules.slice() // Make sure to make a copy of the list
-  , emptyHandler: this._emptyHandler
   }
   this.currentRule = name
 
@@ -207,7 +206,6 @@ Atok.prototype.loadRuleSet = function (name, index) {
 
   this.currentRule = name
   this._rules = ruleSet.rules
-  this._emptyHandler = ruleSet.emptyHandler
   this._rulesToResolve = false
   // Set the rule index
   this._ruleIndex = typeof index === 'number' ? index : 0

@@ -11,7 +11,8 @@
 
 ## 0.3.0
 
-* merge rules when next() is used
+* remove BufferMode in preparation for 0.4.0
+* `resolveRuleSet()`: merge rules with next()
 
 
 ## 0.2.6
