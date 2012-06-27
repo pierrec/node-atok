@@ -31,6 +31,7 @@
   , "ekam": ">= 0.0.7"
   , "dox": "latest"
   , "dox-template": "latest"
+  , "fstream": "latest"
   }
 , "scripts": {
     "test": "mocha test/*-test.js"
