@@ -26,9 +26,6 @@ tok
     .ignore(true)
         .addRule([' ','\n', '\t','\r'], 'whitespaces')
     .ignore()
-    // End of the buffer reached
-    // This is usually only needed when implementing synchronous parsers
-    .addRule(0, 'end')
 
 // Setup some variables
 var stack = []
@@ -55,18 +52,17 @@ tok.on('data', function (token, idx, type) {
         break
         case 'separator':
         break
-        case 'end':
-            console.log('results is of type', typeof stack[0], 'with', stack[0].length, 'item(s)')
-            console.log('results:', stack[0])
-            stack = []
-        break
         default:
             throw new Error('Unknown type: ' + type)
     }
+})
+tok.on('end', function () {
+    console.log('results is of type', typeof stack[0], 'with', stack[0].length, 'item(s)')
+    console.log('results:', stack[0])
 })
 
 // To turn debug on
 // tok.debug(true).on('debug', console.log)
 
 // Send some data to be parsed!
-tok.write('[ "Hello", "world!" ]')
+tok.end('[ "Hello", "world!" ]')
