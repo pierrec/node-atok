@@ -1,0 +1,1705 @@
+[
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Atok - stream based tokenizer<br />Copyright (c) 2012 Pierre Curto<br />MIT Licensed</p>",
+      "summary": "<p>Atok - stream based tokenizer<br />Copyright (c) 2012 Pierre Curto<br />MIT Licensed</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "var assert = require('assert')\n  , Stream = require('stream')\n  , StringDecoder = require('string_decoder').StringDecoder\n  , EV = require('ev')\n  , sliceArguments = require('fnutils').slice\n\nvar inherits = require('inherits')\n  // , Buffers = require('buffers')\n\nvar RuleString = require('./string/rule')\n// var RuleBuffer = require('./buffer/ruleBuffer')",
+    "ctx": {
+      "type": "declaration",
+      "name": "assert",
+      "value": "require('assert')",
+      "string": "assert"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Expose the atok constructor</p>",
+      "summary": "<p>Expose the atok constructor</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "module.exports = Atok",
+    "ctx": {
+      "type": "property",
+      "receiver": "module",
+      "name": "exports",
+      "value": "Atok",
+      "string": "module.exports"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Export atok default events</p>",
+      "summary": "<p>Export atok default events</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "Atok.events = {\n  // Standard Stream events\n  data: 3\n, end: 3\n, drain: 0\n, open: 1\n, close: 1\n, listening: 0\n, pipe: 1\n// Atok specific events\n, debug: 3\n, empty: 1\n}",
+    "ctx": {
+      "type": "property",
+      "receiver": "Atok",
+      "name": "events",
+      "value": "{",
+      "string": "Atok.events"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Export atok version</p>",
+      "summary": "<p>Export atok version</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "Atok.version = require('../package.json').version",
+    "ctx": {
+      "type": "property",
+      "receiver": "Atok",
+      "name": "version",
+      "value": "require('../package.json').version",
+      "string": "Atok.version"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "Object="
+        ],
+        "name": "atok",
+        "description": "stream options"
+      },
+      {
+        "type": "",
+        "string": "- options.encoding {string}: encoding to be used (utf8)"
+      },
+      {
+        "type": "constructor",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>An atok stream</p>",
+      "summary": "<p>An atok stream</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "function Atok (options) {\n  if (!(this instanceof Atok))\n    return new Atok(options)\n\n  // Possible events are defined at instanciation for better performance\n  EV.call(this, Atok.events)\n  this.writable = true\n  this.readable = true\n\n  // Options\n  options = options || {}\n  this._encoding = options.encoding\n  // Apply the default encoding value\n  this.setEncoding(options.encoding)\n\n  // Initializations\n  // Debug flag\n  this.debugMode = false\n\n  // Status flags\n  this.ended = false        // Flag indicating stream has ended\n  this.ending = false       // Set when end() invokes write()\n  this.paused = false       // Flag indicating stream is paused\n  this.needDrain = false    // Flag indicating stream needs drain\n\n// include(\"Atok_properties.js\")\n  // Public properties\n  this.buffer = ''\n  this.length = 0\n  this.offset = 0\n  this.markedOffset = -1    // Flag indicating whether the buffer should be kept when write() ends\n\n  // Private properties\n  this._tokenizing = false\n  this._ruleIndex = 0\n  this._resetRuleIndex = false\n  this._stringDecoder = new StringDecoder(this._encoding)\n  this._rulesToResolve = false\n  this._group = -1\n  this._groupStart = 0\n  this._groupEnd = 0\n  this._groupStartPrev = []\n\n\n    this.currentRule = null       // Name of the current rule\n    this._rules = []              // Rules to be checked against\n    this._defaultHandler = null   // Matched token default handler\n    this._savedRules = {}         // Saved rules\n\n// include(\"Atok_rule_properties.js\")\n  this._p_ignore = false        // Get the token size and skip\n  this._p_quiet = false         // Get the token size and call the handler with no data\n  this._p_escape = false        // Pattern must not be escaped\n  this._p_trimLeft = true       // Remove the left pattern from the token\n  this._p_trimRight = true      // Remove the right pattern from the token\n  this._p_next = null           // Next rule to load\n  this._p_nextIndex = 0         // Index for the next rule to load\n  this._p_continue = null       // Next rule index to load\n  this._p_continueOnFail = null // Next rule index to load when rule fails\n  this._p_break = false         // Abort current rule set\n\n  this._defaultProps = Object.keys(this)\n    .filter(function (prop) {\n      return prop.substr(0, 3) === '_p_'\n        && !/_p_(continueOnFail|nextIndex)/.test(prop)\n    })\n    .map(function (prop) {\n      return prop.substr(3)\n    })\n}\ninherits(Atok, EV, Stream.prototype)\n\nAtok.prototype._error = function (err) {\n  this.readable = false\n  this.writable = false\n\n  this.emit_error(err)\n\n  return this\n}\n\n// include(\"methods_misc.js\")",
+    "ctx": {
+      "type": "function",
+      "name": "Atok",
+      "string": "Atok()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean"
+        ],
+        "name": "keep",
+        "description": "rules set (default=false)"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Reset the tokenizer by clearing its buffer and rules</p>",
+      "summary": "<p>Reset the tokenizer by clearing its buffer and rules</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.clear = function (keepRules) {\n// include(\"Atok_properties.js\")\n  // Public properties\n  this.buffer = ''\n  this.length = 0\n  this.offset = 0\n  this.markedOffset = -1    // Flag indicating whether the buffer should be kept when write() ends\n\n  // Private properties\n  this._tokenizing = false\n  this._ruleIndex = 0\n  this._resetRuleIndex = false\n  this._stringDecoder = new StringDecoder(this._encoding)\n  this._rulesToResolve = false\n  this._group = -1\n  this._groupStart = 0\n  this._groupEnd = 0\n  this._groupStartPrev = []\n\n\n  if (!keepRules) {\n\n    this.currentRule = null       // Name of the current rule\n    this._rules = []              // Rules to be checked against\n    this._defaultHandler = null   // Matched token default handler\n    this._savedRules = {}         // Saved rules\n\n  }\n\n  this.clearProps()\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "clear",
+      "string": "Atok.prototype.clear()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "number"
+        ],
+        "name": "starting",
+        "description": "index"
+      },
+      {
+        "type": "param",
+        "types": [
+          "number"
+        ],
+        "name": "ending",
+        "description": "index"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Object"
+        ],
+        "description": "extracted data"
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Extract data from the buffer (Atok#slice)</p>",
+      "summary": "<p>Extract data from the buffer (Atok#slice)</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.slice = function (start, end) {\n  switch (arguments.length) {\n    case 0:\n      start = this.offset\n    case 1:\n      end = this.length\n  }\n\n  return this.buffer.substr(start, end - start)\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "slice",
+      "string": "Atok.prototype.slice()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "Object"
+        ],
+        "description": "left over data"
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Terminate the current tokenizing and return the current buffer</p>",
+      "summary": "<p>Terminate the current tokenizing and return the current buffer</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.flush = function () {\n  var data = this.slice()\n  \n  this.clear(true) // Keep rules!\n\n  return data\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "flush",
+      "string": "Atok.prototype.flush()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string"
+        ],
+        "name": "encoding",
+        "description": "to be used"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Set the string encoding</p>",
+      "summary": "<p>Set the string encoding</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.setEncoding = function (enc) {\n  switch (enc) {\n    case 'UTF-8':\n    case 'utf-8':\n    case 'utf8':\n    default:\n      this._encoding = 'UTF-8'\n  }\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "setEncoding",
+      "string": "Atok.prototype.setEncoding()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean"
+        ],
+        "name": "toggle",
+        "description": "debug mode on and off"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Turn debug mode on or off. Emits the [debug] event.<br />The #loadRuleSet method is also put in debug mode.<br />All handlers log their arguments.</p>",
+      "summary": "<p>Turn debug mode on or off. Emits the [debug] event.<br />The #loadRuleSet method is also put in debug mode.<br />All handlers log their arguments.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.debug = function (flag) {\n  var _debug = !!flag\n\n  // Nothing to do if already in same mode\n  if (_debug === this.debugMode) return this\n  this.debugMode = _debug\n\n  // Apply debug mode to all defined rules...\n  this._rulesForEach(function (rule) {\n    rule.setDebug()\n  })\n\n  // Apply debug mode to some methods\n  var self = this\n  ;[ 'loadRuleSet' ].forEach(function (method) {\n    if (_debug) {\n      var prevMethod = self[method]\n\n      self[method] = function () {\n        self.emit_debug( 'Atok#', method, arguments )\n        return prevMethod.apply(self, arguments)\n      }\n      // Save the previous method\n      self[method].prevMethod = prevMethod\n    } else if (self[method].prevMethod) {\n      // Restore the method\n      self[method] = self[method].prevMethod\n    }\n  })\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "debug",
+      "string": "Atok.prototype.debug()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "function()"
+        ],
+        "name": "iterator",
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "private"
+      }
+    ],
+    "description": {
+      "full": "<p>Apply an iterator to all current rules</p>",
+      "summary": "<p>Apply an iterator to all current rules</p>",
+      "body": ""
+    },
+    "isPrivate": true,
+    "ignore": false,
+    "code": "Atok.prototype._rulesForEach = function (fn) {\n  this._rules.forEach(fn)\n\n  var saved = this._savedRules\n  Object.keys(saved).forEach(function (ruleSet) {\n    saved[ruleSet].rules.forEach(fn)\n  })\n}\n// include(\"methods_ruleprops.js\")",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "_rulesForEach",
+      "string": "Atok.prototype._rulesForEach()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "function(string",
+          ""
+        ],
+        "name": "number,",
+        "description": "string|null)} rules handler (it is better to name it for debugging)"
+      },
+      {
+        "type": "",
+        "string": "handler is called with (token, index, type)"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Set the default handler.<br />Triggered on all subsequently defined rules if the handler is not supplied</p>",
+      "summary": "<p>Set the default handler.<br />Triggered on all subsequently defined rules if the handler is not supplied</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.setDefaultHandler = function (handler) {\n  this._defaultHandler = typeof handler === 'function' ? handler : null\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "setDefaultHandler",
+      "string": "Atok.prototype.setDefaultHandler()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string"
+        ],
+        "name": "name",
+        "description": "of the rule set to load if rule successful"
+      },
+      {
+        "type": "param",
+        "types": [
+          "number"
+        ],
+        "name": "index",
+        "description": "to start at"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Skip matched data silently for all subsequent rules</p>",
+      "summary": "<p>Skip matched data silently for all subsequent rules</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.next = function (ruleSet, index) {\n  this._p_next = typeof ruleSet === 'string' ? ruleSet : null\n  this._p_nextIndex = typeof index === 'number' ? index : 0\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "next",
+      "string": "Atok.prototype.next()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean",
+          "undefined"
+        ],
+        "name": "flag",
+        "description": ""
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Skip matched data silently for all subsequent rules</p>",
+      "summary": "<p>Skip matched data silently for all subsequent rules</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.ignore = function (flag) {\n  this._p_ignore = (flag === true)\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "ignore",
+      "string": "Atok.prototype.ignore()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean",
+          "undefined"
+        ],
+        "name": "flag",
+        "description": ""
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Do not supply matched data to the handler for all subsequent rules.<br />This is used when the token data does not matter but a handler <br />still needs to be called. Faster than standard handler call.</p>",
+      "summary": "<p>Do not supply matched data to the handler for all subsequent rules.<br />This is used when the token data does not matter but a handler <br />still needs to be called. Faster than standard handler call.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.quiet = function (flag) {\n  this._p_quiet = (flag === true)\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "quiet",
+      "string": "Atok.prototype.quiet()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean",
+          "undefined"
+        ],
+        "name": "flag",
+        "description": ""
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Remove the left matched pattern for all subsequent rules</p>",
+      "summary": "<p>Remove the left matched pattern for all subsequent rules</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.trimLeft = function (flag) {\n  this._p_trimLeft = (flag === true)\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "trimLeft",
+      "string": "Atok.prototype.trimLeft()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean",
+          "undefined"
+        ],
+        "name": "flag",
+        "description": ""
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Remove the right matched pattern for all subsequent rules<br />If only 1 pattern, it is ignored</p>",
+      "summary": "<p>Remove the right matched pattern for all subsequent rules<br />If only 1 pattern, it is ignored</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.trimRight = function (flag) {\n  this._p_trimRight = (flag === true)\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "trimRight",
+      "string": "Atok.prototype.trimRight()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean",
+          "undefined"
+        ],
+        "name": "flag",
+        "description": ""
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Remove the left and right matched patterns for all subsequent rules</p>",
+      "summary": "<p>Remove the left and right matched patterns for all subsequent rules</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.trim = function (flag) {\n  return this.trimLeft(flag).trimRight(flag)\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "trim",
+      "string": "Atok.prototype.trim()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean",
+          "undefined"
+        ],
+        "name": "flag",
+        "description": ""
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Do not remove the left and right matched patterns for all subsequent rules<br />The default escape character is , can be changed by specifying it instead of a Boolean</p>",
+      "summary": "<p>Do not remove the left and right matched patterns for all subsequent rules<br />The default escape character is , can be changed by specifying it instead of a Boolean</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.escape = function (flag) {\n  this._p_escape = typeof flag === 'string' && flag.length > 0\n    ? flag[0]\n    : flag === true\n      ? '\\\\'\n      : false\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "escape",
+      "string": "Atok.prototype.escape()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "number",
+          "null",
+          "undefined"
+        ],
+        "name": "number",
+        "description": "of rules to skip before continuing"
+      },
+      {
+        "type": "param",
+        "types": [
+          "number",
+          "null",
+          "undefined"
+        ],
+        "name": "when",
+        "description": "the rule fails, number of rules to skip before continuing"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Continue the rules flow if rule matches at the specified rule index</p>",
+      "summary": "<p>Continue the rules flow if rule matches at the specified rule index</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.continue = function (jump, jumpOnFail) {\n  if (arguments.length === 0) {\n    this._p_continue = null\n    this._p_continueOnFail = null\n\n    return this\n  }\n\n  if ( jump !== null && !/(number|string|function)/.test(typeof jump) )\n    this._error( new Error('Atok#continue: Invalid jump (must be an integer/function/string): ' + jump) )\n  \n  if (arguments.length === 1)\n    jumpOnFail = null\n  else if ( jumpOnFail !== null && !/(number|string|function)/.test(typeof jumpOnFail) )\n    this._error( new Error('Atok#continue: Invalid jump (must be an integer/function/string): ' + jumpOnFail) )\n  \n  this._p_continue = jump\n  this._p_continueOnFail = jumpOnFail\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "continue",
+      "string": "Atok.prototype.continue()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "boolean",
+          "number"
+        ],
+        "name": "relative",
+        "description": "to the current group when rule is successful, number overwrites continue's"
+      },
+      {
+        "type": "param",
+        "types": [
+          "boolean",
+          "number"
+        ],
+        "name": "relative",
+        "description": "to the current group when rule is failed, number overwrites continue's"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Continue the rules flow if rule matches at the specified rule index relative to the current group</p>",
+      "summary": "<p>Continue the rules flow if rule matches at the specified rule index relative to the current group</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.continueGroup = function (flag, flagOnFail) {\n  if (arguments.length === 0) {\n    this._p_continueGroup = false\n    this._p_continueOnFailGroup = false\n    this._groupContinueStartPrev = 0\n\n    return this\n  }\n\n  // Error if not in a group\n  if ( this._group < 0 )\n    this._error( new Error('Atok#continueGroup: not in a group') )\n\n  // Check the arguments\n  if ( !/(number|boolean)/.test(typeof flag) )\n    this._error( new Error('Atok#continueGroup: Invalid flag (must be boolean/number): ' + flag) )\n  \n  if (arguments.length === 1)\n    flagOnFail = false\n  else if ( !/(number|boolean)/.test(typeof flagOnFail) )\n    this._error( new Error('Atok#continueGroup: Invalid flag (must be a boolean/number): ' + flagOnFail) )\n  \n  // Valid arguments, set the continue() values accordingly\n  if (typeof flag === 'boolean') {\n    if (!this._p_continueGroup && flag)\n      this._groupContinueStartPrev = this._groupStart\n\n    this._p_continueGroup = flag\n  } else {\n    this._p_continueGroup = false\n    this._p_continue = flag\n  }\n\n  if (typeof flagOnFail === 'boolean') {\n    if (!this._p_continueOnFailGroup && flagOnFail)\n      this._groupContinueStartPrev = this._groupStart\n\n    this._p_continueOnFailGroup = flagOnFail\n  } else {\n    this._p_continueOnFailGroup = false\n    this._p_continueOnFail = flagOnFail\n  }\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "continueGroup",
+      "string": "Atok.prototype.continueGroup()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Abort a current rule set. Use continue(-1) to resume at the current subrule.</p>",
+      "summary": "<p>Abort a current rule set. Use continue(-1) to resume at the current subrule.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.break = function (flag) {\n  this._p_break = (flag === true)\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "break",
+      "string": "Atok.prototype.break()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "Object"
+        ],
+        "name": "properties",
+        "description": "to be loaded"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Restore properties</p>",
+      "summary": "<p>Restore properties</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.setProps = function (props) {\n  var propNames = Object.keys(props || {})\n\n  for (var prop, i = 0, n = propNames.length; i < n; i++) {\n    prop = propNames[i]\n    if ( this.hasOwnProperty('_p_' + prop) )\n      switch (prop) {\n        // Special case: continue has 2 properties\n        case 'continue':\n          this._p_continue = props[ prop ][0]\n          this._p_continueOnFail = props[ prop ][1]\n        break\n        // Special case: next has 2 properties\n        case 'next':\n          this._p_next = props[ prop ][0]\n          this._p_nextIndex = props[ prop ][1]\n        break\n        // Special case: continueGroup has 2 properties\n        case 'continueGroup':\n          this._p_continueGroup = props[ prop ][0]\n          this._p_continueOnFailGroup = props[ prop ][1]\n        break\n        default:\n          this[ '_p_' + prop ] = props[ prop ]\n      }\n  }\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "setProps",
+      "string": "Atok.prototype.setProps()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Reset properties to their default values</p>",
+      "summary": "<p>Reset properties to their default values</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.clearProps = function () {\n// include(\"Atok_rule_properties.js\")\n  this._p_ignore = false        // Get the token size and skip\n  this._p_quiet = false         // Get the token size and call the handler with no data\n  this._p_escape = false        // Pattern must not be escaped\n  this._p_trimLeft = true       // Remove the left pattern from the token\n  this._p_trimRight = true      // Remove the right pattern from the token\n  this._p_next = null           // Next rule to load\n  this._p_nextIndex = 0         // Index for the next rule to load\n  this._p_continue = null       // Next rule index to load\n  this._p_continueOnFail = null // Next rule index to load when rule fails\n  this._p_break = false         // Abort current rule set\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "clearProps",
+      "string": "Atok.prototype.clearProps()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "Object"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Reset properties to their default values</p>",
+      "summary": "<p>Reset properties to their default values</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.getProps = function () {\n  var props = {}\n  var propNames = arguments.length > 0\n        ? sliceArguments(arguments, 0)\n        : this._defaultProps\n\n  for (var prop, i = 0, num = propNames.length; i < num; i++) {\n    prop = propNames[i]\n    if ( this.hasOwnProperty('_p_' + prop) )\n      switch (prop) {\n        // Special case: continue has 2 properties\n        case 'continue':\n          props[ prop ] = [ this._p_continue, this._p_continueOnFail ]\n        break\n        // Special case: next has 2 properties\n        case 'next':\n          props[ prop ] = [ this._p_next, this._p_nextIndex ]\n        break\n        // Special case: continueGroup has 2 properties\n        case 'continueGroup':\n          props[ prop ] = [ this._p_continueGroup, this._p_continueOnFailGroup ]\n        break\n        default:\n          props[ prop ] = this[ '_p_' + prop ]\n      }\n  }\n\n  return props\n}\n// include(\"methods_ruleset.js\")",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "getProps",
+      "string": "Atok.prototype.getProps()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "number",
+          "function()"
+        ],
+        "name": "name",
+        "description": "of the rule to be added first"
+      },
+      {
+        "type": "param",
+        "types": [
+          "...string",
+          "number",
+          "function()"
+        ],
+        "name": "rule",
+        "description": "item"
+      },
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "number",
+          "function()"
+        ],
+        "name": "rule",
+        "description": "type"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      },
+      {
+        "type": "see",
+        "local": "Atok#addRule",
+        "visibility": "Atok#addRule"
+      }
+    ],
+    "description": {
+      "full": "<p>Add a rule as the first one</p>",
+      "summary": "<p>Add a rule as the first one</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.addRuleFirst = function (rule,",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "addRuleFirst",
+      "string": "Atok.prototype.addRuleFirst()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>ule, ...</p>",
+      "summary": "<p>ule, ...</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "type) {\n  this.addRule.apply( this, sliceArguments(arguments, 0) )\n  this._rules.unshift( this._rules.pop() )\n\n  return this\n}"
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "number",
+          "function()"
+        ],
+        "name": "rule",
+        "description": "type"
+      },
+      {
+        "type": "return",
+        "types": [
+          "number"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "private"
+      }
+    ],
+    "description": {
+      "full": "<p>Get the index of a rule by id</p>",
+      "summary": "<p>Get the index of a rule by id</p>",
+      "body": ""
+    },
+    "isPrivate": true,
+    "ignore": false,
+    "code": "Atok.prototype._getRuleIndex = function (id) {\n  for (var rules = this._rules, i = 0, n = rules.length; i < n; i++)\n    if (rules[i].id === id) return i\n  \n  return -1\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "_getRuleIndex",
+      "string": "Atok.prototype._getRuleIndex()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "number",
+          "function()"
+        ],
+        "name": "name",
+        "description": "of the rule to add before"
+      },
+      {
+        "type": "param",
+        "types": [
+          "...string",
+          "number",
+          "function()"
+        ],
+        "name": "rule",
+        "description": "item"
+      },
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "number",
+          "function()"
+        ],
+        "name": "rule",
+        "description": "type"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      },
+      {
+        "type": "see",
+        "local": "Atok#addRule",
+        "visibility": "Atok#addRule"
+      }
+    ],
+    "description": {
+      "full": "<p>Add a rule before an existing one</p>",
+      "summary": "<p>Add a rule before an existing one</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.addRuleBefore = function (existingRule, rule,",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "addRuleBefore",
+      "string": "Atok.prototype.addRuleBefore()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>ule, ...</p>",
+      "summary": "<p>ule, ...</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "type) {\n  var i = this._getRuleIndex(existingRule)\n\n  if ( i < 0 )\n    return this._error( new Error('Atok#addRuleBefore: rule ' + existingRule + ' does not exist') )\n\n  this.addRule.apply( this, sliceArguments(arguments, 1) )\n  this._rules.splice( i, 0, this._rules.pop() )\n\n  return this\n}"
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "number",
+          "function()"
+        ],
+        "name": "name",
+        "description": "of the rule to add after"
+      },
+      {
+        "type": "param",
+        "types": [
+          "...string",
+          "number",
+          "function()"
+        ],
+        "name": "rule",
+        "description": "item"
+      },
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "number",
+          "function()"
+        ],
+        "name": "rule",
+        "description": "type"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      },
+      {
+        "type": "see",
+        "local": "Atok#addRule",
+        "visibility": "Atok#addRule"
+      }
+    ],
+    "description": {
+      "full": "<p>Add a rule after an existing one</p>",
+      "summary": "<p>Add a rule after an existing one</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.addRuleAfter = function (existingRule, rule,",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "addRuleAfter",
+      "string": "Atok.prototype.addRuleAfter()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>ule, ...</p>",
+      "summary": "<p>ule, ...</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "type) {\n  var i = this._getRuleIndex(existingRule)\n\n  if ( i < 0 )\n    return this._error( new Error('Atok#addRuleAfter: rule ' + existingRule + ' does not exist') )\n\n  this.addRule.apply( this, sliceArguments(arguments, 1) )\n  this._rules.splice( i + 1, 0, this._rules.pop() )\n\n  return this\n}"
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "...string",
+          "number",
+          "function()"
+        ],
+        "name": "match",
+        "description": "at current buffer position (String: expect string, Integer: expect n characters, Array: expect one of the items). If not needed, use ''"
+      },
+      {
+        "type": "param",
+        "types": [
+          "false",
+          "string",
+          "number",
+          "function()"
+        ],
+        "name": "rule",
+        "description": "name/id (if no default handler set, emit a data event) or handler (executed when all matches are valid). If false, the rule is ignored."
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Add a rule</p>",
+      "summary": "<p>Add a rule</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.addRule = function (",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "addRule",
+      "string": "Atok.prototype.addRule()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>ule1, rule2, ... type|handler</p>",
+      "summary": "<p>ule1, rule2, ... type|handler</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "{\n  var args = sliceArguments(arguments, 0)\n\n  if (args.length < 1)\n    return this._error( new Error('Atok#addRule: Missing arguments ("
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>ule1, rule2 ...</p>",
+      "summary": "<p>ule1, rule2 ...</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "type|handler)') )\n  \n  var last = args.pop()\n\n  // Ignore the rule if the handler/type is false\n  if (last === false) return this\n\n  var first = args[0]\n  var type = null\n    , handler = this._defaultHandler\n\n  switch ( typeof(last) ) {\n    case 'function':\n      handler = last\n      break\n    case 'number':\n    case 'string':\n      type = last\n      break\n    default:\n      this._error( new Error('Atok#addRule: invalid type/handler, must be Number/String/Function') )\n      return this\n  }\n\n  this._checkResolveRules()\n\n  if ( first === 0 )\n    this._error( new Error('Atok#addRule: invalid first subrule, must be > 0') )\n  else\n    this._rules.push(\n      RuleString(\n        args\n      , type\n      , handler\n      , this\n      )\n    )\n\n  return this\n}"
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string"
+        ],
+        "name": "name",
+        "description": "of the rule to be removed"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Remove a rule (first instance only)</p>",
+      "summary": "<p>Remove a rule (first instance only)</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.removeRule = function (",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "removeRule",
+      "string": "Atok.prototype.removeRule()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>name ...</p>",
+      "summary": "<p>name ...</p>",
+      "body": ""
+    },
+    "ignore": false,
+    "code": "{\n  if (arguments.length === 0) return this\n  \n  for (var idx, i = 0, n = arguments.length; i < n; i++) {\n    idx = this._getRuleIndex(arguments[i])\n    if (idx >= 0) {\n      this._rules = this._rules.slice()\n      this._rules.splice(idx, 1)\n    }\n  }\n  this._checkResolveRules()\n\n  return this\n}"
+  },
+  {
+    "tags": [
+      {
+        "type": "api",
+        "visibility": "private"
+      }
+    ],
+    "description": {
+      "full": "<p>Resolve rules righ away or delay it</p>",
+      "summary": "<p>Resolve rules righ away or delay it</p>",
+      "body": ""
+    },
+    "isPrivate": true,
+    "ignore": false,
+    "code": "Atok.prototype._checkResolveRules = function () {\n  // Rules have been modified, force a resolve when required\n  if (this._tokenizing)\n    this._resolveRules()\n  else\n    this._rulesToResolve = true\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "_checkResolveRules",
+      "string": "Atok.prototype._checkResolveRules()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Remove all rules</p>",
+      "summary": "<p>Remove all rules</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.clearRule = function () {\n  this.clearProps()\n  this._rules = []\n  this._defaultHandler = null\n  this.currentRule = null\n  this._rulesToResolve = false\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "clearRule",
+      "string": "Atok.prototype.clearRule()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string"
+        ],
+        "name": "name",
+        "description": "of the rule set"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Save all rules</p>",
+      "summary": "<p>Save all rules</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.saveRuleSet = function (name) {\n  if (arguments.length === 0 || name === null)\n    return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )\n  \n\n  this._savedRules[name] = {\n    rules: this._rules.slice() // Make sure to make a copy of the list\n  }\n  this.currentRule = name\n\n  // Resolve and check continues\n  this._resolveRules(name)\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "saveRuleSet",
+      "string": "Atok.prototype.saveRuleSet()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string"
+        ],
+        "name": "name",
+        "description": "of the rule set"
+      },
+      {
+        "type": "param",
+        "types": [
+          "number"
+        ],
+        "name": "index",
+        "description": "to start at"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Load a rule set</p>",
+      "summary": "<p>Load a rule set</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.loadRuleSet = function (name, index) {\n  var ruleSet = this._savedRules[name]\n  if (!ruleSet)\n    return this._error( new Error('Atok#loadRuleSet: Rule set ' + name + ' not found') )\n\n  this.currentRule = name\n  this._rules = ruleSet.rules\n  this._rulesToResolve = false\n  // Set the rule index\n  this._ruleIndex = typeof index === 'number' ? index : 0\n  this._resetRuleIndex = true\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "loadRuleSet",
+      "string": "Atok.prototype.loadRuleSet()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string"
+        ],
+        "name": "name",
+        "description": "of the rule set"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Delete a rule set</p>",
+      "summary": "<p>Delete a rule set</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.removeRuleSet = function (name) {\n  delete this._savedRules[name]\n  // Make sure no reference to the rule set exists\n  if (this.currentRule === name) this.currentRule = null\n\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "removeRuleSet",
+      "string": "Atok.prototype.removeRuleSet()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string"
+        ],
+        "name": "name",
+        "description": "of the rule set (optional)"
+      },
+      {
+        "type": "api",
+        "visibility": "private"
+      }
+    ],
+    "description": {
+      "full": "<h2>Resolve a rule or all of them if none specified</h2>\n\n<ul>\n<li>translate non number continue() to numbers</li>\n<li>check continue() stay within bounds</li>\n<li>adjust the continue() jumps based on groups</li>\n</ul>\n\n<p>Also detects infinite loops</p>",
+      "summary": "<h2>Resolve a rule or all of them if none specified</h2>\n\n<ul>\n<li>translate non number continue() to numbers</li>\n<li>check continue() stay within bounds</li>\n<li>adjust the continue() jumps based on groups</li>\n</ul>",
+      "body": "<p>Also detects infinite loops</p>"
+    },
+    "isPrivate": true,
+    "ignore": false,
+    "code": "Atok.prototype._resolveRules = function (name) {\n  var self = this\n  // Check and set the continue values\n  var rules = name ? this._savedRules[name].rules : ( name = this.currentRule, this._rules )\n  var groupStartPrev = this._groupStartPrev\n\n  function getErrorData (i) {\n    return ( name ? '@' + name : ' ' )\n      + (arguments.length > 0\n          ? '[' + i + ']'\n          : ''\n        )\n  }\n\n  // Perform various checks on a continue type property\n  function resolveId (prop) {\n    if (rule[prop] === null || typeof rule[prop] === 'number') return\n\n    // Resolve the property to an index\n    var j = self._getRuleIndex(rule.id)\n    if (j < 0)\n      self._error( new Error('Atok#_resolveRules: ' + prop + '() value not found: ' + rule.id) )\n      \n    rule[prop] = i - j\n  }\n\n  // prop: continue type property\n  function checkContinue (prop) {\n    if (typeof rule[prop] !== 'number') return\n\n    // incr: 1 or -1 (positive/negative continue)\n    // offset: 0 or 1 (positive/negative continue)\n    function setContinue (incr, offset) {\n      // j = current index to be checked\n      // count = number of indexes to check\n      for (\n        var j = i + incr, count = 0, m = Math.abs(cont + offset)\n      ; count < m\n      ; j += incr, count++\n      ) {\n        // Scan all rules from the current one to the target one\n        var _rule = rules[j]\n\n        // Jumping to the last rule is valid\n        if (j === n && count === m - 1) return\n\n        if (j < 0 || j > n)\n          self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + getErrorData(i)) )\n\n        // Only process rules bound to a group below the current one\n        // Or at the same level but different\n        if (_rule.group > rule.group\n        || (_rule.group === rule.group && _rule.groupStart !== rule.groupStart)\n        ) {\n          // Get to the right group\n          while (_rule.group > rule.group + 1) {\n            j = incr > 0 ? _rule.groupEnd + 1 : _rule.groupStart - 1\n            // Jump to the end of the rules is ignored\n            if (j > n) {\n              cont = null\n              return\n            }\n\n            _rule = rules[j]\n          }\n          j = incr > 0 ? _rule.groupEnd : _rule.groupStart\n          cont += incr * (_rule.groupEnd - _rule.groupStart)\n        }\n      }\n    }\n\n    // Use the backup value\n    var cont = rule.backup[prop]\n\n    // continue(0) and continue(-1) do not need any update\n    if (cont > 0)\n      // Positive jump\n      setContinue(1, 0)\n    else if (cont < -1)\n      // Negative jump\n      setContinue(-1, 1)\n    \n    // Check the continue boundaries\n    var j = i + cont + 1\n    // Cannot jump to a rule before the first one or beyond the last one.\n    // NB. jumping to a rule right after the last one is accepted since\n    // it will simply stop the parsing\n    if (j < 0 || j > n)\n      self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + getErrorData(i)) )\n\n    // Save the next rule index\n    rule[prop] = cont\n  }\n\n  // Process all rules\n  // Adjust continue jumps according to groups\n  for (var i = 0, n = rules.length; i < n; i++) {\n    var rule = rules[i]\n    // Check each rule continue property\n    checkContinue('continue')\n    checkContinue('continueOnFail')\n\n    // Set values for null\n    if (rule.continue === null)\n      // Go to the start of the rule set\n      rule.continue = -(i + 1)\n\n    if (rule.continueOnFail === null)\n      // Go to the next rule\n      rule.continueOnFail = 0\n\n    // Check the continue property\n    resolveId('continue')\n\n    // Check the continueOnFail property\n    resolveId('continueOnFail')\n\n    // Check the group is terminated\n    if (rule.group >= 0 && rule.groupEnd === 0)\n      this._error( new Error('Atok#_resolveRules: non terminated group starting at index ' + rule.groupStart ) )\n\n    // An infinite loop is created when a 0 length rule points\n    // to another 0 length one\n    if (rule.length === 0) {\n      var nextRule = rule.continue === null\n        ? rules[0]\n        : rules[ i + 1 + rule.continue ]\n\n      if (nextRule && nextRule.length === 0)\n        this._error( new Error('Atok#_resolveRules: infinite loop' + getErrorData(i)) )\n    }\n  }\n\n  // Resolution successfully completed\n  this._rulesToResolve = false\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "_resolveRules",
+      "string": "Atok.prototype._resolveRules()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "Boolean"
+        ],
+        "name": "toggle",
+        "description": "grouping on/off"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Bind rules to the same index</p>",
+      "summary": "<p>Bind rules to the same index</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.groupRule = function (flag) {\n  var rules = this._rules\n\n  if (flag) {\n    this._group++\n    this._groupStartPrev.push(this._groupStart)\n    this._groupStart = rules.length\n\n    return this\n  }\n\n  // Ignore invalid groupRule()\n  if (this._group < 0) return this\n  \n  // 1 or 0 rule within the group, ignored it\n  if (rules.length - this._groupStart < 2) {\n    for (var i = this._groupStart, n = rules.length; i < n; i++) {\n      rules[i].group = -1\n      rules[i].groupStart = 0\n      rules[i].groupEnd = 0\n    }\n  } else {\n    // Set the last index of the group to all rules belonging to the current group\n    for (var i = this._groupStart, n = rules.length; i < n; i++)\n      if (rules[i].group === this._group)\n        rules[i].groupEnd = n - 1\n  }\n\n  this._group--\n  this._groupStart = this._groupStartPrev.pop() || 0\n  this._groupEnd = 0\n\n  return this\n}\n// include(\"methods_stream.js\")",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "groupRule",
+      "string": "Atok.prototype.groupRule()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "Buffer"
+        ],
+        "name": "data",
+        "description": "to be processed"
+      },
+      {
+        "type": "return",
+        "types": [
+          "boolean"
+        ],
+        "description": "whether `Atok#write()` can be called again"
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Applies the current rules to the incoming data.<br />When false is returned (the tokenizer is paused), the data is buffered but<br />no processing occurs until the tokenizer is resumed.</p>",
+      "summary": "<p>Applies the current rules to the incoming data.<br />When false is returned (the tokenizer is paused), the data is buffered but<br />no processing occurs until the tokenizer is resumed.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.write = function (data) {\n  if (this.ended) {\n    this._error( new Error('Atok#write: write after end') )\n    return false\n  }\n\n  if (!data || data.length === 0) return true\n\n  // Buffer the incoming data...\n  this.buffer += this._stringDecoder.write(data)\n  this.length = this.buffer.length\n\n  // ... hold on until tokenization completed on the current data set\n  // or consume the data\n  if (this.paused) {\n    this.needDrain = true\n    return false\n  }\n\n  // Check rules resolution\n  if (this._rulesToResolve) this._resolveRules()\n\n  return this._tokenize()\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "write",
+      "string": "Atok.prototype.write()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "param",
+        "types": [
+          "string",
+          "Buffer"
+        ],
+        "name": "data",
+        "description": "to be processed"
+      },
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Ends the stream and emit the <code>end</code> event. Any remaining data is passed to <br />the listeners.</p>",
+      "summary": "<p>Ends the stream and emit the <code>end</code> event. Any remaining data is passed to <br />the listeners.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.end = function (data) {\n  this.ending = true\n  this.write(data)\n  this.ended = true\n  this.ending = false\n\n  this.readable = false\n  this.writable = false\n\n  this._end()\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "end",
+      "string": "Atok.prototype.end()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "Atok"
+        ],
+        "description": ""
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Pauses the stream - data is buffered until the <br /> stream is resumed with <code>Atok#resume()</code></p>",
+      "summary": "<p>Pauses the stream - data is buffered until the <br /> stream is resumed with <code>Atok#resume()</code></p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.pause = function () {\n  this.paused = true\n  return this\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "pause",
+      "string": "Atok.prototype.pause()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "boolean"
+        ],
+        "description": "same as `Atok#write()`"
+      },
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Resumes the stream - buffered data is immediately processed</p>",
+      "summary": "<p>Resumes the stream - buffered data is immediately processed</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.resume = function () {\n  this.paused = false\n  return this._tokenize()\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "resume",
+      "string": "Atok.prototype.resume()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "api",
+        "visibility": "public"
+      }
+    ],
+    "description": {
+      "full": "<p>Placeholder for <code>Atok#destroy()</code></p>",
+      "summary": "<p>Placeholder for <code>Atok#destroy()</code></p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype.destroy = function () {\n  this.readable = false\n  this.writable = false\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "destroy",
+      "string": "Atok.prototype.destroy()"
+    }
+  },
+  {
+    "tags": [],
+    "description": {
+      "full": "<p>Private methods</p>",
+      "summary": "<p>Private methods</p>",
+      "body": ""
+    },
+    "ignore": false
+  },
+  {
+    "tags": [
+      {
+        "type": "private",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>End a stream by emitting the <code>end</code> event with remaining data</p>",
+      "summary": "<p>End a stream by emitting the <code>end</code> event with remaining data</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype._end = function () {\n  this.emit_end( this.slice(), -1, this.currentRule)\n  this.clear()\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "_end",
+      "string": "Atok.prototype._end()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "private",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>End of <code>Atok#write()</code>: emit the <code>drain</code> event if required</p>",
+      "summary": "<p>End of <code>Atok#write()</code>: emit the <code>drain</code> event if required</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype._done = function () {\n  if (this.needDrain) {\n    this.needDrain = false\n    this.emit_drain()\n  }\n\n  if (this.ended) {\n    this._end()\n    return false\n  }\n\n  return true\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "_done",
+      "string": "Atok.prototype._done()"
+    }
+  },
+  {
+    "tags": [
+      {
+        "type": "return",
+        "types": [
+          "boolean"
+        ],
+        "description": ""
+      },
+      {
+        "type": "private",
+        "string": ""
+      }
+    ],
+    "description": {
+      "full": "<p>The core of Atok. Loops through the rules and check them against the data,<br />calling handler or emitting the <code>data</code> event and branching appropriately.</p>",
+      "summary": "<p>The core of Atok. Loops through the rules and check them against the data,<br />calling handler or emitting the <code>data</code> event and branching appropriately.</p>",
+      "body": ""
+    },
+    "isPrivate": false,
+    "ignore": false,
+    "code": "Atok.prototype._tokenize = function () {\n  this._tokenizing = true\n\n  // NB. Rules and buffer can be reset by the token handler\n  var i = this._ruleIndex, p, matched\n\n  this._ruleIndex = 0\n  this._resetRuleIndex = false\n\n  for (\n    ; this.offset < this.length && i < this._rules.length\n    ; i++\n    )\n  {\n    p = this._rules[i]\n\n    // Return the size of the matched data (0 is valid!)\n    matched = p.test(this.buffer, this.offset)\n\n    if ( matched >= 0 ) {\n      this.offset += matched\n      // Is the token to be processed?\n      if ( !p.ignore ) {\n        // Emit the data by default, unless the handler is set\n        if (p.handler) p.handler(p.token, p.idx, p.type)\n        else this.emit_data(p.token, p.idx, p.type)\n      }\n      // Load a new set of rules\n      if (p.next) this.loadRuleSet(p.next, p.nextIndex)\n\n      // Rule set may have changed...from loadRuleSet() or handler()\n      if (this._resetRuleIndex) {\n        this._resetRuleIndex = false\n        i = this._ruleIndex - 1\n      } else if (matched > 0)\n        i += p.continue\n\n      // NB. `break()` prevails over `pause()`\n      if (p.break) {\n        i++\n        break\n      }\n\n      // Hold on if the stream was paused\n      if (this.paused) {\n      this._ruleIndex = i + 1\n        this.needDrain = true\n        this._tokenizing = false\n        return false\n      }\n    } else {\n      i += p.continueOnFail\n    }\n  }\n  \n  // Keep track of the rule index we are at\n  this._ruleIndex = i < this._rules.length ? i : 0\n\n  // Truncate the buffer if possible: min(offset, markedOffset)\n  if (this.markedOffset < 0) {\n    // No marked offset or beyond the current offset\n    if (this.offset === this.length) {\n      this.offset = 0\n      this.buffer = ''\n      this.emit_empty(this.ending)\n\n    } else if (this.offset < this.length) {\n      this.buffer = this.slice(this.offset)\n      this.offset = 0\n\n    } else {\n      // Can only occurs if offset was manually incremented\n      this.offset = this.offset - this.length\n      this.buffer = ''\n    }\n\n  } else {\n    var maxOffset = 'markedOffset'\n    var minOffset = 'offset'\n    var _\n\n    if (this.markedOffset < this.offset) {\n      _ = maxOffset\n      maxOffset = minOffset\n      minOffset = _\n    }\n\n    if (this[minOffset] === this.length) {\n      this[maxOffset] -= this[minOffset]\n      this[minOffset] = 0\n      this.buffer = ''\n      this.emit_empty(this.ending)\n\n    } else if (this[minOffset] < this.length) {\n      this[maxOffset] -= this[minOffset]\n      this.buffer = this.slice(this[minOffset])\n      this[minOffset] = 0\n\n    } else {\n      // Can only occurs if offset was manually incremented\n      this[maxOffset] -= this.length\n      this[minOffset] -= this.length\n      this.buffer = ''\n    }\n  }\n  this.length = this.buffer.length\n\n  this._tokenizing = false\n  \n  return this._done()\n}",
+    "ctx": {
+      "type": "method",
+      "constructor": "Atok",
+      "name": "_tokenize",
+      "string": "Atok.prototype._tokenize()"
+    }
+  }
+]
