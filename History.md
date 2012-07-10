@@ -1,4 +1,4 @@
-0.3.0 / 2012-06-20
+0.3.0 / 2012-07-10
 ==================
 
 * Cleanups
@@ -25,6 +25,7 @@
   * .continue(-1).ignore(true).next().addRule(subrule, handler) are optimized with a while()
 
 * Features
+  * `getProps()` returns all current properties
   * continue(string|function): resolution automatically performed on `saveRuleSet()` and `write()`. This means that stricter checks are imposed:
     * `continue(+x)` with x>=0 cannot be set on the last rule
     * `continue(-x)` with x<-1 cannot be set on the first rule

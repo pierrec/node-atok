@@ -11,10 +11,49 @@ Atok is built using [ekam](https://github.com/pierrec/node-ekam) as it abuses in
 
 Atok is the fundation for the [atok-parser](https://github.com/pierrec/node-atok-parser), which provides the environment for quickly building efficient and easier to maintain parsers.
 
+This is a work in progress as Buffer data is still converted into String before being processed. Removing this drawback is planned for the next version (0.4.0).
+
+
+## Core concepts
+
+First let's see some definitions. In atok's terms:
+
+* a `subrule` is an atomic check against the current data. It can be represented by a user defined function (rarely), a string or a number, or an array of those, as well as specific objects defining a range of values for instance (e.g. { start: 'a', end: 'z' } is equivalent to /[a-z]/ in RegExp)
+* a `rule` is an ordered combination of subrules. Each subrule is evaluated in order and if any fails, the whole rule is considered failed. If all of them are valid, then the handler supplied at rule instanciation is triggered, or if none was supplied, an event is emitted (the event name has to be supplied when defining the rule).
+* a `ruleSet` is a list of `rules` that are saved under a given name. Using `ruleSets` is useful when writting a parser to break down its complexity.
+* a `property` is an option applicable to the current rules being created.
+    * properties are set using their own methods. For instance, a `rule` may load a different `ruleSet` upon match using `next()`
+    * properties are defined before the rules they need to be applied to. E.g. atok.next('rules2').addRule(...)
+    * once defined, properties are applied to all subsequent rules, unless turned off by calling the property method with no argument or false. E.g. in atok.next('rules2').addRule(...).addRule(...).next().addRule(...) only rule 1 and 2 will load the `ruleSet` _rules2_ if they match.
+
+
+The default workflow in atok is as follow:
+
+* data is provided to the tokenizer
+* the tokenizer evaluates each of its `rules` against it (its current `ruleSet`)
+    * if none match, it stops and waits for more
+    * if one matches, it triggers the handler/emit an event, then go back to rules evaluation
+
+
+The default workflow can be altered using the `continue()` and `next()` property methods:
+
+* `continue(jump[, jumpOnFail])`: the next `rule` being checked is relative to the one that matched, downward if jump value is positive, upward if negative. In case the `rule` fails, by default, the tokenizer will process to the next one. This can be modified by specifying the jumpOnFail value.
+    * `continue(0)`: go to the next `rule` on success
+    * `continue(-1)`: reevaluate the current `rule` on success
+    * `continue(-2)`: go to the previous `rule` on success
+* `next(ruleSet[, index])`: when the handler returns, the tokenizer will evaluate rules from the new `ruleSet`, starting at the first one or the one at _index_.
+
+
+It is important to note that the tokenizer is _highly_ dynamic:
+
+* `ruleSets` can be changed by handlers
+* `rules` and `ruleSets` can be created by handlers based on the data being processed
+* after a match, the tokenizer can branch to a different `ruleSet`
+
 
 ## Download
 
-It is published on node package manager (npm). To install, do:
+Atok is published on node package manager (npm). To install, do:
 
     npm install atok
 
@@ -117,4 +156,4 @@ See the TODO file.
 
 ## License
 
-[Here](https://github.com/pierrec/node-atok/tree/master/LICENSE)
+MIT [Here](https://github.com/pierrec/node-atok/tree/master/LICENSE)
