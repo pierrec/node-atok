@@ -47,7 +47,6 @@ Atok.version = require('../package.json').version
  * An atok stream
  *
  * @param {Object=} atok stream options
- *  - options.bufferMode {boolean}: use Buffers instead of string (false)
  *  - options.encoding {string}: encoding to be used (utf8)
  * @constructor
  */
@@ -62,7 +61,6 @@ function Atok (options) {
 
   // Options
   options = options || {}
-  this._bufferMode = (options.bufferMode === true)
   this._encoding = options.encoding
   // Apply the default encoding value
   this.setEncoding(options.encoding)
@@ -91,8 +89,6 @@ function Atok (options) {
     .map(function (prop) {
       return prop.substr(3)
     })
-
-  this.slice = this._bufferMode ? this._sliceBuffer : this._sliceString
 }
 inherits(Atok, EV, Stream.prototype)
 

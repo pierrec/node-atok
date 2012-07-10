@@ -21,17 +21,7 @@ Atok.prototype.clear = function (keepRules) {
  * @return {Object} extracted data
  * @api public
  */
-Atok.prototype._sliceBuffer = function (start, end) {
-  switch (arguments.length) {
-    case 0:
-      start = this.offset
-    case 1:
-      end = this.length
-  }
-
-  return this.buffer.slice(start, end)
-}
-Atok.prototype._sliceString = function (start, end) {
+Atok.prototype.slice = function (start, end) {
   switch (arguments.length) {
     case 0:
       start = this.offset

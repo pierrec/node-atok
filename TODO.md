@@ -9,15 +9,9 @@
 * subrules linked execution
 
 
-## 0.3.0
+## 0.3.1
 
-* remove BufferMode in preparation for 0.4.0
-* `resolveRuleSet()`: merge rules with next()
-
-
-## 0.2.6
-
-* first match should always be 100% validated (check remaining size in buffer vs firstmatch length)
+* `resolveRuleSet()`: merge rules that use next(). This should give a slight performance increase.
 
 
 ## Documentation

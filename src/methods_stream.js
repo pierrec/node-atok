@@ -16,13 +16,9 @@ Atok.prototype.write = function (data) {
   if (!data || data.length === 0) return true
 
   // Buffer the incoming data...
-  if (this._bufferMode) {
-    this.buffer.push( data )
-    this.length += data.length
-  } else {
-    this.buffer += this._stringDecoder.write(data)
-    this.length = this.buffer.length
-  }
+  this.buffer += this._stringDecoder.write(data)
+  this.length = this.buffer.length
+
   // ... hold on until tokenization completed on the current data set
   // or consume the data
   if (this.paused) {
@@ -185,7 +181,7 @@ Atok.prototype._tokenize = function () {
     // No marked offset or beyond the current offset
     if (this.offset === this.length) {
       this.offset = 0
-      this.buffer = this._bufferMode ? new Buffer : ''
+      this.buffer = ''
       this.emit_empty(this.ending)
 
     } else if (this.offset < this.length) {
@@ -195,7 +191,7 @@ Atok.prototype._tokenize = function () {
     } else {
       // Can only occurs if offset was manually incremented
       this.offset = this.offset - this.length
-      this.buffer = this._bufferMode ? new Buffer : ''
+      this.buffer = ''
     }
 
   } else {
@@ -212,7 +208,7 @@ Atok.prototype._tokenize = function () {
     if (this[minOffset] === this.length) {
       this[maxOffset] -= this[minOffset]
       this[minOffset] = 0
-      this.buffer = this._bufferMode ? new Buffer : ''
+      this.buffer = ''
       this.emit_empty(this.ending)
 
     } else if (this[minOffset] < this.length) {
@@ -224,7 +220,7 @@ Atok.prototype._tokenize = function () {
       // Can only occurs if offset was manually incremented
       this[maxOffset] -= this.length
       this[minOffset] -= this.length
-      this.buffer = this._bufferMode ? new Buffer : ''
+      this.buffer = ''
     }
   }
   this.length = this.buffer.length
