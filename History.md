@@ -1,3 +1,8 @@
+0.3.1 / 2012-07-26
+==================
+
+* Fix: corrupted result when `addrule(number|firsOf)` return an empty token
+
 0.3.0 / 2012-07-10
 ==================
 

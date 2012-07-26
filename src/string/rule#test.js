@@ -47,7 +47,7 @@ function (data, offset) {
       this.atok.emit_debug('Rule#test', 'token', [ matched ])
 //endif
       token = true
-      matchedTotal += (matched.length || matched) + rule[i].size
+      matchedTotal += (typeof matched === 'number' ? matched : matched.length) + rule[i].size
        // Once a token is set, following rules are applied to it
       this.token = s = matched // Set the token and apply rules to it
       matched = 0
