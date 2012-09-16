@@ -19,8 +19,8 @@ This is a work in progress as Buffer data is still converted into String before 
 First let's see some definitions. In atok's terms:
 
 * a `subrule` is an atomic check against the current data. It can be represented by a user defined function (rarely), a string or a number, or an array of those, as well as specific objects defining a range of values for instance (e.g. { start: 'a', end: 'z' } is equivalent to /[a-z]/ in RegExp)
-* a `rule` is an ordered combination of subrules. Each subrule is evaluated in order and if any fails, the whole rule is considered failed. If all of them are valid, then the handler supplied at rule instanciation is triggered, or if none was supplied, an event is emitted (the event name has to be supplied when defining the rule).
-* a `ruleSet` is a list of `rules` that are saved under a given name. Using `ruleSets` is useful when writting a parser to break down its complexity.
+* a `rule` is an __ordered__ combination of subrules. Each subrule is evaluated in order and if any fails, the whole rule is considered failed. If all of them are valid, then the handler supplied at rule instanciation is triggered, or if none was supplied, a data event is emitted instead.
+* a `ruleSet` is a list of `rules` that are saved under a given name. Using `ruleSets` is useful when writting a parser to break down its complexity into smaller, easier to solve chunks.
 * a `property` is an option applicable to the current rules being created.
     * properties are set using their own methods. For instance, a `rule` may load a different `ruleSet` upon match using `next()`
     * properties are defined before the rules they need to be applied to. E.g. atok.next('rules2').addRule(...)
