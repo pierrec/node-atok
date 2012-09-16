@@ -43,23 +43,100 @@ describe('Tokenizer Special Rules', function () {
     })
   })
 
-  describe('single function and single rule', function () {
-    var p = new Tokenizer(options)
-    var i = 0
+  describe('infinite loop', function () {
+    describe('single function and single rule', function () {
+      var p = new Tokenizer(options)
+      var i = 0
 
-    it('should throw an error (infinite loop)', function (done) {
-      p.addRule(function (matched) {})
+      it('should throw an error', function (done) {
+        p.addRule(function (matched) {})
 
-      assert.throws(
-        function () {
-          p.write('abc')
-        }
-      , function (err) {
-          if (err instanceof Error) return true
-        }
-      )
+        assert.throws(
+          function () {
+            p.write('abc')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
 
-      done()
+        done()
+      })
+    })
+
+    describe('failed rule cannot point to itself', function () {
+      var p = new Tokenizer(options)
+      var i = 0
+
+      it('should throw an error', function (done) {
+        p.continue(0, -1)
+        p.addRule('a', 'rule1')
+
+        assert.throws(
+          function () {
+            p.write('b')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+
+        done()
+      })
+    })
+
+    describe('failed rules cannot point to each other', function () {
+      var p = new Tokenizer(options)
+      var i = 0
+
+      it('should throw an error', function (done) {
+        // p.continue(0, 1)
+        // p.addRule('a', 'rule1')
+        // p.continue()
+        // p.addRule('b', 'rule2')
+        // p.continue(0, -3)
+        // p.addRule('a', 'rule3')
+        p.continue(0, 0)
+        p.addRule('a', 'rule1')
+        p.continue(0, -2)
+        p.addRule('a', 'rule2')
+
+        assert.throws(
+          function () {
+            p.write('b')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+
+        done()
+      })
+    })
+
+    describe('failed rules cannot point to each other', function () {
+      var p = new Tokenizer(options)
+      var i = 0
+
+      it('should throw an error', function (done) {
+        p.continue(0, 1)
+        p.addRule('a', 'rule1')
+        p.continue()
+        p.addRule('b', 'rule2')
+        p.continue(0, -3)
+        p.addRule('a', 'rule3')
+
+        assert.throws(
+          function () {
+            p.write('b')
+          }
+        , function (err) {
+            if (err instanceof Error) return true
+          }
+        )
+
+        done()
+      })
     })
   })
 

@@ -374,17 +374,18 @@ describe('Tokenizer Properties Methods', function () {
     describe('with a negative second argument', function () {
       var p = new Tokenizer(options)
       it('should upon failure continue at the specified indexed rule', function (done) {
-        var i = 0
+        p.continue(1)
+        p.addRule('a', 'first')
+        p.continue(0, 1)
         p.addRule('b', function (token, idx, type) {
           done()
         })
-        p.continue(0)
-        p.addRule('a', 'first')
-        p.continue(null, -3)
-        p.addRule('a', function () {
+        p.continue(0, -2)
+        p.addRule('a', 'second')
+        p.continue()
+        p.addRule('b', function () {
           done( new Error('Shoud not trigger') )
         })
-        p.continue()
         p.write('ab')
       })
     })
