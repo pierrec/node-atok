@@ -80,9 +80,11 @@ Atok.prototype.addRuleAfter = function (existingRule, rule, /*rule, ... */ type)
 Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
   var args = sliceArguments(arguments, 0)
 
-  if (args.length < 1)
-    return this._error( new Error('Atok#addRule: Missing arguments (/*rule1, rule2 ...*/ type|handler)') )
-  
+  if (args.length < 1) {
+    this._error( new Error('Atok#addRule: Missing arguments (/*rule1, rule2 ...*/ type|handler)') )
+    return this
+  }
+
   var last = args.pop()
 
   // Ignore the rule if the handler/type is false
@@ -111,7 +113,7 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
     this._error( new Error('Atok#addRule: invalid first subrule, must be > 0') )
   else
     this._rules.push(
-      RuleString(
+      new Rule(
         args
       , type
       , handler
@@ -265,7 +267,7 @@ Atok.prototype._resolveRules = function (name) {
   }
 
   // prop: continue type property
-  function checkContinue (prop) {
+  function checkContinue (prop, idx) {
     if (typeof rule[prop] !== 'number') return
 
     // incr: 1 or -1 (positive/negative continue)
@@ -310,7 +312,7 @@ Atok.prototype._resolveRules = function (name) {
     }
 
     // Use the backup value
-    var cont = rule.backup[prop]
+    var cont = rule.props.continue[idx]
 
     // continue(0) and continue(-1) do not need any update
     if (cont > 0)
@@ -337,8 +339,8 @@ Atok.prototype._resolveRules = function (name) {
   for (var i = 0, n = rules.length; i < n; i++) {
     var rule = rules[i]
     // Check each rule continue property
-    checkContinue('continue')
-    checkContinue('continueOnFail')
+    checkContinue('continue', 0)
+    checkContinue('continueOnFail', 1)
 
     // Set values for null
     if (rule.continue === null)
@@ -370,6 +372,7 @@ Atok.prototype._resolveRules = function (name) {
 
     // Zero length rules
     if (  rule.length === 0
+      && rules[ i + 1 + rule.continue ]
       && rules[ i + 1 + rule.continue ].length === 0
       )
         this._error( new Error('Atok#_resolveRules: zero-length rules infinite loop' + getErrorData(i)) )

@@ -10,16 +10,22 @@ function handler (token, idx, type) {
 	assert.equal(token, 2)
 }
 
+atok.setEncoding()
 atok.quiet(true).addRule(2, handler)
+natok.setEncoding()
 natok.quiet(true).addRule(2, handler)
 
 var s = 'abc'
+var buf = new Buffer(s)
 
 var compare = exports.compare = {}
 compare[Atok.version] = function () {
 	atok.clear(true).write(s)
 }
-compare[newAtok.version] = function () {
+compare[newAtok.version + ' string'] = function () {
 	natok.clear(true).write(s)
+}
+compare[newAtok.version + ' buffer'] = function () {
+	natok.clear(true).write(buf)
 }
 require("bench").runMain()

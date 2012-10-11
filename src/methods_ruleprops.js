@@ -127,59 +127,6 @@ Atok.prototype.continue = function (jump, jumpOnFail) {
   return this
 }
 /**
- * Continue the rules flow if rule matches at the specified rule index relative to the current group
- *
- * @param {boolean|number} relative to the current group when rule is successful, number overwrites continue's
- * @param {boolean|number} relative to the current group when rule is failed, number overwrites continue's
- * @return {Atok}
- * @api public
- */
-Atok.prototype.continueGroup = function (flag, flagOnFail) {
-  if (arguments.length === 0) {
-    this._p_continueGroup = false
-    this._p_continueOnFailGroup = false
-    this._groupContinueStartPrev = 0
-
-    return this
-  }
-
-  // Error if not in a group
-  if ( this._group < 0 )
-    this._error( new Error('Atok#continueGroup: not in a group') )
-
-  // Check the arguments
-  if ( !/(number|boolean)/.test(typeof flag) )
-    this._error( new Error('Atok#continueGroup: Invalid flag (must be boolean/number): ' + flag) )
-  
-  if (arguments.length === 1)
-    flagOnFail = false
-  else if ( !/(number|boolean)/.test(typeof flagOnFail) )
-    this._error( new Error('Atok#continueGroup: Invalid flag (must be a boolean/number): ' + flagOnFail) )
-  
-  // Valid arguments, set the continue() values accordingly
-  if (typeof flag === 'boolean') {
-    if (!this._p_continueGroup && flag)
-      this._groupContinueStartPrev = this._groupStart
-
-    this._p_continueGroup = flag
-  } else {
-    this._p_continueGroup = false
-    this._p_continue = flag
-  }
-
-  if (typeof flagOnFail === 'boolean') {
-    if (!this._p_continueOnFailGroup && flagOnFail)
-      this._groupContinueStartPrev = this._groupStart
-
-    this._p_continueOnFailGroup = flagOnFail
-  } else {
-    this._p_continueOnFailGroup = false
-    this._p_continueOnFail = flagOnFail
-  }
-
-  return this
-}
-/**
  * Abort a current rule set. Use continue(-1) to resume at the current subrule.
  *
  * @return {Atok}
@@ -213,11 +160,6 @@ Atok.prototype.setProps = function (props) {
           this._p_next = props[ prop ][0]
           this._p_nextIndex = props[ prop ][1]
         break
-        // Special case: continueGroup has 2 properties
-        case 'continueGroup':
-          this._p_continueGroup = props[ prop ][0]
-          this._p_continueOnFailGroup = props[ prop ][1]
-        break
         default:
           this[ '_p_' + prop ] = props[ prop ]
       }
@@ -243,7 +185,8 @@ Atok.prototype.clearProps = function () {
  * @api public
  */
 Atok.prototype.getProps = function () {
-  var props = {}
+  // Empty object with no prototype
+  var props = Object.create(null)
   var propNames = arguments.length > 0
         ? sliceArguments(arguments, 0)
         : this._defaultProps
@@ -259,10 +202,6 @@ Atok.prototype.getProps = function () {
         // Special case: next has 2 properties
         case 'next':
           props[ prop ] = [ this._p_next, this._p_nextIndex ]
-        break
-        // Special case: continueGroup has 2 properties
-        case 'continueGroup':
-          props[ prop ] = [ this._p_continueGroup, this._p_continueOnFailGroup ]
         break
         default:
           props[ prop ] = this[ '_p_' + prop ]

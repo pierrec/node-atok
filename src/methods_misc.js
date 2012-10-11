@@ -22,14 +22,15 @@ Atok.prototype.clear = function (keepRules) {
  * @api public
  */
 Atok.prototype.slice = function (start, end) {
-  switch (arguments.length) {
-    case 0:
-      start = this.offset
-    case 1:
-      end = this.length
-  }
+  // switch (arguments.length) {
+  //   case 0:
+  //     start = this.offset
+  //   case 1:
+  //     end = this.length
+  // }
 
-  return this.buffer.substr(start, end - start)
+  // return this.buffer.substr(start, end - start)
+  return this.buffer.slice(start, end)
 }
 /**
  * Terminate the current tokenizing and return the current buffer
@@ -59,6 +60,8 @@ Atok.prototype.setEncoding = function (enc) {
     default:
       this._encoding = 'UTF-8'
   }
+  this._stringDecoder = new StringDecoder(this._encoding)
+
   return this
 }
 /**

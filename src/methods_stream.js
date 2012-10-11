@@ -16,7 +16,18 @@ Atok.prototype.write = function (data) {
   if (!data || data.length === 0) return true
 
   // Buffer the incoming data...
-  this.buffer += this._stringDecoder.write(data)
+  if (this.length > 0) {
+    // Process strings and Buffers separately
+    // Once a type has been written to the stream, it must stay the same thereon
+    if (typeof data === 'string') {
+      this.buffer += this._stringDecoder.write(data)
+    } else {
+      this.buffer.concat(data)
+      // this.buffer = Buffer.concat( [ this.buffer, data ], this.length )
+    }
+  } else {
+    this.buffer = data
+  }
   this.length = this.buffer.length
 
   // ... hold on until tokenization completed on the current data set
@@ -122,7 +133,7 @@ Atok.prototype._tokenize = function () {
   this._tokenizing = true
 
   // NB. Rules and buffer can be reset by the token handler
-  var i = this._ruleIndex, p, matched
+  var i = this._ruleIndex, p, props, matched
 
   this._ruleIndex = 0
   this._resetRuleIndex = false
@@ -133,30 +144,38 @@ Atok.prototype._tokenize = function () {
     )
   {
     p = this._rules[i]
+    props = p.props
 
     // Return the size of the matched data (0 is valid!)
     matched = p.test(this.buffer, this.offset)
 
     if ( matched >= 0 ) {
-      this.offset += matched
+      //TODO check moving the line below has no impact
+      // this.offset += matched
       // Is the token to be processed?
-      if ( !p.ignore ) {
+      if ( !props.ignore ) {
         // Emit the data by default, unless the handler is set
-        if (p.handler) p.handler(p.token, p.idx, p.type)
-        else this.emit_data(p.token, p.idx, p.type)
+        var token = props.quiet
+          ? matched
+          //TODO new Buffer? but *very expensive*
+          : this.buffer.slice(this.offset, this.offset + matched)
+        if (p.handler) p.handler(token, p.idx, p.type)
+        else this.emit_data(token, p.idx, p.type)
       }
+      //TODO
+      this.offset += matched
       // Load a new set of rules
-      if (p.next) this.loadRuleSet(p.next, p.nextIndex)
+      if (props.next[0]) this.loadRuleSet(props.next[0], props.next[1])
 
       // Rule set may have changed...from loadRuleSet() or handler()
       if (this._resetRuleIndex) {
         this._resetRuleIndex = false
         i = this._ruleIndex - 1
       } else if (matched > 0)
-        i += p.continue
+        i += props.continue[0]
 
       // NB. `break()` prevails over `pause()`
-      if (p.break) {
+      if (props.break) {
         i++
         break
       }
@@ -169,7 +188,7 @@ Atok.prototype._tokenize = function () {
         return false
       }
     } else {
-      i += p.continueOnFail
+      i += props.continue[1]
     }
   }
   
@@ -181,17 +200,20 @@ Atok.prototype._tokenize = function () {
     // No marked offset or beyond the current offset
     if (this.offset === this.length) {
       this.offset = 0
-      this.buffer = ''
+      this.buffer = null
+      this.length = 0
       this.emit_empty(this.ending)
 
     } else if (this.offset < this.length) {
       this.buffer = this.slice(this.offset)
+      this.length = this.buffer.length
       this.offset = 0
 
     } else {
       // Can only occurs if offset was manually incremented
       this.offset = this.offset - this.length
-      this.buffer = ''
+      this.buffer = null
+      this.length = 0
     }
 
   } else {
@@ -208,22 +230,24 @@ Atok.prototype._tokenize = function () {
     if (this[minOffset] === this.length) {
       this[maxOffset] -= this[minOffset]
       this[minOffset] = 0
-      this.buffer = ''
+      this.buffer = null
+      this.length = 0
       this.emit_empty(this.ending)
 
     } else if (this[minOffset] < this.length) {
       this[maxOffset] -= this[minOffset]
       this.buffer = this.slice(this[minOffset])
+      this.length = this.buffer.length
       this[minOffset] = 0
 
     } else {
       // Can only occurs if offset was manually incremented
       this[maxOffset] -= this.length
       this[minOffset] -= this.length
-      this.buffer = ''
+      this.buffer = null
+      this.length = 0
     }
   }
-  this.length = this.buffer.length
 
   this._tokenizing = false
   

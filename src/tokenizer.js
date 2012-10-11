@@ -6,15 +6,17 @@
 
 var assert = require('assert')
   , Stream = require('stream')
-  , StringDecoder = require('string_decoder').StringDecoder
   , EV = require('ev')
   , sliceArguments = require('fnutils').slice
+  , StringDecoder = require('string_decoder').StringDecoder
+
+
+// Augment the Buffer object with new useful methods
+var buffertools = require('buffertools')
 
 var inherits = require('inherits')
-  // , Buffers = require('buffers')
 
-var RuleString = require('./string/rule')
-// var RuleBuffer = require('./buffer/ruleBuffer')
+var Rule = require('./rule')
 
 /**
  * Expose the atok constructor
@@ -47,7 +49,6 @@ Atok.version = require('../package.json').version
  * An atok stream
  *
  * @param {Object=} atok stream options
- *  - options.encoding {string}: encoding to be used (utf8)
  * @constructor
  */
 function Atok (options) {
@@ -61,9 +62,7 @@ function Atok (options) {
 
   // Options
   options = options || {}
-  this._encoding = options.encoding
-  // Apply the default encoding value
-  this.setEncoding(options.encoding)
+  this._encoding = null
 
   // Initializations
   // Debug flag
@@ -83,8 +82,7 @@ function Atok (options) {
 
   this._defaultProps = Object.keys(this)
     .filter(function (prop) {
-      return prop.substr(0, 3) === '_p_'
-        && !/_p_(continueOnFail|nextIndex)/.test(prop)
+      return /^_p_/.test(prop) && !/(continueOnFail|nextIndex)$/.test(prop)
     })
     .map(function (prop) {
       return prop.substr(3)

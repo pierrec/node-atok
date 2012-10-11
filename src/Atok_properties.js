@@ -1,5 +1,5 @@
   // Public properties
-  this.buffer = ''
+  this.buffer = null
   this.length = 0
   this.offset = 0
   this.markedOffset = -1    // Flag indicating whether the buffer should be kept when write() ends
@@ -8,7 +8,7 @@
   this._tokenizing = false
   this._ruleIndex = 0
   this._resetRuleIndex = false
-  this._stringDecoder = new StringDecoder(this._encoding)
+  this._stringDecoder = this._encoding ? new StringDecoder(this._encoding) : null
   this._rulesToResolve = false
   this._group = -1
   this._groupStart = 0

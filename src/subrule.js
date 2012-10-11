@@ -1,25 +1,78 @@
-module.exports = SubRule
+/**
+  A subrule is defined as follow:
+  subrule#exec(buffer, offset)
+  @param buffer {Buffer|String} buffer to look for the match
+  @param offset {Number} start looking at this offset, if < 0, then no match, return -1
+  @return {Number} next offset (-1 if no match)
 
-var isArray = require('util').isArray
+  subrule#next(buffer, offset)
+  called from previous successful subrule
+ */
 
-var emptyRule = { token: true, exec: null, length: -1 }
+var buffertools = require('buffertools')
 
-//include("utils.js", "*_SubRule.js")
+exports.lastSubRule = { test: function (buf, offset) {
+    return offset
+  }
+}
 
-function SubRule (rule, i, n, mainRule) {
+//include("subrules/first/*.js")
+
+function typeOf (rule) {
+  var ruleType = typeof rule
+  
+  return ruleType !== 'object' || ruleType === 'function'
+    ? ruleType
+    : Buffer.isBuffer(rule)
+      ? 'buffer'
+      : util.isArray(rule)
+        ? 'array'
+        : 'object'
+}
+
+exports.firstSubRule = function (rule, props, encoding) {
   if (rule === null || rule === undefined)
     throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
 
-  var toLoop = mainRule.ignore && mainRule.continue === -1 && !mainRule.next
-
-  switch ( typeof rule ) {
+  switch ( typeOf(rule) ) {
     case 'number':
       if (rule < 0)
         throw new Error('SubRule: Number cannot be negative: ' + rule)
-      // Do not extract token if noToken and last subrule
-      return mainRule.noToken && i === (n-1)
-        ? new numberNoToken_SubRule(rule)
-        : new number_SubRule(rule)
+
+      return new number_SubRule(rule)
+    case 'string':
+      return new buffer_firstSubRule( new Buffer(rule, encoding), rule)
+    case 'buffer':
+      return new buffer_firstSubRule( rule, rule.toString(encoding) )
+  default:
+      throw new Error('Tokenizer#addRule: Invalid rule ' + typeOf(rule) + ' (function/string/integer/array only)')
+  }
+}
+
+//include("subrules/*.js")
+
+exports.SubRule = function (rule, props, encoding) {
+  if (rule === null || rule === undefined)
+    throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
+
+  switch ( typeOf(rule) ) {
+    case 'number':
+      if (rule < 0)
+        throw new Error('SubRule: Number cannot be negative: ' + rule)
+
+      return new number_SubRule(rule)
+    case 'string':
+      return new buffer_SubRule( new Buffer(rule, encoding), rule)
+    case 'buffer':
+      return new buffer_SubRule( rule, rule.toString(encoding) )
+  default:
+      throw new Error('Tokenizer#addRule: Invalid rule ' + typeOf(rule) + ' (function/string/integer/array only)')
+  }
+}
+function oldSubRule () {
+  var toLoop = mainRule.ignore && mainRule.continue === -1 && !mainRule.next
+
+  switch ( typeof rule ) {
     case 'string':
       if (rule.length === 0)
         return emptyRule
