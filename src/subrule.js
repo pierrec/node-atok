@@ -21,6 +21,11 @@ exports.lastSubRule = {
 
 //include("subrules/first/*.js")
 
+/**
+ * Return the type of an item
+ * @param {...} item to check
+ * @return {String} type
+ */
 function typeOf (rule) {
   var ruleType = typeof rule
   
@@ -28,27 +33,69 @@ function typeOf (rule) {
     ? ruleType
     : Buffer.isBuffer(rule)
       ? 'buffer'
-      : isArray(rule)
-        ? 'array'
-        : 'object'
+      : !isArray(rule)
+        ? 'object'
+        : !rule.every(function (i) { return typeof rule[0] === typeof i })
+          ? 'multi types array'
+          : ((Buffer.isBuffer( rule[0] )
+                ? 'buffer'
+                : typeof rule[0]
+              )
+              + '_array'
+            )
 }
+
+function toCodes (s) {
+  return s.split('').map(function (c) {
+    return c.charCodeAt(0)
+  })
+}
+
+//TODO special case: loops
 
 exports.firstSubRule = function (rule, props, encoding) {
   if (rule === null || rule === undefined)
     throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
 
-  switch ( typeOf(rule) ) {
+  var type = typeOf(rule)
+
+  switch (type) {
+    case 'function':
+      return new function_SubRule(rule)
+
     case 'number':
       if (rule < 0)
         throw new Error('SubRule: Number cannot be negative: ' + rule)
 
       return new number_SubRule(rule)
+
     case 'string':
-      return new buffer_firstSubRule( new Buffer(rule, encoding), rule)
+      return new buffer_firstSubRule( new Buffer(rule, encoding), toCodes(rule) )
+
     case 'buffer':
-      return new buffer_firstSubRule( rule, rule.toString(encoding) )
+      return new buffer_firstSubRule( rule, toCodes( rule.toString(encoding) ) )
+
+    // Arrays
+    case 'function_array':
+      return new function_arraySubRule(rule)
+
+    case 'number_array':
+      return new number_arraySubRule(rule)
+
+    case 'string_array':
+      return new buffer_array_firstSubRule(
+        rule.map( function (i) { return new Buffer(i, encoding) } )
+      , rule.map(toCodes)
+      )
+
+    case 'buffer_array':
+      return new buffer_array_firstSubRule(
+        rule
+      , rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
+      )
+
   default:
-      throw new Error('Tokenizer#addRule: Invalid rule ' + typeOf(rule) + ' (function/string/integer/array only)')
+      throw new Error('Tokenizer#addRule: Invalid rule ' + type + ' (function/string/integer/array only)')
   }
 }
 
@@ -58,22 +105,49 @@ exports.SubRule = function (rule, props, encoding) {
   if (rule === null || rule === undefined)
     throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
 
-  switch ( typeOf(rule) ) {
+  var type = typeOf(rule)
+
+  switch (type) {
+    case 'function':
+      return new function_SubRule(rule)
+
     case 'number':
       if (rule < 0)
         throw new Error('SubRule: Number cannot be negative: ' + rule)
 
       return new number_SubRule(rule)
+
     case 'string':
       return props.escape
-        ? new buffer_escapedSubRule( new Buffer(rule, encoding), rule, props.escape )
-        : new buffer_SubRule( new Buffer(rule, encoding), rule)
+        ? new buffer_escapedSubRule( new Buffer(rule, encoding), toCodes(rule), props.escape )
+        : new buffer_SubRule( new Buffer(rule, encoding), toCodes(rule) )
+
     case 'buffer':
       return props.escape
-        ? new buffer_escapedSubRule( rule, rule.toString(encoding), props.escape )
-        : new buffer_SubRule( rule, rule.toString(encoding) )
+        ? new buffer_escapedSubRule( rule, toCodes(rule.toString(encoding)), props.escape )
+        : new buffer_SubRule( rule, toCodes(rule.toString(encoding)) )
+
+    // Arrays
+    case 'function_array':
+      return new function_arraySubRule(rule)
+
+    case 'number_array':
+      return new number_arraySubRule(rule)
+
+    case 'string_array':
+      return new buffer_arraySubRule(
+        rule.map( function (i) { return new Buffer(i, encoding) } )
+      , rule.map(toCodes)
+      )
+
+    case 'buffer_array':
+      return new buffer_arraySubRule(
+        rule
+      , rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
+      )
+
   default:
-      throw new Error('Tokenizer#addRule: Invalid rule ' + typeOf(rule) + ' (function/string/integer/array only)')
+      throw new Error('Tokenizer#addRule: Invalid rule ' + type + ' (function/string/integer/array only)')
   }
 }
 function oldSubRule () {

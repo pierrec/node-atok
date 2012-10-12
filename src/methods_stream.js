@@ -157,8 +157,8 @@ Atok.prototype._tokenize = function () {
         token = props.quiet
           ? matched
           : this.buffer.slice( this.offset + p.first.length, this.offset + matched - p.last.length )
-        if (p.handler) p.handler(token, p.idx, p.type)
-        else this.emit_data(token, p.idx, p.type)
+        if (p.handler) p.handler(token, p.first.idx, p.type)
+        else this.emit_data(token, p.first.idx, p.type)
       }
       this.offset += matched
       // Load a new set of rules
