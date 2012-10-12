@@ -38,22 +38,38 @@ function Rule (subrules, type, handler, atok) {
   // Id for debug
   this._id = (handler !== null ? (handler.name || '#emit()') : this.type)
 
-  this.idx = -1     // Subrule pattern index that matched (-1 if only 1 pattern)
-  this.length = 0   // First subrule pattern length (max of all patterns if many) - used in infinite loop detection
-  //TODO set this.length
-  this.length = 10
+  // Subrule pattern index that matched (-1 if only 1 pattern)
+  this.idx = -1
 
-  this.rules = SubRule.firstSubRule( subrules[0], this.props, atok._encoding )
-  var prev = this.rules
+  // First subrule
+  var subrule = this.first = SubRule.firstSubRule( subrules[0], this.props, atok._encoding )
+
+  // First subrule pattern length (max of all patterns if many)
+  // - used in infinite loop detection
+  this.length = this.first.length
+
+
+  // Instantiate and link the subrules
+  var prev = subrule
   for (var i = 1, n = subrules.length; i < n; i++) {
-    var subrule = SubRule.SubRule( subrules[i], this.props, atok._encoding )
+    subrule = SubRule.SubRule( subrules[i], this.props, atok._encoding )
     prev.next = subrule
     prev = subrule
   }
   prev.next = SubRule.lastSubRule
+
+  // Last subrule (used for trimRight)
+  // Set to the dummy last rule if only one rule
+  this.last = n > 1 ? subrule : prev.next
+
+  // Set the first and last subrules length based on trim properties
+  if (!this.props.trimLeft) this.first.length = 0
+  if (!this.props.trimRight) this.last.length = 0
+
+  //TODO micro optimizations (empty subrule...)
 }
 Rule.prototype.test = function (buf, offset) {
-  return this.rules.test(buf, offset) - offset
+  return this.first.test(buf, offset) - offset
 }
 
 /**

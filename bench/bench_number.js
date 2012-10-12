@@ -7,7 +7,7 @@ var atok = new Atok
 var natok = new newAtok
 
 function handler (token, idx, type) {
-	assert.equal(token, 'abc')
+	// assert.equal(token, 'abc')
 }
 
 atok.setEncoding()

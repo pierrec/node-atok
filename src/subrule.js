@@ -9,9 +9,12 @@
   called from previous successful subrule
  */
 
+var isArray = require('util').isArray
 var buffertools = require('buffertools')
 
-exports.lastSubRule = { test: function (buf, offset) {
+exports.lastSubRule = {
+  length: 0
+, test: function (buf, offset) {
     return offset
   }
 }
@@ -25,7 +28,7 @@ function typeOf (rule) {
     ? ruleType
     : Buffer.isBuffer(rule)
       ? 'buffer'
-      : util.isArray(rule)
+      : isArray(rule)
         ? 'array'
         : 'object'
 }
@@ -62,9 +65,13 @@ exports.SubRule = function (rule, props, encoding) {
 
       return new number_SubRule(rule)
     case 'string':
-      return new buffer_SubRule( new Buffer(rule, encoding), rule)
+      return props.escape
+        ? new buffer_escapedSubRule( new Buffer(rule, encoding), rule, props.escape )
+        : new buffer_SubRule( new Buffer(rule, encoding), rule)
     case 'buffer':
-      return new buffer_SubRule( rule, rule.toString(encoding) )
+      return props.escape
+        ? new buffer_escapedSubRule( rule, rule.toString(encoding), props.escape )
+        : new buffer_SubRule( rule, rule.toString(encoding) )
   default:
       throw new Error('Tokenizer#addRule: Invalid rule ' + typeOf(rule) + ' (function/string/integer/array only)')
   }

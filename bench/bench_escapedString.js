@@ -10,16 +10,22 @@ function handler (token, idx, type) {
 	assert.equal(token, 'a\\"bc')
 }
 
-atok.escaped(true).addRule('"', '"', handler)
-natok.escaped(true).addRule('"', '"', handler)
+atok.setEncoding()
+atok.escape(true).addRule('"', '"', handler)
+natok.setEncoding()
+natok.escape(true).addRule('"', '"', handler)
 
 var s = '"a\\"bc"'
+var buf = new Buffer(s)
 
 var compare = exports.compare = {}
 compare[Atok.version] = function () {
-	atok.clear(true).write(s)
+	atok.write(s)
 }
-compare[newAtok.version] = function () {
-	natok.clear(true).write(s)
+compare[newAtok.version + ' string'] = function () {
+	natok.write(s)
+}
+compare[newAtok.version + ' buffer'] = function () {
+	natok.write(buf)
 }
 require("bench").runMain()

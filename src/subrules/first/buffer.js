@@ -1,8 +1,7 @@
 function buffer_firstSubRule (buf, str) {
 	// Common properties
-	this.size = 0
 	this.idx = -1
-	this.length = buf.length
+	this.length = 1
 	this.next = null
 	// Specific properties
 	this.buf = buf
@@ -24,5 +23,7 @@ buffer_firstSubRule.prototype.test = function (buf, offset) {
 			if ( buf[offset+i] !== p[i] ) return -1
 		}
 	}
+	if (this.length > 0) this.length = n
+
 	return this.next.test(buf, offset + n)
 }

@@ -1,6 +1,5 @@
 function number_SubRule (n) {
 	// Common properties
-	this.size = 0
 	this.idx = -1
 	this.length = n
 	this.next = null

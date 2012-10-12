@@ -134,6 +134,7 @@ Atok.prototype._tokenize = function () {
 
   // NB. Rules and buffer can be reset by the token handler
   var i = this._ruleIndex, p, props, matched
+  var token
 
   this._ruleIndex = 0
   this._resetRuleIndex = false
@@ -150,19 +151,15 @@ Atok.prototype._tokenize = function () {
     matched = p.test(this.buffer, this.offset)
 
     if ( matched >= 0 ) {
-      //TODO check moving the line below has no impact
-      // this.offset += matched
       // Is the token to be processed?
       if ( !props.ignore ) {
         // Emit the data by default, unless the handler is set
-        var token = props.quiet
+        token = props.quiet
           ? matched
-          //TODO new Buffer? but *very expensive*
-          : this.buffer.slice(this.offset, this.offset + matched)
+          : this.buffer.slice( this.offset + p.first.length, this.offset + matched - p.last.length )
         if (p.handler) p.handler(token, p.idx, p.type)
         else this.emit_data(token, p.idx, p.type)
       }
-      //TODO
       this.offset += matched
       // Load a new set of rules
       if (props.next[0]) this.loadRuleSet(props.next[0], props.next[1])
