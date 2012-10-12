@@ -90,10 +90,10 @@ Atok.prototype.trim = function (flag) {
  * @api public
  */
 Atok.prototype.escape = function (flag) {
-  this._p_escape = typeof flag === 'string' && flag.length > 0
-    ? flag[0]
-    : flag === true
-      ? '\\'
+  this._p_escape = flag === true
+    ? '\\'
+    : flag && flag.length > 0
+      ? flag.toString(this._encoding || 'utf8').charAt(0)
       : false
   return this
 }
