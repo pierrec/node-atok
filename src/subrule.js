@@ -30,10 +30,14 @@ exports.lastSubRule = Object.create({
  */
 var _has = Object.prototype.hasOwnProperty
 function has (o, prop) {
-  return _has.call(o, prop)
+  return typeof o === 'object' && _has.call(o, prop)
 }
 
 //include("subrules/first/*.js")
+
+function sameTypeArray (list) {
+  return list.every(function (i) { return typeof list[0] === typeof i })
+}
 
 /**
  * Return the type of an item
@@ -54,11 +58,17 @@ function typeOf (rule) {
               ? 'rangestart'
               : has(rule, 'end')
                 ? 'rangeend'
-                : ''
+                : has(rule, 'firstOf')
+                  ? (isArray(rule.firstOf) && rule.firstOf.length > 1
+                        && sameTypeArray(rule.firstOf)
+                      ? 'firstof'
+                      : 'invalid firstof'
+                    )
+                  : 'invalid'
             )
             + '_object'
           )
-        : !rule.every(function (i) { return typeof rule[0] === typeof i })
+        : !sameTypeArray(rule)
           ? 'multi types array'
           : ((Buffer.isBuffer( rule[0] )
               ? 'buffer'
@@ -88,6 +98,24 @@ function toRanges (list) {
         ? list
         //TODO only strings and numbers supported
         : ''
+}
+
+function toFirstOf (list, encoding) {
+  return typeof list[0] === 'string'
+    ? [
+        list.map( function (i) { return new Buffer(i, encoding) } )
+              // Filter out empty values
+            .filter(function (i) { return i.length > 0 })
+      , list
+      ]
+    : Buffer.isBuffer(list[0])
+      ? [
+          list
+        , list.map( function (i) { return i.toString(encoding) } )
+              // Filter out empty values
+              .filter(function (i) { return i.length > 0 })
+        ]
+      : []
 }
 
 //TODO special case: loops
@@ -174,6 +202,15 @@ exports.firstSubRule = function (rule, props, encoding) {
         throw new Error('Tokenizer#addRule: Invalid Range: empty end')
 
       return new rangeend_array_object_firstSubRule(end)
+
+    // {firstof}
+    case 'firstof_object':
+      var firstof = toFirstOf(rule.firstOf, encoding)
+
+      if (firstof.length === 0)
+        throw new Error('Tokenizer#addRule: Invalid firstOf')
+
+      return new firstof_object_SubRule( firstof[0], firstof[1] )
 
   default:
       throw new Error('Tokenizer#addRule: Invalid rule ' + type + ' (function/string/integer/array only)')

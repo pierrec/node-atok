@@ -7,21 +7,25 @@ var atok = new Atok
 var natok = new newAtok
 
 function handler (token, idx, type) {
-	assert.equal(token, 'ab')
+	// assert.equal(token, 'ab')
 }
 
 var options = { firstOf: [' ',','] }
 
-atok.quiet(true).addRule(options, handler)
-natok.quiet(true).addRule(options, handler)
+atok.addRule(options, handler)
+natok.addRule(options, handler)
 
 var s = 'ab,'
+var buf = new Buffer(s)
 
 var compare = exports.compare = {}
 compare[Atok.version] = function () {
-	atok.clear(true).write(s)
+	atok.write(s)
 }
-compare[newAtok.version] = function () {
-	natok.clear(true).write(s)
+compare[newAtok.version + ' string'] = function () {
+	natok.write(s)
+}
+compare[newAtok.version + ' buffer'] = function () {
+	natok.write(buf)
 }
 require("bench").runMain()
