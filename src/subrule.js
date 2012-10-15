@@ -84,8 +84,10 @@ function toRanges (list) {
       )
     : isArray(list)
       ? list.map(stringCode)
-      //TODO only strings supported
-      : ''
+      : typeof list === 'number'
+        ? list
+        //TODO only strings and numbers supported
+        : ''
 }
 
 //TODO special case: loops
@@ -133,26 +135,45 @@ exports.firstSubRule = function (rule, props, encoding) {
 
     // {start, end}
     case 'range_object':
-      if (rule.start.length === 0 || rule.start.length !== rule.end.length)
+      var start = toRanges(rule.start)
+      var end = toRanges(rule.end)
+
+      // Force the start or end
+      if (typeof start === 'number' && typeof end !== 'number') end = end[0]
+      if (typeof end === 'number' && typeof start !== 'number') start = start[0]
+
+      if (typeof start === 'number')
+        return new range_object_firstSubRule(start, end)
+
+      if (start.length === 0 || start.length !== end.length)
         throw new Error('Tokenizer#addRule: Invalid Range: bad sizes: '
-          + ' start=' + rule.start.length
-          + ' end=' + rule.end.length
+          + ' start=' + start.length
+          + ' end=' + end.length
         )
 
-      return new range_object_firstSubRule(
-        toRanges(rule.start)
-      , toRanges(rule.end)
-      )
+      return new range_array_object_firstSubRule(start, end)
 
     case 'rangestart_object':
-      return new rangestart_object_firstSubRule(
-        toRanges(rule.start)
-      )
+      var start = toRanges(rule.start)
+
+      if (typeof start === 'number')
+        return new rangestart_object_firstSubRule(start, end)
+
+      if (start.length === 0)
+        throw new Error('Tokenizer#addRule: Invalid Range: empty start')
+
+      return new rangestart_array_object_firstSubRule(start)
 
     case 'rangeend_object':
-      return new rangeend_object_firstSubRule(
-        toRanges(rule.end)
-      )
+      var end = toRanges(rule.end)
+
+      if (typeof end === 'number')
+        return new rangeend_object_firstSubRule(start, end)
+
+      if (end.length === 0)
+        throw new Error('Tokenizer#addRule: Invalid Range: empty end')
+
+      return new rangeend_array_object_firstSubRule(end)
 
   default:
       throw new Error('Tokenizer#addRule: Invalid rule ' + type + ' (function/string/integer/array only)')
