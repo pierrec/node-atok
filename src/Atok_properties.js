@@ -8,7 +8,7 @@
   this._tokenizing = false
   this._ruleIndex = 0
   this._resetRuleIndex = false
-  this._stringDecoder = this._encoding ? new StringDecoder(this._encoding) : null
+  this._stringDecoder = new StringDecoder(this._encoding)
   this._rulesToResolve = false
   this._group = -1
   this._groupStart = 0
