@@ -63,6 +63,7 @@ function Atok (options) {
   // Options
   options = options || {}
   this._encoding = null
+  this.setEncoding( options.encoding )
 
   // Initializations
   // Debug flag
