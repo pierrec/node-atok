@@ -30,6 +30,10 @@ function Rule (subrules, type, handler, atok) {
   this.group = atok._group
   this.groupStart = atok._groupStart
 
+  // Runtime values for continue props
+  this.continue = this.props.continue[0]
+  this.continueOnFail = this.props.continue[1]
+
   this.type = type
   this.handler = handler
 
