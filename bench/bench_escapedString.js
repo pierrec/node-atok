@@ -10,9 +10,7 @@ function handler (token, idx, type) {
 	assert.equal(token, 'a\\"bc')
 }
 
-atok.setEncoding()
 atok.escape(true).addRule('"', '"', handler)
-natok.setEncoding()
 natok.escape(true).addRule('"', '"', handler)
 
 var s = '"a\\"bc"'

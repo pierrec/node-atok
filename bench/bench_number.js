@@ -10,9 +10,7 @@ function handler (token, idx, type) {
 	// assert.equal(token, 'abc')
 }
 
-atok.setEncoding()
 atok.addRule(3, handler)
-natok.setEncoding()
 natok.addRule(3, handler)
 
 // Converting a string to a buffer is *expensive*

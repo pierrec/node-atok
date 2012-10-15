@@ -119,11 +119,11 @@ exports.SubRule = function (rule, props, encoding) {
 
     case 'string':
       return new ( props.escape ? buffer_escapedSubRule : buffer_SubRule )
-        ( new Buffer(rule, encoding), toCodes(rule), props.escape )
+        ( new Buffer(rule, encoding), rule, props.escape )
 
     case 'buffer':
       return new ( props.escape ? buffer_escapedSubRule : buffer_SubRule )
-        ( rule, toCodes(rule.toString(encoding)), props.escape )
+        ( rule, rule.toString(encoding), props.escape )
 
     // Arrays
     case 'function_array':
@@ -136,7 +136,7 @@ exports.SubRule = function (rule, props, encoding) {
       return new ( props.escape ? buffer_escaped_arraySubRule : buffer_arraySubRule )
       (
         rule.map( function (i) { return new Buffer(i, encoding) } )
-      , rule.map(toCodes)
+      , rule
       , props.escape
       )
 
@@ -144,7 +144,7 @@ exports.SubRule = function (rule, props, encoding) {
       return new ( props.escape ? buffer_escaped_arraySubRule : buffer_arraySubRule )
       (
         rule
-      , rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
+      , rule.map( function (i) { return i.toString(encoding) } )
       , props.escape
       )
 

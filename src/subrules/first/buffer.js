@@ -15,7 +15,7 @@ buffer_firstSubRule.prototype.test = function (buf, offset) {
 	if (buf.length < offset + n) return -1
 
 	if (isString) {
-		for (var p = this.buf, i = 0; i < n; i++) {
+		for (var p = this.str, i = 0; i < n; i++) {
 			if ( buf.charCodeAt(offset+i) !== p[i] ) return -1
 		}
 	} else {

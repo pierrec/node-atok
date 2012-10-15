@@ -10,9 +10,7 @@ function handler (token, idx, type) {
 	assert.equal(token, 2)
 }
 
-atok.setEncoding()
 atok.quiet(true).addRule(2, handler)
-natok.setEncoding()
 natok.quiet(true).addRule(2, handler)
 
 var s = 'abc'
