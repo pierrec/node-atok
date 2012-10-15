@@ -118,14 +118,12 @@ exports.SubRule = function (rule, props, encoding) {
       return new number_SubRule(rule)
 
     case 'string':
-      return props.escape
-        ? new buffer_escapedSubRule( new Buffer(rule, encoding), toCodes(rule), props.escape )
-        : new buffer_SubRule( new Buffer(rule, encoding), toCodes(rule) )
+      return new ( props.escape ? buffer_escapedSubRule : buffer_SubRule )
+        ( new Buffer(rule, encoding), toCodes(rule), props.escape )
 
     case 'buffer':
-      return props.escape
-        ? new buffer_escapedSubRule( rule, toCodes(rule.toString(encoding)), props.escape )
-        : new buffer_SubRule( rule, toCodes(rule.toString(encoding)) )
+      return new ( props.escape ? buffer_escapedSubRule : buffer_SubRule )
+        ( rule, toCodes(rule.toString(encoding)), props.escape )
 
     // Arrays
     case 'function_array':
@@ -135,15 +133,19 @@ exports.SubRule = function (rule, props, encoding) {
       return new number_arraySubRule(rule)
 
     case 'string_array':
-      return new buffer_arraySubRule(
+      return new ( props.escape ? buffer_escaped_arraySubRule : buffer_arraySubRule )
+      (
         rule.map( function (i) { return new Buffer(i, encoding) } )
       , rule.map(toCodes)
+      , props.escape
       )
 
     case 'buffer_array':
-      return new buffer_arraySubRule(
+      return new ( props.escape ? buffer_escaped_arraySubRule : buffer_arraySubRule )
+      (
         rule
       , rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
+      , props.escape
       )
 
   default:
