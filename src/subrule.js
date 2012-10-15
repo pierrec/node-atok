@@ -12,11 +12,25 @@
 var isArray = require('util').isArray
 var buffertools = require('buffertools')
 
-exports.lastSubRule = {
+/**
+  Last subrule
+ */
+exports.lastSubRule = Object.create({
   length: 0
 , test: function (buf, offset) {
     return offset
   }
+})
+
+/**
+  Property checker
+  @param {Object} object to check on
+  @param {String} property to be checked
+  @return {Boolean}
+ */
+var _has = Object.prototype.hasOwnProperty
+function has (o, prop) {
+  return _has.call(o, prop)
 }
 
 //include("subrules/first/*.js")
@@ -34,21 +48,44 @@ function typeOf (rule) {
     : Buffer.isBuffer(rule)
       ? 'buffer'
       : !isArray(rule)
-        ? 'object'
+        ? ((has(rule, 'start') && has(rule, 'end')
+            ? 'range'
+            : has(rule, 'start')
+              ? 'rangestart'
+              : has(rule, 'end')
+                ? 'rangeend'
+                : ''
+            )
+            + '_object'
+          )
         : !rule.every(function (i) { return typeof rule[0] === typeof i })
           ? 'multi types array'
           : ((Buffer.isBuffer( rule[0] )
-                ? 'buffer'
-                : typeof rule[0]
+              ? 'buffer'
+              : typeof rule[0]
               )
               + '_array'
             )
 }
 
+function stringCode (c) {
+  return c.charCodeAt(0)
+}
+
 function toCodes (s) {
-  return s.split('').map(function (c) {
-    return c.charCodeAt(0)
-  })
+  return s.split('').map(stringCode)
+}
+
+function toRanges (list) {
+  return typeof list === 'string'
+    ? (list.length === 1
+        ? stringCode(list)
+        : list.split('').map(stringCode)
+      )
+    : isArray(list)
+      ? list.map(stringCode)
+      //TODO only strings supported
+      : ''
 }
 
 //TODO special case: loops
@@ -92,6 +129,29 @@ exports.firstSubRule = function (rule, props, encoding) {
       return new buffer_array_firstSubRule(
         rule
       , rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
+      )
+
+    // {start, end}
+    case 'range_object':
+      if (rule.start.length === 0 || rule.start.length !== rule.end.length)
+        throw new Error('Tokenizer#addRule: Invalid Range: bad sizes: '
+          + ' start=' + rule.start.length
+          + ' end=' + rule.end.length
+        )
+
+      return new range_object_firstSubRule(
+        toRanges(rule.start)
+      , toRanges(rule.end)
+      )
+
+    case 'rangestart_object':
+      return new rangestart_object_firstSubRule(
+        toRanges(rule.start)
+      )
+
+    case 'rangeend_object':
+      return new rangeend_object_firstSubRule(
+        toRanges(rule.end)
       )
 
   default:
