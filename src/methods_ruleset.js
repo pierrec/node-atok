@@ -266,9 +266,10 @@ Atok.prototype._resolveRules = function (name) {
     rule[prop] = i - j
   }
 
-  // prop: continue type property
+  // prop: continue type
+  // idx: continue type index
   function checkContinue (prop, idx) {
-    if (typeof rule[prop] !== 'number') return
+    if (typeof rule.props.continue[idx] !== 'number') return
 
     // incr: 1 or -1 (positive/negative continue)
     // offset: 0 or 1 (positive/negative continue)
@@ -331,7 +332,7 @@ Atok.prototype._resolveRules = function (name) {
       self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + getErrorData(i)) )
 
     // Save the next rule index
-    rule[prop] = cont
+    rule.props.continue[idx] = cont
   }
 
   // Process all rules
@@ -343,13 +344,13 @@ Atok.prototype._resolveRules = function (name) {
     checkContinue('continueOnFail', 1)
 
     // Set values for null
-    if (rule.continue === null)
+    if (rule.props.continue[0] === null)
       // Go to the start of the rule set
-      rule.continue = -(i + 1)
+      rule.props.continue[0] = -(i + 1)
 
-    if (rule.continueOnFail === null)
+    if (rule.props.continue[1] === null)
       // Go to the next rule
-      rule.continueOnFail = 0
+      rule.props.continue[1] = 0
 
     // Check the continue property
     resolveId('continue')
@@ -372,14 +373,14 @@ Atok.prototype._resolveRules = function (name) {
 
     // Zero length rules
     if (  rule.length === 0
-      && rules[ i + 1 + rule.continue ]
-      && rules[ i + 1 + rule.continue ].length === 0
+      && rules[ i + 1 + rule.props.continue[0] ]
+      && rules[ i + 1 + rule.props.continue[0] ].length === 0
       )
         this._error( new Error('Atok#_resolveRules: zero-length rules infinite loop' + getErrorData(i)) )
 
     // Looped failures
     var failList = []
-    for (var j = i; j > -1 && j < n; j += rules[j].continueOnFail + 1) {
+    for (var j = i; j > -1 && j < n; j += rules[j].props.continue[1] + 1) {
       if ( failList.indexOf(j) >= 0 )
         this._error( new Error('Atok#_resolveRules: infinite loop' + getErrorData(i)) )
 

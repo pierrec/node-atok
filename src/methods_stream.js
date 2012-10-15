@@ -179,7 +179,7 @@ Atok.prototype._tokenize = function () {
 
       // Hold on if the stream was paused
       if (this.paused) {
-      this._ruleIndex = i + 1
+        this._ruleIndex = i + 1
         this.needDrain = true
         this._tokenizing = false
         return false

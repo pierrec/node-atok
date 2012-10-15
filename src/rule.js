@@ -27,6 +27,7 @@ function Rule (subrules, type, handler, atok) {
   this.props = atok.getProps()
 
   // Required by Atok#_resolveRules
+  this.group = atok._group
   this.groupStart = atok._groupStart
 
   this.type = type
