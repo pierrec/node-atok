@@ -12,7 +12,7 @@ function_arraySubRule.prototype.test = function (buf, offset) {
 
 	for (var i = 0, n = list.length; i < n; i++) {
 		var res = list[i].call(this, buf, offset)
-		if (res >= 0) {
+		if (typeof res === 'number' && res >= 0) {
 			this.idx = i
 
 			return this.next.test(buf, offset + res)

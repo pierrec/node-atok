@@ -9,7 +9,7 @@ function function_SubRule (fn) {
 
 function_SubRule.prototype.test = function (buf, offset) {
 	var res = this.fn.call(this, buf, offset)
-	return res < 0
+	return typeof res !== 'number' || res < 0
 		? -1
 		: this.next.test(buf, offset + res)
 }
