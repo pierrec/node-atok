@@ -102,7 +102,7 @@ Atok.prototype.destroy = function () {
  * @private
  */
 Atok.prototype._end = function () {
-  this.emit_end( this.slice(), -1, this.currentRule)
+  this.emit_end( this.buffer, -1, this.currentRule )
   this.clear()
 }
 /**
@@ -155,7 +155,7 @@ Atok.prototype._tokenize = function () {
       if ( !props.ignore ) {
         // Emit the data by default, unless the handler is set
         token = props.quiet
-          ? matched
+          ? matched - p.last.length - p.first.length
           : this.buffer.slice( this.offset + p.first.length, this.offset + matched - p.last.length )
         if (p.handler) p.handler(token, p.first.idx, p.type)
         else this.emit_data(token, p.first.idx, p.type)

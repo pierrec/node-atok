@@ -374,7 +374,7 @@ Atok.prototype._resolveRules = function (name) {
     // Zero length rules
     if (  rule.length === 0
       && rules[ i + 1 + rule.continue ]
-      && rules[ i + 1 + rule.continueOnFail ].length === 0
+      && rules[ i + 1 + rule.continueOnFail ] === 0
       )
         this._error( new Error('Atok#_resolveRules: zero-length rules infinite loop' + getErrorData(i)) )
 

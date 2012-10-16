@@ -2,7 +2,7 @@ function function_SubRule (fn) {
 	// Common properties
 	this.idx = -1
 	this.length = 0
-	this.next = null
+	this.next = lastSubRule
 	// Specific properties
 	this.fn = fn
 }

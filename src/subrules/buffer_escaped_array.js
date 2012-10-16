@@ -2,7 +2,7 @@ function buffer_escaped_arraySubRule (buf, str, esc) {
 	// Common properties
 	this.idx = -1
 	this.length = 1
-	this.next = null
+	this.next = lastSubRule
 	// Specific properties
 	this.buf = buf
 	this.str = str

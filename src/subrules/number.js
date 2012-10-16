@@ -2,7 +2,7 @@ function number_SubRule (n) {
 	// Common properties
 	this.idx = -1
 	this.length = n
-	this.next = null
+	this.next = lastSubRule
 	// Specific properties
 	this.n = n
 }

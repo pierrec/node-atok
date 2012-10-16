@@ -15,12 +15,23 @@ var buffertools = require('buffertools')
 /**
   Last subrule
  */
-exports.lastSubRule = Object.create({
+var lastSubRule = {
   length: 0
 , test: function (buf, offset) {
     return offset
   }
-})
+}
+
+/**
+  Empty subrule
+ */
+var emptySubRule = {
+  length: 0
+, test: function (buf, offset) {
+    return buf.length
+  }
+, next: lastSubRule
+}
 
 /**
   Property checker
@@ -137,7 +148,9 @@ exports.firstSubRule = function (rule, props, encoding) {
       return new number_SubRule(rule)
 
     case 'string':
-      return new buffer_firstSubRule( new Buffer(rule, encoding), toCodes(rule) )
+      return rule.length > 0
+        ? new buffer_firstSubRule( new Buffer(rule, encoding), toCodes(rule) )
+        : emptySubRule
 
     case 'buffer':
       return new buffer_firstSubRule( rule, toCodes( rule.toString(encoding) ) )
@@ -147,19 +160,25 @@ exports.firstSubRule = function (rule, props, encoding) {
       return new function_arraySubRule(rule)
 
     case 'number_array':
-      return new number_arraySubRule(rule)
+      return rule.length > 0
+        ? new number_arraySubRule(rule)
+        : emptySubRule
 
     case 'string_array':
-      return new buffer_array_firstSubRule(
-        rule.map( function (i) { return new Buffer(i, encoding) } )
-      , rule.map(toCodes)
-      )
+      return rule.length > 0
+        ? new buffer_array_firstSubRule(
+            rule.map( function (i) { return new Buffer(i, encoding) } )
+          , rule.map(toCodes)
+          )
+        : emptySubRule
 
     case 'buffer_array':
-      return new buffer_array_firstSubRule(
-        rule
-      , rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
-      )
+      return rule.length > 0
+        ? new buffer_array_firstSubRule(
+            rule
+          , rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
+          )
+        : null
 
     // {start, end}
     case 'range_object':
@@ -202,15 +221,6 @@ exports.firstSubRule = function (rule, props, encoding) {
         throw new Error('Tokenizer#addRule: Invalid Range: empty end')
 
       return new rangeend_array_object_firstSubRule(end)
-
-    // {firstof}
-    case 'firstof_object':
-      var firstof = toFirstOf(rule.firstOf, encoding)
-
-      if (firstof.length === 0)
-        throw new Error('Tokenizer#addRule: Invalid firstOf')
-
-      return new firstof_object_SubRule( firstof[0], firstof[1] )
 
   default:
       throw new Error('Tokenizer#addRule: Invalid rule ' + type + ' (function/string/integer/array only)')
@@ -265,6 +275,16 @@ exports.SubRule = function (rule, props, encoding) {
       , rule.map( function (i) { return i.toString(encoding) } )
       , props.escape
       )
+
+    // {firstof}
+    case 'firstof_object':
+      var firstof = toFirstOf(rule.firstOf, encoding)
+
+      if (firstof.length === 0)
+        throw new Error('Tokenizer#addRule: Invalid firstOf')
+
+      return new ( props.escape ?  firstof_escaped_object_SubRule : firstof_object_SubRule)
+        ( firstof[0], firstof[1] )
 
   default:
       throw new Error('Tokenizer#addRule: Invalid rule ' + type + ' (function/string/integer/array only)')

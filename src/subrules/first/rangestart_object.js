@@ -2,7 +2,7 @@ function rangestart_object_firstSubRule (start) {
 	// Common properties
 	this.idx = -1
 	this.length = 1
-	this.next = null
+	this.next = lastSubRule
 	// Specific properties
 	this.start = start
 }

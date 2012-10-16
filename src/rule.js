@@ -49,10 +49,6 @@ function Rule (subrules, type, handler, atok) {
   // First subrule
   var subrule = this.first = SubRule.firstSubRule( subrules[0], this.props, atok._encoding )
 
-  // First subrule pattern length (max of all patterns if many)
-  // - used in infinite loop detection
-  this.length = this.first.length
-
   // Instantiate and link the subrules
   var prev = subrule
   for (var i = 1, n = subrules.length; i < n; i++) {
@@ -60,7 +56,10 @@ function Rule (subrules, type, handler, atok) {
     prev.next = subrule
     prev = subrule
   }
-  prev.next = SubRule.lastSubRule
+
+  // First subrule pattern length (max of all patterns if many)
+  // - used in infinite loop detection
+  this.length = this.first.length
 
   // Last subrule (used for trimRight)
   // Set to the dummy last rule if only one rule
