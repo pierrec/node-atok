@@ -35,7 +35,7 @@ describe('Tokenizer Events', function () {
     })
   })
 
-  describe('[debug]', function () {
+  false&&describe('[debug]', function () {
     describe('toggled', function () {
       var p = new Tokenizer(options)
       var matches
