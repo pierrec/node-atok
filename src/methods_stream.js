@@ -22,7 +22,7 @@ Atok.prototype.write = function (data) {
     if (typeof data === 'string') {
       this.buffer += this._stringDecoder.write(data)
     } else {
-      this.buffer.concat(data)
+      this.buffer = this.buffer.concat(data)
       // this.buffer = Buffer.concat( [ this.buffer, data ], this.length )
     }
   } else {
