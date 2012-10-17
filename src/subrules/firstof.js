@@ -14,6 +14,7 @@ firstof_object_SubRule.prototype.test = function (buf, offset) {
 
 	var _buf = buf
 	var _offset = offset
+	var pattern
 	this.idx = -1
 
 	for (var j = 0, len = list.length; j < len; j++) {
@@ -21,6 +22,7 @@ firstof_object_SubRule.prototype.test = function (buf, offset) {
 		var i = _buf.indexOf( p, _offset )
 
 		if (i >= 0) {
+			pattern = p
 			if (this.length > 0) this.length = p.length
 			this.idx = j
 
@@ -31,5 +33,5 @@ firstof_object_SubRule.prototype.test = function (buf, offset) {
 
 	if (this.idx < 0) return -1
 
-	return this.next.test(buf, offset + _buf.length + this.length)
+	return this.next.test(buf, offset + _buf.length + pattern.length)
 }

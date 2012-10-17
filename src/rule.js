@@ -22,6 +22,7 @@ module.exports = Rule
  */
 function Rule (subrules, type, handler, atok) {
   var self = this
+  var n = subrules.length
 
   this.atok = atok
   this.props = atok.getProps()
@@ -47,19 +48,31 @@ function Rule (subrules, type, handler, atok) {
   this.idx = -1
 
   // First subrule
-  var subrule = this.first = SubRule.firstSubRule( subrules[0], this.props, atok._encoding )
+  var subrule = this.first = n > 0
+    ? SubRule.firstSubRule( subrules[0], this.props, atok._encoding )
+    // Special case: no rule given -> passthrough
+    : SubRule.emptySubRule
+
+  // Special case: one empty rule -> tokenize whole buffer
+  if (n === 1 && subrule.length === 0) {
+    subrule = this.first = SubRule.allSubRule
+    // Make infinite loop detection ignore this
+    this.length = -1
+  } else {
+    // First subrule pattern length (max of all patterns if many)
+    // - used in infinite loop detection
+    this.length = this.first.length
+  }
 
   // Instantiate and link the subrules
   var prev = subrule
-  for (var i = 1, n = subrules.length; i < n; i++) {
+  // Many subrules or none
+  for (var i = 1; i < n; i++) {
     subrule = SubRule.SubRule( subrules[i], this.props, atok._encoding )
     prev.next = subrule
     prev = subrule
+    if (this.length < subrule.length) this.length = subrule.length
   }
-
-  // First subrule pattern length (max of all patterns if many)
-  // - used in infinite loop detection
-  this.length = this.first.length
 
   // Last subrule (used for trimRight)
   // Set to the dummy last rule if only one rule
@@ -73,6 +86,12 @@ function Rule (subrules, type, handler, atok) {
 }
 Rule.prototype.test = function (buf, offset) {
   return this.first.test(buf, offset) - offset
+}
+
+/**
+ */
+Rule.prototype.all = function (buf, offset) {
+  return buf.length
 }
 
 /**

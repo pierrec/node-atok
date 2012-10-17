@@ -29,6 +29,9 @@ describe('Tokenizer Supported Properties', function () {
 
   var p = new Tokenizer
 
+  // Force the buffer instanciation
+  p.write('a')
+
   Object.keys(props).forEach(function (prop) {
     describe('.' + prop, function () {
       it('should exist', function (done) {

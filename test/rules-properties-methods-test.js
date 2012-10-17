@@ -45,7 +45,7 @@ describe('Tokenizer Properties Methods', function () {
     describe('on last Number rule', function () {
       var p = new Tokenizer(options)
       it('should give the token size', function (done) {
-        p.quiet(true)
+        p.quiet(true).trim()
         p.addRule(1, function (token, idx, type) {
           assert.equal(token, 1)
           done()
@@ -56,13 +56,13 @@ describe('Tokenizer Properties Methods', function () {
 
     describe('on non last Number rule', function () {
       var p = new Tokenizer(options)
-      it('should not apply', function (done) {
-        p.quiet(true)
+      it('should apply', function (done) {
+        p.quiet(true).trim()
         p.addRule(3, 'c', function (token, idx, type) {
-          assert.equal(token, 'abc')
+          assert.equal(token, 4)
           done()
         })
-        p.write('abc')
+        p.write('aabc')
       })
     })
 

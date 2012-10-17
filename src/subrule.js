@@ -1,12 +1,16 @@
 /**
   A subrule is defined as follow:
-  subrule#exec(buffer, offset)
+  subrule#test(buffer, offset)
   @param buffer {Buffer|String} buffer to look for the match
   @param offset {Number} start looking at this offset, if < 0, then no match, return -1
   @return {Number} next offset (-1 if no match)
 
   subrule#next(buffer, offset)
-  called from previous successful subrule
+  called by subrule#test if successful
+  
+  Required properties:
+  length {Number} length of the matched data. If unknown: -1
+  idx {Number} index of the matched pattern if many possible. Default=-1
  */
 
 var isArray = require('util').isArray
@@ -25,12 +29,28 @@ var lastSubRule = {
 /**
   Empty subrule
  */
-var emptySubRule = {
+exports.emptySubRule = {
   length: 0
+, idx: -1
+, test: lastSubRule.test
+, next: lastSubRule
+}
+
+/**
+  All subrule
+  To trick infinite loop detection, length is set to -1 then 1
+  to compensate for trimRight and trimLeft
+ */
+exports.allSubRule = {
+  length: 0
+, idx: -1
 , test: function (buf, offset) {
     return buf.length
   }
-, next: lastSubRule
+, next: {
+    length: 0
+  , test: lastSubRule.test
+  }
 }
 
 /**
@@ -58,35 +78,40 @@ function sameTypeArray (list) {
 function typeOf (rule) {
   var ruleType = typeof rule
   
-  return ruleType !== 'object' || ruleType === 'function'
+  return ruleType === 'function'
     ? ruleType
-    : Buffer.isBuffer(rule)
-      ? 'buffer'
-      : !isArray(rule)
-        ? ((has(rule, 'start') && has(rule, 'end')
-            ? 'range'
-            : has(rule, 'start')
-              ? 'rangestart'
-              : has(rule, 'end')
-                ? 'rangeend'
-                : has(rule, 'firstOf')
-                  ? (isArray(rule.firstOf) && rule.firstOf.length > 1
-                        && sameTypeArray(rule.firstOf)
-                      ? 'firstof'
-                      : 'invalid firstof'
-                    )
-                  : 'invalid'
-            )
-            + '_object'
-          )
-        : !sameTypeArray(rule)
-          ? 'multi types array'
-          : ((Buffer.isBuffer( rule[0] )
-              ? 'buffer'
-              : typeof rule[0]
+    : ruleType !== 'object'
+      ? (rule.length === 0
+          ? 'noop'
+          : ruleType
+        )
+      : Buffer.isBuffer(rule)
+        ? 'buffer'
+        : !isArray(rule)
+          ? ((has(rule, 'start') && has(rule, 'end')
+              ? 'range'
+              : has(rule, 'start')
+                ? 'rangestart'
+                : has(rule, 'end')
+                  ? 'rangeend'
+                  : has(rule, 'firstOf')
+                    ? (isArray(rule.firstOf) && rule.firstOf.length > 1
+                          && sameTypeArray(rule.firstOf)
+                        ? 'firstof'
+                        : 'invalid firstof'
+                      )
+                    : 'invalid'
               )
-              + '_array'
+              + '_object'
             )
+          : !sameTypeArray(rule)
+            ? 'multi types array'
+            : ((Buffer.isBuffer( rule[0] )
+                ? 'buffer'
+                : typeof rule[0]
+                )
+                + '_array'
+              )
 }
 
 function stringCode (c) {
@@ -138,6 +163,9 @@ exports.firstSubRule = function (rule, props, encoding) {
   var type = typeOf(rule)
 
   switch (type) {
+    case 'noop':
+      return new noop_SubRule
+
     case 'function':
       return new function_SubRule(rule)
 
@@ -148,9 +176,7 @@ exports.firstSubRule = function (rule, props, encoding) {
       return new number_SubRule(rule)
 
     case 'string':
-      return rule.length > 0
-        ? new buffer_firstSubRule( new Buffer(rule, encoding), toCodes(rule) )
-        : emptySubRule
+      return new buffer_firstSubRule( new Buffer(rule, encoding), toCodes(rule) )
 
     case 'buffer':
       return new buffer_firstSubRule( rule, toCodes( rule.toString(encoding) ) )
@@ -160,17 +186,13 @@ exports.firstSubRule = function (rule, props, encoding) {
       return new function_arraySubRule(rule)
 
     case 'number_array':
-      return rule.length > 0
-        ? new number_arraySubRule(rule)
-        : emptySubRule
+      return new number_arraySubRule(rule)
 
     case 'string_array':
-      return rule.length > 0
-        ? new buffer_array_firstSubRule(
+      return new buffer_array_firstSubRule(
             rule.map( function (i) { return new Buffer(i, encoding) } )
           , rule.map(toCodes)
           )
-        : emptySubRule
 
     case 'buffer_array':
       return rule.length > 0
@@ -204,7 +226,7 @@ exports.firstSubRule = function (rule, props, encoding) {
       var start = toRanges(rule.start)
 
       if (typeof start === 'number')
-        return new rangestart_object_firstSubRule(start, end)
+        return new rangestart_object_firstSubRule(start)
 
       if (start.length === 0)
         throw new Error('Tokenizer#addRule: Invalid Range: empty start')
@@ -215,7 +237,7 @@ exports.firstSubRule = function (rule, props, encoding) {
       var end = toRanges(rule.end)
 
       if (typeof end === 'number')
-        return new rangeend_object_firstSubRule(start, end)
+        return new rangeend_object_firstSubRule(end)
 
       if (end.length === 0)
         throw new Error('Tokenizer#addRule: Invalid Range: empty end')
@@ -236,6 +258,9 @@ exports.SubRule = function (rule, props, encoding) {
   var type = typeOf(rule)
 
   switch (type) {
+    case 'noop':
+      return new noop_SubRule
+
     case 'function':
       return new function_SubRule(rule)
 
@@ -284,7 +309,7 @@ exports.SubRule = function (rule, props, encoding) {
         throw new Error('Tokenizer#addRule: Invalid firstOf')
 
       return new ( props.escape ?  firstof_escaped_object_SubRule : firstof_object_SubRule)
-        ( firstof[0], firstof[1] )
+        ( firstof[0], firstof[1], props.escape )
 
   default:
       throw new Error('Tokenizer#addRule: Invalid rule ' + type + ' (function/string/integer/array only)')

@@ -1,7 +1,7 @@
 function function_SubRule (fn) {
 	// Common properties
 	this.idx = -1
-	this.length = 0
+	this.length = -1
 	this.next = lastSubRule
 	// Specific properties
 	this.fn = fn
@@ -9,7 +9,10 @@ function function_SubRule (fn) {
 
 function_SubRule.prototype.test = function (buf, offset) {
 	var res = this.fn.call(this, buf, offset)
-	return typeof res !== 'number' || res < 0
-		? -1
-		: this.next.test(buf, offset + res)
+
+	if (typeof res !== 'number' || res < 0) return -1
+
+	if (this.length !== 0) this.length = res
+
+	return	this.next.test(buf, offset + res)
 }

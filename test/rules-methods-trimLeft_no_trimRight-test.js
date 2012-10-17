@@ -15,6 +15,7 @@ describe('Tokenizer Rules Methods with trimRight disabled', function () {
     beforeEach(function (done) {
       p.clear()
       p.trimRight(false)
+      p.trimLeft(true)
       done()
     })
 /*
@@ -30,7 +31,7 @@ describe('Tokenizer Rules Methods with trimRight disabled', function () {
             assert.equal(token, data)
             done()
           })
-          .write(data)
+          p.write(data)
         })
       })
 
@@ -135,9 +136,9 @@ describe('Tokenizer Rules Methods with trimRight disabled', function () {
 **/
     describe('First: Number', function () {
       describe('#addRule(1)', function () {
-        it('should return a', function (done) {
+        it('should return empty result', function (done) {
           p.addRule(1, function (token, idx, type) {
-            assert.equal(token, 'a')
+            assert.equal(token, '')
             done()
           })
           .write('a')
@@ -159,22 +160,22 @@ describe('Tokenizer Rules Methods with trimRight disabled', function () {
 **/
     describe('First: Number Second: "..."', function () {
       describe('#addRule(4, "a")', function () {
-        it('should return 123', function (done) {
+        it('should return a', function (done) {
           p.addRule(4, 'a', function (token, idx, type) {
-            assert.equal(token, '123a')
+            assert.equal(token, 'a')
             done()
           })
-          .write('123abc')
+          .write('1234abc')
         })
       })
 
       describe('#addRule(5, "ab")', function () {
         it('should return 123', function (done) {
           p.addRule(5, 'ab', function (token, idx, type) {
-            assert.equal(token, '123ab')
+            assert.equal(token, 'ab')
             done()
           })
-          .write('123abc')
+          .write('12345abc')
         })
       })
     })
@@ -337,7 +338,7 @@ describe('Tokenizer Rules Methods with trimRight disabled', function () {
             i++
             if (i == 2) done()
           })
-          .write('ab')
+          p.write('ab')
         })
       })
 
@@ -500,12 +501,12 @@ describe('Tokenizer Rules Methods with trimRight disabled', function () {
 **/
     describe('First: firstOf', function () {
       describe('#addRule(4, { firstOf: ["a","b"] })', function () {
-        it('should return 01', function (done) {
+        it('should return a', function (done) {
           p.addRule(4, { firstOf: ['a','b'] }, function (token, idx, type) {
-            assert.equal(token, '01a')
+            assert.equal(token, 'a')
             done()
           })
-          .write('01ab')
+          .write('0123ab')
         })
       })
 

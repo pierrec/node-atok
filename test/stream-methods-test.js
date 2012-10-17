@@ -24,12 +24,12 @@ describe('Tokenizer Stream Methods', function () {
       var p = new Tokenizer(options)
       it('should tokenize the input data', function (done) {
         p.addRule('a', function (token, idx, type) {
-          p.write('b')
         })
         p.addRule('b', function (token, idx, type) {
           done()
         })
         p.write('a')
+        p.write('b')
       })
     })
   })
@@ -51,6 +51,7 @@ describe('Tokenizer Stream Methods', function () {
   describe('#pause/resume in handler', function () {
     var p = new Tokenizer(options)
     it('should pause a stream then resume it', function (done) {
+      p.trim()
       p.addRule(1, function (token, idx, type) {
         if (token == 'a') {
           p.pause()
@@ -79,6 +80,7 @@ describe('Tokenizer Stream Methods', function () {
         fs.unlinkSync(outputFile)
         done()
       })
+      p.trim()
       p.addRule(1, 'data')
       p.on('empty', function () {
         p.end()

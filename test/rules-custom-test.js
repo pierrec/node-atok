@@ -25,6 +25,7 @@ describe('Tokenizer Custom Rules', function () {
           done()
         }
       )
+      p.addRule(1, 'consume')
       p.write('a')
     })
   })

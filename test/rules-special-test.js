@@ -35,11 +35,9 @@ describe('Tokenizer Special Rules', function () {
       p.continue()
       p.addRule(function () {})
       p.addRule(function () {
-        assert(false)
+        done()
       })
       p.write('abc')
-
-      done()
     })
   })
 
@@ -49,7 +47,7 @@ describe('Tokenizer Special Rules', function () {
       var i = 0
 
       it('should throw an error', function (done) {
-        p.addRule(function (matched) {})
+        p.addRule(function () {})
 
         assert.throws(
           function () {

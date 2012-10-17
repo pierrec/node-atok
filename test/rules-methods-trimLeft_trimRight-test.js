@@ -14,6 +14,8 @@ describe('Tokenizer Rules Methods', function () {
 
     beforeEach(function (done) {
       p.clear()
+      p.trimLeft(true)
+      p.trimRight(true)
       done()
     })
 /*
@@ -84,9 +86,9 @@ describe('Tokenizer Rules Methods', function () {
       })
 
       describe('#addRule("a", 1)', function () {
-        it('should return 1', function (done) {
+        it('should return an empty token', function (done) {
           p.addRule('a', 1, function (token, idx, type) {
-            assert.equal(token, '1')
+            assert.equal(token, '')
             done()
           })
           .write('a123b123c')
@@ -118,9 +120,9 @@ describe('Tokenizer Rules Methods', function () {
       })
 
       describe('#addRule("ab", 1)', function () {
-        it('should return 1', function (done) {
+        it('should return an empty token', function (done) {
           p.addRule('ab', 1, function (token, idx, type) {
-            assert.equal(token, '1')
+            assert.equal(token, '')
             done()
           })
           .write('ab123c')
@@ -135,9 +137,9 @@ describe('Tokenizer Rules Methods', function () {
 **/
     describe('First: Number', function () {
       describe('#addRule(1)', function () {
-        it('should return a', function (done) {
+        it('should return an empty token', function (done) {
           p.addRule(1, function (token, idx, type) {
-            assert.equal(token, 'a')
+            assert.equal(token, '')
             done()
           })
           .write('a')
@@ -145,12 +147,12 @@ describe('Tokenizer Rules Methods', function () {
       })
 
       describe('#addRule([1,2])', function () {
-        it('should return ab', function (done) {
+        it('should return an empty token', function (done) {
           p.addRule([1,2], function (token, idx, type) {
-            assert.equal(token, 'ab')
+            assert.equal(token, '')
             done()
           })
-          .write('ab')
+          .write('a')
         })
       })
 
@@ -169,22 +171,22 @@ describe('Tokenizer Rules Methods', function () {
 **/
     describe('First: Number Second: "..."', function () {
       describe('#addRule(4, "a")', function () {
-        it('should return 123', function (done) {
+        it('should return bc', function (done) {
           p.addRule(4, 'a', function (token, idx, type) {
-            assert.equal(token, '123a')
+            assert.equal(token, 'bc')
             done()
           })
-          .write('123abc')
+          .write('1234bca')
         })
       })
 
       describe('#addRule(5, "ab")', function () {
-        it('should return 123', function (done) {
+        it('should return c', function (done) {
           p.addRule(5, 'ab', function (token, idx, type) {
-            assert.equal(token, '123ab')
+            assert.equal(token, 'c')
             done()
           })
-          .write('123abc')
+          .write('12345cab')
         })
       })
     })
@@ -510,12 +512,12 @@ describe('Tokenizer Rules Methods', function () {
 **/
     describe('First: firstOf', function () {
       describe('#addRule(4, { firstOf: ["a","b"] })', function () {
-        it('should return 01', function (done) {
+        it('should return an empty token', function (done) {
           p.addRule(4, { firstOf: ['a','b'] }, function (token, idx, type) {
-            assert.equal(token, '01')
+            assert.equal(token, '')
             done()
           })
-          .write('01ab')
+          .write('0123ab')
         })
       })
 
