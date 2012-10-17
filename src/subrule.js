@@ -9,7 +9,8 @@
   called by subrule#test if successful
   
   Required properties:
-  length {Number} length of the matched data. If unknown: -1
+  length {Number} length of the matched data. If unknown: -1. Set it when 
+                  running the subrule if the value is non zero.
   idx {Number} index of the matched pattern if many possible. Default=-1
  */
 
