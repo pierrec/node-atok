@@ -153,6 +153,18 @@ describe('Tokenizer Rules Methods with trimLeft and trimRight disabled', functio
           .write('a')
         })
       })
+
+      describe('#addRule("a", 0) not empty', function () {
+        it('should not trigger on non empty buffer', function (done) {
+          var flag = true
+          p.addRule('a', 0, function (token, idx, type) {
+            flag = false
+          })
+          .write('ab')
+          assert(flag)
+          done()
+        })
+      })
     })
 /*
 1, 'a'
