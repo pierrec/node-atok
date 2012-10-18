@@ -5,13 +5,17 @@ function number_arraySubRule (list) {
 	this.next = lastSubRule
 	// Specific properties
 	this.list = list
+	this.hasZero = list.some(function (v) { return v === 0 })
 }
 
 number_arraySubRule.prototype.test = function (buf, offset) {
 	var list = this.list
+	var delta = buf.length - offset
 
-	for (var i = 0, n = list.length; i < n; i++) {
-		if (offset + list[i] <= buf.length) {
+	if (delta === 0) return this.hasZero ? this.next.test(buf, offset) : -1
+
+	for (var i = 0, len = list.length; i < len; i++) {
+		if ( list[i] <= delta ) {
 			if (this.length > 0) this.length = list[i]
 			this.idx = i
 
