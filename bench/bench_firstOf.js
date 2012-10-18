@@ -12,8 +12,8 @@ function handler (token, idx, type) {
 
 var options = { firstOf: [' ',','] }
 
-atok.addRule(options, handler)
-natok.addRule(options, handler)
+atok.addRule('', options, handler)
+natok.addRule('', options, handler)
 
 var s = 'ab,'
 var buf = new Buffer(s)

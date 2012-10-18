@@ -10,18 +10,20 @@ function handler (token, idx, type) {
 	assert.equal(token, false)
 }
 
-atok.addRule(1, 'consume')
-atok.addRule(0, handler)
-natok.addRule(1, 'consume')
-natok.addRule(0, handler)
+atok.addRule(1, 0, handler)
+natok.addRule(1, 0, handler)
 
 var s = 'a'
+var buf = new Buffer(s)
 
 var compare = exports.compare = {}
 compare[Atok.version] = function () {
-	atok.clear(true).write(s)
+	atok.write(s)
 }
-compare[newAtok.version] = function () {
-	natok.clear(true).write(s)
+compare[newAtok.version + ' string'] = function () {
+	natok.write(s)
+}
+compare[newAtok.version + ' buffer'] = function () {
+	natok.write(buf)
 }
 require("bench").runMain()

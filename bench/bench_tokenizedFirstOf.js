@@ -12,16 +12,20 @@ function handler (token, idx, type) {
 
 var options = { firstOf: [' ',','] }
 
-atok.addRule(options, handler)
-natok.addRule(options, handler)
+atok.addRule('', options, handler)
+natok.addRule('', options, handler)
 
 var s = 'ab,'
+var buf = new Buffer(s)
 
 var compare = exports.compare = {}
 compare[Atok.version] = function () {
-	atok.clear(true).write(s)
+	atok.write(s)
 }
-compare[newAtok.version] = function () {
-	natok.clear(true).write(s)
+compare[newAtok.version + ' string'] = function () {
+	natok.write(s)
+}
+compare[newAtok.version + ' buffer'] = function () {
+	natok.write(buf)
 }
 require("bench").runMain()
