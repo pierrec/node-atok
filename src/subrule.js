@@ -50,10 +50,7 @@ exports.allSubRule = {
 , test: function (buf, offset) {
     return buf.length
   }
-, next: {
-    length: 0
-  , test: lastSubRule.test
-  }
+, next: lastSubRule
 }
 
 /**
@@ -250,6 +247,9 @@ exports.firstSubRule = function (rule, props, encoding) {
         throw new Error('Tokenizer#addRule: Invalid Range: empty end')
 
       return new rangeend_array_object_firstSubRule(end)
+
+  case 'firstof_object':
+      throw new Error('Tokenizer#addRule: firstOf subrule not supported as first subrule')
 
   default:
       throw new Error('Tokenizer#addRule: Invalid rule ' + type + ' (function/string/integer/array only)')
