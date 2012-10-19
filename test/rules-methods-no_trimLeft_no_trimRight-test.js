@@ -549,6 +549,7 @@ describe('Tokenizer Rules Methods with trimLeft and trimRight disabled', functio
     })
 /*
 1, {firstOf: ['a','b']}
+1, {firstOf: 'ab'}
 'a', {firstOf: ['a','b']}
 ['a','b'], {firstOf: ['a','b']}
 **/
@@ -556,6 +557,16 @@ describe('Tokenizer Rules Methods with trimLeft and trimRight disabled', functio
       describe('#addRule(4, { firstOf: ["a","b"] })', function () {
         it('should return 0123a', function (done) {
           p.addRule(4, { firstOf: ['a','b'] }, function (token, idx, type) {
+            assert.equal(token, '0123a')
+            done()
+          })
+          .write('0123ab')
+        })
+      })
+
+      describe('#addRule(4, { firstOf: "ab" })', function () {
+        it('should return an empty token', function (done) {
+          p.addRule(4, { firstOf: 'ab' }, function (token, idx, type) {
             assert.equal(token, '0123a')
             done()
           })

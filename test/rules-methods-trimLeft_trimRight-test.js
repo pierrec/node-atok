@@ -518,6 +518,7 @@ describe('Tokenizer Rules Methods', function () {
     })
 /*
 1, {firstOf: ['a','b']}
+1, {firstOf: 'ab'}
 '', {firstOf: ['a','b']}
 'a', {firstOf: ['a','b']}
 ['a','b'], {firstOf: ['a','b']}
@@ -526,6 +527,16 @@ describe('Tokenizer Rules Methods', function () {
       describe('#addRule(4, { firstOf: ["a","b"] })', function () {
         it('should return an empty token', function (done) {
           p.addRule(4, { firstOf: ['a','b'] }, function (token, idx, type) {
+            assert.equal(token, '')
+            done()
+          })
+          .write('0123ab')
+        })
+      })
+
+      describe('#addRule(4, { firstOf: "ab" })', function () {
+        it('should return an empty token', function (done) {
+          p.addRule(4, { firstOf: 'ab' }, function (token, idx, type) {
             assert.equal(token, '')
             done()
           })

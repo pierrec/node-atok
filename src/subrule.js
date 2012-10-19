@@ -97,11 +97,13 @@ function typeOf (rule) {
                 : has(rule, 'end')
                   ? 'rangeend'
                   : has(rule, 'firstOf')
-                    ? (isArray(rule.firstOf) && rule.firstOf.length > 1
-                          && sameTypeArray(rule.firstOf)
+                    ? (( (isArray(rule.firstOf) && sameTypeArray(rule.firstOf) )
+                        || typeof rule.firstOf === 'string'
+                        )
+                      && rule.firstOf.length > 1
+                      )
                         ? 'firstof'
                         : 'invalid firstof'
-                      )
                     : 'invalid'
               )
               + '_object'
@@ -139,21 +141,26 @@ function toRanges (list) {
 }
 
 function toFirstOf (list, encoding) {
-  return typeof list[0] === 'string'
+  return typeof list === 'string'
     ? [
-        list.map( function (i) { return new Buffer(i, encoding) } )
-              // Filter out empty values
-            .filter(function (i) { return i.length > 0 })
-      , list
+        list.split('')
+      , list.split('').map( function (i) { return new Buffer(i, encoding) } )
       ]
-    : Buffer.isBuffer(list[0])
+    : typeof list[0] === 'string'
       ? [
-          list
-        , list.map( function (i) { return i.toString(encoding) } )
-              // Filter out empty values
+          list.map( function (i) { return new Buffer(i, encoding) } )
+                // Filter out empty values
               .filter(function (i) { return i.length > 0 })
+        , list
         ]
-      : []
+      : Buffer.isBuffer(list[0])
+        ? [
+            list
+          , list.map( function (i) { return i.toString(encoding) } )
+                // Filter out empty values
+                .filter(function (i) { return i.length > 0 })
+          ]
+        : []
 }
 
 exports.firstSubRule = function (rule, props, encoding) {
