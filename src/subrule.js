@@ -14,7 +14,6 @@
   idx {Number} index of the matched pattern if many possible. Default=-1
  */
 //TODO special case: loops
-//TODO rule === 0
 
 var isArray = require('util').isArray
 var buffertools = require('buffertools')

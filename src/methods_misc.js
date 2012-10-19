@@ -82,7 +82,7 @@ Atok.prototype.debug = function (flag) {
 
   // Apply debug mode to all defined rules...
   this._rulesForEach(function (rule) {
-    rule.setDebug()
+    rule.setDebug(_debug)
   })
 
   // Apply debug mode to some methods
@@ -95,11 +95,9 @@ Atok.prototype.debug = function (flag) {
         self.emit_debug( 'Atok#', method, arguments )
         return prevMethod.apply(self, arguments)
       }
-      // Save the previous method
-      self[method].prevMethod = prevMethod
-    } else if (self[method].prevMethod) {
-      // Restore the method
-      self[method] = self[method].prevMethod
+    } else {
+      // Restore the prototype method
+      delete self[method]
     }
   })
 

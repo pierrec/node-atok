@@ -14,7 +14,7 @@ module.exports = Rule
  * Atok Rule constructor
  *
  * @param {array} list of subrules
- * @param {string|number|null=} rule type (set if handler is not)
+ * @param {string|number|null} rule type (set if handler is not)
  * @param {function} rule handler (set if type is not)
  * @param {Object} atok instance
  * @constructor
@@ -26,6 +26,8 @@ function Rule (subrules, type, handler, atok) {
 
   this.atok = atok
   this.props = atok.getProps()
+
+  this.debug = false
 
   // Required by Atok#_resolveRules
   this.group = atok._group
@@ -65,6 +67,9 @@ function Rule (subrules, type, handler, atok) {
   }
 
   // Instantiate and link the subrules
+  // { test: {Function}
+  // , next: {SubRule|undefined}
+  // }
   var prev = subrule
   // Many subrules or none
   for (var i = 1; i < n; i++) {
@@ -84,14 +89,16 @@ function Rule (subrules, type, handler, atok) {
 
   //TODO micro optimizations (empty subrule...)
 }
-Rule.prototype.test = function (buf, offset) {
-  return this.first.test(buf, offset) - offset
-}
 
 /**
+  Test the rule against data
+
+  @param {Buffer|String} input data
+  @param {Number} offset in the input data
+  @return {Number} number of bytes/characters matched (success if >=0)
  */
-Rule.prototype.all = function (buf, offset) {
-  return buf.length
+Rule.prototype.test = function (buf, offset) {
+  return this.first.test(buf, offset) - offset
 }
 
 /**
@@ -99,62 +106,57 @@ Rule.prototype.all = function (buf, offset) {
  *
  * @api private
  */
-Rule.prototype.setDebug = function (init) {
+function wrapDebug (rule, id, atok) {
+  rule._test = rule.test
+  return function (buf, offset) {
+    atok.emit_debug( 'SubRule', id, arguments )
+    return rule._test(buf, offset)
+  }
+}
+Rule.prototype.setDebug = function (debug) {
   var self = this
   var atok = this.atok
-  var debug = atok.debugMode
 
-  if (this.rules.length > 0)
-    // Set the #test() method according to the flags
-    _MaskSetter.call(
-      this
-    , 'test'
-    , this.genToken
-    , this.trimLeft
-    , this.trimRight
-    , debug
-    )
+  // Rule already in debug mode
+  if (this.debug === debug) return
 
-  if (!init) {
-    // Wrap/unwrap handlers
-    if (debug) {
-      var handler = this.handler
-      var id = this._id + ( this.atok.currentRule ? '@' + this.atok.currentRule : '' )
+  var subrule = this.first
 
-      // Save the previous handler
-      this.prevHandler = handler
-      
-      this.handler = handler
-        ? function () {
-            atok.emit_debug( 'Handler', id, arguments )
-            handler.apply(null, arguments)
-          }
-        : function () {
-            atok.emit_debug( 'Handler', id, arguments )
-            atok.emit_data.apply(atok, arguments)
-          }
+  this.debug = true
 
-    } else {
-      // Restore the handler
-      this.handler = this.prevHandler
-      this.prevHandler = null
+  if (debug) {
+    // Wrap subrules
+    var id = this._id + ( atok.currentRule ? '@' + atok.currentRule : '' )
+
+    while (subrule && subrule.next) {
+      subrule.test = wrapDebug(subrule, id, atok)
+      subrule = subrule.next
     }
 
-    // Special methods
-    ;[ 'noop', 'all', 'allNoToken' ].forEach(function (method) {
-      if (debug) {
-        var prevMethod = self[method]
+    // Save the previous handler
+    var handler = this.handler
 
-        self[method] = function () {
-          atok.emit_debug( 'Handler#', method, arguments )
-          prevMethod.apply(atok, arguments)
+    this.prevHandler = handler    
+    this.handler = handler
+      ? function () {
+          atok.emit_debug( 'Handler', id, arguments )
+          handler.apply(null, arguments)
         }
-        // Save the previous method
-        self[method].prevMethod = prevMethod
-      } else {
-        // Restore the method
-          self[method] = self[method].prevMethod
-      }
-    })
+      : function () {
+          atok.emit_debug( 'Handler', id, arguments )
+          atok.emit_data.apply(atok, arguments)
+        }
+
+  } else {
+    // Unwrap subrules
+    while (subrule && subrule.next) {
+      delete subrule.test
+      subrule._test = null
+      subrule = subrule.next
+    }
+
+    // Restore previous handler
+    this.handler = this.prevHandler
+    delete this.prevHandler
   }
 }

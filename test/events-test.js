@@ -35,7 +35,7 @@ describe('Tokenizer Events', function () {
     })
   })
 
-  false&&describe('[debug]', function () {
+  describe('[debug]', function () {
     describe('toggled', function () {
       var p = new Tokenizer(options)
       var matches
@@ -54,7 +54,7 @@ describe('Tokenizer Events', function () {
           matches = 0
           p.debug(true)
           p.write('abc')
-          assert.equal(matches, 12) // 3 x ( 1xhandler, 3xrule )
+          assert.equal(matches, 6) // 3 x ( 1xhandler, 1xsubrule )
           done()
         })
       })
@@ -63,9 +63,6 @@ describe('Tokenizer Events', function () {
         it('should not emit [debug]', function (done) {
           matches = 0
           p.debug()
-      p.on('debug', function (type, method, args) {
-        console.log(arguments)
-      })
           p.write('abc')
           assert.equal(matches, 0)
           done()
