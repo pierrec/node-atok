@@ -4,8 +4,9 @@ function number_arraySubRule (list) {
 	this.length = 1
 	this.next = lastSubRule
 	// Specific properties
-	this.list = list
-	this.hasZero = list.some(function (v) { return v === 0 })
+	// Filter out zero values
+	this.list = list.filter(function (v) { return v !== 0 })
+	this.hasZero = (list.length > this.list.length)
 }
 
 number_arraySubRule.prototype.test = function (buf, offset) {
