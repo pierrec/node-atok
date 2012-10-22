@@ -13,6 +13,9 @@ describe('Tokenizer Custom Rules', function () {
     it('should trigger on match', function (done) {
       var flag = false
 
+      // Custom subrules returning 0 __must__ set continue() properly
+      // to avoid infinite loops
+      p.continue(0)
       p.addRule(function (data, start) {
           flag = true
           return 0

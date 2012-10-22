@@ -168,8 +168,9 @@ Atok.prototype._tokenize = function () {
       if (this._resetRuleIndex) {
         this._resetRuleIndex = false
         i = this._ruleIndex - 1
-      } else if (matched > 0)
+      } else {
         i += p.continue
+      }
 
       // NB. `break()` prevails over `pause()`
       if (props.break) {

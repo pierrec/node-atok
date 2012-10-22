@@ -81,7 +81,7 @@ function Rule (subrules, type, handler, atok) {
 
   // Last subrule (used for trimRight)
   // Set to the dummy last rule if only one rule
-  this.last = n > 1 ? subrule : prev.next
+  this.last = n === 1 ? prev.next : subrule
 
   // Set the first and last subrules length based on trim properties
   if (!this.props.trimLeft) this.first.length = 0

@@ -23,6 +23,7 @@ var buffertools = require('buffertools')
  */
 var lastSubRule = {
   length: 0
+, idx: -1
 , test: function (buf, offset) {
     return offset
   }
@@ -31,12 +32,7 @@ var lastSubRule = {
 /**
   Empty subrule
  */
-exports.emptySubRule = {
-  length: 0
-, idx: -1
-, test: lastSubRule.test
-, next: lastSubRule
-}
+exports.emptySubRule = lastSubRule
 
 /**
   All subrule
