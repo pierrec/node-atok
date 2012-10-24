@@ -155,10 +155,14 @@ Atok.prototype._tokenize = function () {
       if ( !props.ignore ) {
         // Emit the data by default, unless the handler is set
         token = props.quiet
-          ? matched - p.last.length - p.first.length
-          : this.buffer.slice( this.offset + p.first.length, this.offset + matched - p.last.length )
-        if (p.handler) p.handler(token, p.first.idx, p.type)
-        else this.emit_data(token, p.first.idx, p.type)
+          ? matched - (p.single ? 0 : p.last.length) - p.first.length
+          : this.buffer.slice(
+              this.offset + p.first.length
+            , this.offset + matched - (p.single ? 0 : p.last.length)
+            )
+
+        if (p.handler) p.handler(token, p.last.idx, p.type)
+        else this.emit_data(token, p.last.idx, p.type)
       }
       this.offset += matched
       // Load a new set of rules

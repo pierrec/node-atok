@@ -21,13 +21,12 @@ var buffertools = require('buffertools')
 /**
   Last subrule
  */
-var lastSubRule = {
-  length: 0
-, idx: -1
-, test: function (buf, offset) {
-    return offset
-  }
+function lastSubRuleConst () {}
+lastSubRuleConst.prototype.test = function (buf, offset) {
+  return offset
 }
+
+var lastSubRule = new lastSubRuleConst
 
 /**
   Empty subrule

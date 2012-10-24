@@ -79,15 +79,15 @@ function Rule (subrules, type, handler, atok) {
     if (this.length < subrule.length) this.length = subrule.length
   }
 
-  // Last subrule (used for trimRight)
-  // Set to the dummy last rule if only one rule
-  this.last = n === 1 ? prev.next : subrule
+  // Last subrule (used for trimRight and matched idx)
+  this.last = subrule
+
+  // Single subrule: special case for trimRight
+  this.single = (n === 1)
 
   // Set the first and last subrules length based on trim properties
   if (!this.props.trimLeft) this.first.length = 0
-  if (!this.props.trimRight) this.last.length = 0
-
-  //TODO micro optimizations (empty subrule...)
+  if (!this.single && !this.props.trimRight) this.last.length = 0
 }
 
 /**
