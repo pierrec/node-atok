@@ -47,14 +47,6 @@ allSubRuleConst.prototype.test = function (buf) {
   return buf.length
 }
 exports.allSubRule = new allSubRuleConst
-// exports.allSubRule = {
-//   length: 0
-// , idx: -1
-// , test: function (buf, offset) {
-//     return buf.length
-//   }
-// , next: lastSubRule
-// }
 
 /**
   Property checker
