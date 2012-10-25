@@ -19,16 +19,20 @@ range_array_object_firstSubRule.prototype.test = function (buf, offset) {
 			if (
 				buf.charCodeAt(offset) >= start[i]
 			&&	buf.charCodeAt(offset) <= end[i]
-			)
+			) {
+				this.idx = i
 				return this.next.test(buf, offset + 1)
+			}
 		}
 	} else {
 		for (var i = 0; i < n; i++) {
 			if (
 				buf[offset] >= start[i]
 			&&	buf[offset] <= end[i]
-			)
+			) {
+				this.idx = i
 				return this.next.test(buf, offset + 1)
+			}
 		}
 	}
 

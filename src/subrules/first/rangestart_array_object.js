@@ -16,15 +16,19 @@ rangestart_array_object_firstSubRule.prototype.test = function (buf, offset) {
 		for (var i = 0; i < n; i++) {
 			if (
 				buf.charCodeAt(offset) >= start[i]
-			)
+			) {
+				this.idx = i
 				return this.next.test(buf, offset + 1)
+			}
 		}
 	} else {
 		for (var i = 0; i < n; i++) {
 			if (
 				buf[offset] >= start[i]
-			)
+			) {
+				this.idx = i
 				return this.next.test(buf, offset + 1)
+			}
 		}
 	}
 

@@ -38,14 +38,23 @@ exports.emptySubRule = lastSubRule
   To trick infinite loop detection, length is set to -1 then 1
   to compensate for trimRight and trimLeft
  */
-exports.allSubRule = {
-  length: 0
-, idx: -1
-, test: function (buf, offset) {
-    return buf.length
-  }
-, next: lastSubRule
+function allSubRuleConst () {
+  this.length = 0
+  this.idx = -1
+  this.next = lastSubRule
 }
+allSubRuleConst.prototype.test = function (buf) {
+  return buf.length
+}
+exports.allSubRule = new allSubRuleConst
+// exports.allSubRule = {
+//   length: 0
+// , idx: -1
+// , test: function (buf, offset) {
+//     return buf.length
+//   }
+// , next: lastSubRule
+// }
 
 /**
   Property checker

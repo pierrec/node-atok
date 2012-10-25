@@ -207,7 +207,7 @@ Atok.prototype._tokenize = function () {
       this.emit_empty(this.ending)
 
     } else if (this.offset < this.length) {
-      this.buffer = this.slice(this.offset)
+      this.buffer = this.buffer.slice(this.offset)
       this.length = this.buffer.length
       this.offset = 0
 
@@ -238,7 +238,7 @@ Atok.prototype._tokenize = function () {
 
     } else if (this[minOffset] < this.length) {
       this[maxOffset] -= this[minOffset]
-      this.buffer = this.slice(this[minOffset])
+      this.buffer = this.buffer.slice(this[minOffset])
       this.length = this.buffer.length
       this[minOffset] = 0
 
