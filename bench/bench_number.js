@@ -20,12 +20,12 @@ var buf = new Buffer(s)
 
 var compare = exports.compare = {}
 compare[Atok.version] = function () {
-	atok.clear(true).write(s)
+	atok.write(s)
 }
 compare[newAtok.version + ' string'] = function () {
-	natok.clear(true).write(s)
+	natok.write(s)
 }
 compare[newAtok.version + ' buffer'] = function () {
-	natok.clear(true).write(buf)
+	natok.write(buf)
 }
 require("bench").runMain()
