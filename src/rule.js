@@ -32,6 +32,7 @@ function Rule (subrules, type, handler, atok) {
   // Required by Atok#_resolveRules
   this.group = atok._group
   this.groupStart = atok._groupStart
+  this.groupEnd = atok._groupEnd
 
   // Runtime values for continue props
   this.continue = this.props.continue[0]
