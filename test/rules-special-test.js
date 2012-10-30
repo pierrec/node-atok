@@ -45,8 +45,8 @@ describe('Tokenizer Special Rules', function () {
     })
   })
 
-  false&&describe('infinite loop', function () {
-    false&&describe('single function and single rule', function () {
+  describe('infinite loop', function () {
+    describe('no subrule', function () {
       var p = new Tokenizer(options)
       var i = 0
 
@@ -66,7 +66,7 @@ describe('Tokenizer Special Rules', function () {
       })
     })
 
-    false&&describe('failed rule cannot point to itself', function () {
+    describe('failed rule cannot point to itself', function () {
       var p = new Tokenizer(options)
       var i = 0
 
@@ -87,7 +87,7 @@ describe('Tokenizer Special Rules', function () {
       })
     })
 
-    false&&describe('failed rules cannot point to each other', function () {
+    describe('failed rules cannot point to each other', function () {
       var p = new Tokenizer(options)
       var i = 0
 
@@ -116,7 +116,7 @@ describe('Tokenizer Special Rules', function () {
       })
     })
 
-    false&&describe('failed rules cannot point to each other', function () {
+    describe('failed rules cannot point to each other', function () {
       var p = new Tokenizer(options)
       var i = 0
 
@@ -142,7 +142,7 @@ describe('Tokenizer Special Rules', function () {
     })
   })
 
-  false&&describe('rule matched on next write', function () {
+  describe('rule matched on next write', function () {
     var p = new Tokenizer(options)
     var i = 0
 
@@ -154,9 +154,8 @@ describe('Tokenizer Special Rules', function () {
     })
   })
 
-  false&&describe('single subrule', function () {
-
-    false&&describe('with quiet()', function () {
+  describe('single subrule', function () {
+    describe('with quiet()', function () {
       var p = new Tokenizer(options)
       
       it('should return an empty token', function (done) {
@@ -168,7 +167,7 @@ describe('Tokenizer Special Rules', function () {
       })
     })
 
-    false&&describe('with quiet(true)', function () {
+    describe('with quiet(true)', function () {
       var p = new Tokenizer(options)
       
       it('should return 0 match', function (done) {

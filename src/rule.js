@@ -29,6 +29,9 @@ function Rule (subrules, type, handler, atok) {
 
   this.debug = false
 
+  // Used for cloning
+  this.subrules = subrules
+
   // Required by Atok#_resolveRules
   this.group = atok._group
   this.groupStart = atok._groupStart
@@ -89,6 +92,10 @@ function Rule (subrules, type, handler, atok) {
   // Set the first and last subrules length based on trim properties
   if (!this.props.trimLeft) this.first.length = 0
   if (!this.single && !this.props.trimRight) this.last.length = 0
+
+  this.next = null
+  this.nextFail = null
+  this.currentRule = null
 }
 
 /**
@@ -127,7 +134,7 @@ Rule.prototype.setDebug = function (debug) {
 
   if (debug) {
     // Wrap subrules
-    var id = this._id + ( atok.currentRule ? '@' + atok.currentRule : '' )
+    var id = this._id + ( this.currentRule ? '@' + this.currentRule : '' )
 
     while (subrule && subrule.next) {
       subrule.test = wrapDebug(subrule, id, atok)
@@ -160,4 +167,21 @@ Rule.prototype.setDebug = function (debug) {
     this.handler = this.prevHandler
     delete this.prevHandler
   }
+}
+/**
+ * Clone the Rule object
+ *
+ * @api private
+ */
+Rule.prototype.clone = function () {
+  var self = this
+  // Instantiate a dummy rule
+  var rule = new Rule(this.subrules, this.type, this.handler, this.atok)
+
+  // Overwrite its props
+  Object.keys(self).forEach(function (k) {
+    rule[k] = self[k]
+  })
+
+  return rule
 }

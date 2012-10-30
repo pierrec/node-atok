@@ -107,8 +107,6 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
       return this
   }
 
-  this._checkResolveRules()
-
   if ( first === 0 )
     this._error( new Error('Atok#addRule: invalid first subrule, must be > 0') )
   else
@@ -120,6 +118,8 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
       , this
       )
     )
+
+  this._rulesToResolve = true
 
   return this
 }
@@ -136,25 +136,12 @@ Atok.prototype.removeRule = function (/* name ... */) {
   for (var idx, i = 0, n = arguments.length; i < n; i++) {
     idx = this._getRuleIndex(arguments[i])
     if (idx >= 0) {
-      this._rules = this._rules.slice()
       this._rules.splice(idx, 1)
     }
   }
-  this._checkResolveRules()
+  this._rulesToResolve = true
 
   return this
-}
-/**
- * Resolve rules righ away or delay it
- *
- * @api private
- */
-Atok.prototype._checkResolveRules = function () {
-  // Rules have been modified, force a resolve when required
-  if (this._tokenizing)
-    this._resolveRules()
-  else
-    this._rulesToResolve = true
 }
 /**
  * Remove all rules
@@ -172,7 +159,7 @@ Atok.prototype.clearRule = function () {
   return this
 }
 /**
- * Save all rules
+ * Save all rules and clear them
  *
  * @param {string} name of the rule set
  * @return {Atok}
@@ -181,15 +168,19 @@ Atok.prototype.clearRule = function () {
 Atok.prototype.saveRuleSet = function (name) {
   if (arguments.length === 0 || name === null)
     return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )
-  
 
+  this.currentRule = name
   this._savedRules[name] = {
     rules: this._rules.slice() // Make sure to make a copy of the list
+          // Clone the rules
+          // .map(function (rule) { return rule.clone() })
+          // Assign the current rule set name
+          .map(function (rule) { rule.currentRule = name; return rule })
   }
-  this.currentRule = name
 
   // Resolve and check continues
   this._resolveRules(name)
+  this.clearRule()
 
   return this
 }
@@ -206,12 +197,14 @@ Atok.prototype.loadRuleSet = function (name, index) {
   if (!ruleSet)
     return this._error( new Error('Atok#loadRuleSet: Rule set ' + name + ' not found') )
 
+  index = typeof index === 'number' ? index : 0
+
   this.currentRule = name
   this._rules = ruleSet.rules
   this._rulesToResolve = false
   // Set the rule index
-  this._ruleIndex = typeof index === 'number' ? index : 0
-  this._resetRuleIndex = true
+  this._firstRule = this._rules[index]
+  this._resetRule = true
 
   return this
 }
@@ -236,6 +229,7 @@ Atok.prototype.removeRuleSet = function (name) {
  * - adjust the continue() jumps based on groups
  *
  * Also detects infinite loops
+ * Rules are linked if no name supplied
  *
  * @param {string} name of the rule set (optional)
  * @api private
@@ -243,11 +237,11 @@ Atok.prototype.removeRuleSet = function (name) {
 Atok.prototype._resolveRules = function (name) {
   var self = this
   // Check and set the continue values
-  var rules = name ? this._savedRules[name].rules : ( name = this.currentRule, this._rules )
+  var rules = name ? this._savedRules[name].rules : this._rules
   var groupStartPrev = this._groupStartPrev
 
   function getErrorData (i) {
-    return ( name ? '@' + name : ' ' )
+    return ( self.currentRule ? '@' + self.currentRule : ' ' )
       + (arguments.length > 0
           ? '[' + i + ']'
           : ''
@@ -396,6 +390,12 @@ Atok.prototype._resolveRules = function (name) {
 
   // Resolution successfully completed
   this._rulesToResolve = false
+
+  // Rules need to be relinked:
+  // - Delay if rules resolution was called in a saveRuleSet(name)
+  // - Link immediately otherwise
+  if (name) this._rulesToLink = true
+  else this._linkRules()
 }
 /**
  * Bind rules to the same index
@@ -437,4 +437,55 @@ Atok.prototype.groupRule = function (flag) {
   this._groupEnd = 0
 
   return this
+}
+/**
+ * Link rules
+ *
+ * @return {Atok}
+ * @api private
+ */
+Atok.prototype._linkRules = function () {
+  var _savedRules = this._savedRules
+  var rules = this._rules
+
+  if (this._rules.length === 0)
+    this._error( new Error('Atok#_linkRules: no rule defined') )
+
+  link(rules)
+  Object.keys(_savedRules)
+    .forEach(function (k) {
+      link( _savedRules[k].rules )
+  })
+
+  // Rules entry point
+  this._firstRule = rules[0]
+
+  // Rules are now linked
+  this._rulesToLink = false
+
+  function getRuleFromSet (arr) {
+    var ruleSet = arr[0]
+    var rule = _savedRules[ ruleSet ]
+    if (!rule)
+        this._error( new Error('Atok#_linkRules: missing rule set: ' + ruleSet ) )
+
+    return _savedRules[ ruleSet ].rules[ arr[1] ]
+  }
+
+  function link (rules) {
+    // Link rules
+    for (var i = 0, n = rules.length; i < n; i++) {
+      var rule = rules[i]
+      var props = rule.props
+      var next = props.next
+
+      // On rule success
+      rule.next =  next[0]
+        ? getRuleFromSet(next)
+        : ( rules[ i + rule.continue + 1 ] || null )
+
+      // On rule failure
+      rule.nextFail = rules[ i + rule.continueOnFail + 1 ] || null
+    }
+  }
 }

@@ -469,7 +469,7 @@ describe('Tokenizer Grouped Rules', function () {
     })
   })
 
-  false&&describe('in a grouped group', function () {
+  describe('in a grouped group', function () {
     describe('with a zero jump', function () {
       var p = new Tokenizer
 

@@ -2,7 +2,6 @@
 
 ## 0.4.0
 
-* linked rules (changing rule set in a handler may be an issue)
 * looping rules optimization
 
 

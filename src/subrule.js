@@ -9,8 +9,11 @@
   called by subrule#test if successful
   
   Required properties:
-  length {Number} length of the matched data. If unknown: -1. Set it when 
-                  running the subrule if the value is non zero.
+  length {Number} length of the matched data. Set when running the subrule if 
+                the value is non zero.
+                Special values:
+                -1: unknown, ignore in infinite loop detection
+                -2: unknown, check in infinite loop detection
   idx {Number} index of the matched pattern if many possible. Default=-1
  */
 //TODO special case: loops
@@ -21,7 +24,10 @@ var buffertools = require('buffertools')
 /**
   Last subrule
  */
-function lastSubRuleConst () {}
+function lastSubRuleConst () {
+  this.length = 0
+  this.idx = -1
+}
 lastSubRuleConst.prototype.test = function (buf, offset) {
   return offset
 }

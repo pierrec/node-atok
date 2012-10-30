@@ -289,6 +289,28 @@ describe('Tokenizer RuleSet Methods', function () {
         done()
       })
     })
+
+    describe('an existing rule referenced in the current saved rule set', function () {
+      var p = new Tokenizer(options)
+      it('should remove it from the saved rule set', function (done) {
+        p.addRule('a', 'first')
+        p.saveRuleSet('test')
+        p.clearRule()
+        p.loadRuleSet('test')
+        p.removeRule('first')
+        p.addRuleFirst('a', 'second')
+        p.on('data', function (token, idx, type) {
+          switch (type) {
+            case 'second':
+              done()
+            break
+            default:
+              done(new Error('Should not trigger'))
+          }
+        })
+        p.write('a')
+      })
+    })
   })
 
   // Clear rules
@@ -347,6 +369,20 @@ describe('Tokenizer RuleSet Methods', function () {
         done()
       })
     })
+
+    describe('with a name', function () {
+      var p = new Tokenizer(options)
+      it('should clear all rules', function (done) {
+        p.addRule('a', 'first')
+        p.saveRuleSet('test')
+        p.addRule('a', 'second')
+        p.on('data', function (token, idx, type) {
+          assert.equal(type, 'second')
+          done()
+        })
+        p.write('a')
+      })
+    })
   })
 
   // Load a set of rules
@@ -394,6 +430,37 @@ describe('Tokenizer RuleSet Methods', function () {
           }
         )
         done()
+      })
+    })
+
+    describe('with modified rules in handler', function () {
+      var p = new Tokenizer(options)
+      it('should use new rules in next data checks', function (done) {
+        p.setDefaultHandler(function (token, idx, type) {
+          switch (type) {
+            case 'first':
+              assert.equal(i, 0)
+              p.continue(0, 1)
+              p.addRule('b', 'dummy')
+              p.continue()
+              p.addRule('a', 'error')
+              p.addRule('a', 'done')
+              break
+            case 'done':
+              assert.equal(i, 1)
+              done()
+              break
+            default:
+              done(new Error('Should not trigger'))
+          }
+          i++
+        })
+        var i = 0
+
+        p.continue(0)
+        p.addRule('a', 'first')
+        p.continue()
+        p.write('aa')
       })
     })
   })

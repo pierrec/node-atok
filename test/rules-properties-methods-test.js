@@ -222,7 +222,7 @@ describe('Tokenizer Properties Methods', function () {
         var i = 0
         p.break(true)
         p.addRule('a', function (token, idx, type) {
-          p.addRuleFirst('a', function first(token, idx, type) {
+          p.addRuleFirst('a', function first (token, idx, type) {
             i++
           })
         })
@@ -234,18 +234,18 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
-    describe('with #continue(0)', function () {
+    describe('with #continue(-1)', function () {
       var p = new Tokenizer(options)
       it('should upon match abort the current rule and resume from the aborted subrule', function (done) {
         var i = 0
-        p.break(true).continue(0)
+        p.break(true).continue(-1)
         p.addRule('a', function (token, idx, type) {
           i++
-          p.addRuleFirst('a', function (token, idx, type) {
+          p.addRuleFirst('a', function first (token, idx, type) {
           })
         })
         p.break().continue()
-        p.addRule(1, 'dummy') // To avoid error as continue(0) is set on the last rule
+        p.addRule(1, 'dummy')
         p.write('a')
         p.write('a')
         assert.equal(i, 2)
@@ -416,6 +416,7 @@ describe('Tokenizer Properties Methods', function () {
         p.continue()
         p.addRule('a', 'end')
         p.saveRuleSet('stringContinueTest')
+        p.loadRuleSet('stringContinueTest')
 
         p.on('data', function (token, idx, type) {
           switch (type) {
@@ -449,6 +450,7 @@ describe('Tokenizer Properties Methods', function () {
         p.continue()
         p.addRule('a', test)
         p.saveRuleSet('stringContinueTest')
+        p.loadRuleSet('stringContinueTest')
 
         p.on('data', function (token, idx, type) {
           if (type === 'a') {
@@ -604,10 +606,10 @@ describe('Tokenizer Properties Methods', function () {
       it('should not reset the index', function (done) {
         p.continue(0)
         p.addRule('a', 'a')
-        p.addRule('a', function (token, idx, type) {
+        p.addRule('a', function handler (token, idx, type) {
           done()
         })
-        
+
         p.write('a')
         p.write('a')
       })

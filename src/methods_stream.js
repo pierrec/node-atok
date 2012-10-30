@@ -30,15 +30,17 @@ Atok.prototype.write = function (data) {
   }
   this.length = this.buffer.length
 
+  // Check rules resolution (pause __can__ be called before write)
+  if (this._rulesToResolve) this._resolveRules() // Does linking too
+  // No resolution but linking may be required
+  else if (this._rulesToLink) this._linkRules()
+
   // ... hold on until tokenization completed on the current data set
   // or consume the data
   if (this.paused) {
     this.needDrain = true
     return false
   }
-
-  // Check rules resolution
-  if (this._rulesToResolve) this._resolveRules()
 
   return this._tokenize()
 }
@@ -130,72 +132,74 @@ Atok.prototype._done = function () {
  * @private
  */
 Atok.prototype._tokenize = function () {
-  this._tokenizing = true
-
   // NB. Rules and buffer can be reset by the token handler
-  var i = this._ruleIndex, p, props, matched
+  var p, props, matched
   var token
 
-  this._ruleIndex = 0
-  this._resetRuleIndex = false
+  p = this._firstRule
+  this._resetRule = false
 
-  for (
-    ; this.offset < this.length && i < this._rules.length
-    ; i++
-    )
-  {
-    p = this._rules[i]
+  while ( p !== null && this.offset < this.length ) {
     props = p.props
 
     // Return the size of the matched data (0 is valid!)
+    //TODO matched = p.first.test(this.buffer, this.offset) - this.offset
     matched = p.test(this.buffer, this.offset)
 
-    if ( matched >= 0 ) {
-      // Is the token to be processed?
-      if ( !props.ignore ) {
-        // Emit the data by default, unless the handler is set
-        token = props.quiet
-          ? matched - (p.single ? 0 : p.last.length) - p.first.length
-          : this.buffer.slice(
-              this.offset + p.first.length
-            , this.offset + matched - (p.single ? 0 : p.last.length)
-            )
+    if ( matched < 0 ) {
+      p = p.nextFail
 
-        if (p.handler) p.handler(token, p.last.idx, p.type)
-        else this.emit_data(token, p.last.idx, p.type)
-      }
-      this.offset += matched
-      // Load a new set of rules
-      if (props.next[0]) this.loadRuleSet(props.next[0], props.next[1])
+      // Next rule exists, carry on
+      if (p) continue
 
-      // Rule set may have changed...from loadRuleSet() or handler()
-      if (this._resetRuleIndex) {
-        this._resetRuleIndex = false
-        i = this._ruleIndex - 1
+      // End of the rule set, end the loop
+      break
+    }
+
+    // Is the token to be processed?
+    if ( !props.ignore ) {
+      // Emit the data by default, unless the handler is set
+      token = props.quiet
+        ? matched - (p.single ? 0 : p.last.length) - p.first.length
+        : this.buffer.slice(
+            this.offset + p.first.length
+          , this.offset + matched - (p.single ? 0 : p.last.length)
+          )
+
+      if (p.handler) p.handler(token, p.last.idx, p.type)
+      else this.emit_data(token, p.last.idx, p.type)
+
+      // Handler has changed rules, resolve and relink
+      if (this._rulesToResolve) this._resolveRules()
+
+      // RuleSet may have be changed by the handler
+      if (this._resetRule) {
+        this._resetRule = false
+        p = this._firstRule
       } else {
-        i += p.continue
+        p = p.next
       }
-
-      // NB. `break()` prevails over `pause()`
-      if (props.break) {
-        i++
-        break
-      }
-
-      // Hold on if the stream was paused
-      if (this.paused) {
-        this._ruleIndex = i + 1
-        this.needDrain = true
-        this._tokenizing = false
-        return false
-      }
+      // p = this._resetRule ? this._firstRule : p.next
     } else {
-      i += p.continueOnFail
+      p = p.next
+    }
+
+
+    this.offset += matched
+
+    // NB. `break()` prevails over `pause()`
+    if (props.break) break
+
+    // Hold on if the stream was paused
+    if (this.paused) {
+      this._firstRule = p
+      this.needDrain = true
+      return false
     }
   }
-  
-  // Keep track of the rule index we are at
-  this._ruleIndex = i < this._rules.length ? i : 0
+
+  // Keep track of the rule we are at
+  this._firstRule = p || this._firstRule
 
   // Truncate the buffer if possible: min(offset, markedOffset)
   if (this.markedOffset < 0) {
@@ -251,7 +255,5 @@ Atok.prototype._tokenize = function () {
     }
   }
 
-  this._tokenizing = false
-  
   return this._done()
 }

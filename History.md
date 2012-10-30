@@ -1,4 +1,4 @@
-0.4.0 / 2012-10-25
+0.4.0 / 2012-10-30
 ==================
 
 * Major internal refactoring in defining and running rules and subrules:
@@ -13,6 +13,7 @@
   * Subrules defined as a Number now do not apply the following ones to the matched token. Use another Atok instance to emulate previous behaviour.
   * {firstOf} subrules cannot be in first position. Use addRule('', {firstOf}) instead.
   * Custom subrules returning 0 __must__ set continue() properly to avoid potential infinite loops.
+  * All rules are cleared after a saveRuleSet()
 
 0.3.2 / 2012-09-16
 ==================
