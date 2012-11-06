@@ -91,6 +91,10 @@ function Atok (options) {
 }
 inherits(Atok, EV, Stream.prototype)
 
+// Atok.prototype.__defineGetter__('currentRule', function () {
+//   return this._firstRule ? this._firstRule.currentRule : null
+// })
+
 Atok.prototype._error = function (err) {
   this.readable = false
   this.writable = false

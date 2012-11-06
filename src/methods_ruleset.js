@@ -109,15 +109,22 @@ Atok.prototype.addRule = function (/*rule1, rule2, ... type|handler*/) {
 
   if ( first === 0 )
     this._error( new Error('Atok#addRule: invalid first subrule, must be > 0') )
-  else
+  else {
+    var groupProps = Object.create(null)
+    groupProps.group = this._group
+    groupProps.groupStart = this._groupStart
+    groupProps.groupEnd = this._groupEnd
     this._rules.push(
       new Rule(
         args
       , type
       , handler
-      , this
+      , this.getProps()
+      , groupProps
+      , this._encoding
       )
     )
+  }
 
   this._rulesToResolve = true
 
@@ -151,9 +158,9 @@ Atok.prototype.removeRule = function (/* name ... */) {
  */
 Atok.prototype.clearRule = function () {
   this.clearProps()
+  this._firstRule = null
   this._rules = []
   this._defaultHandler = null
-  this.currentRule = null
   this._rulesToResolve = false
 
   return this
@@ -169,18 +176,15 @@ Atok.prototype.saveRuleSet = function (name) {
   if (arguments.length === 0 || name === null)
     return this._error( new Error('Atok#saveRuleSet: invalid rule name supplied') )
 
-  this.currentRule = name
   this._savedRules[name] = {
-    rules: this._rules.slice() // Make sure to make a copy of the list
-          // Clone the rules
-          // .map(function (rule) { return rule.clone() })
-          // Assign the current rule set name
-          .map(function (rule) { rule.currentRule = name; return rule })
+    rules: this._rules
+      .map(function (rule) {    // Clone and assign the current rule set name
+        return rule.clone(name)
+      })
   }
 
   // Resolve and check continues
   this._resolveRules(name)
-  this.clearRule()
 
   return this
 }
@@ -199,9 +203,7 @@ Atok.prototype.loadRuleSet = function (name, index) {
 
   index = typeof index === 'number' ? index : 0
 
-  this.currentRule = name
   this._rules = ruleSet.rules
-  this._rulesToResolve = false
   // Set the rule index
   this._firstRule = this._rules[index]
   this._resetRule = true
@@ -217,8 +219,6 @@ Atok.prototype.loadRuleSet = function (name, index) {
  */
 Atok.prototype.removeRuleSet = function (name) {
   delete this._savedRules[name]
-  // Make sure no reference to the rule set exists
-  if (this.currentRule === name) this.currentRule = null
 
   return this
 }
@@ -238,10 +238,9 @@ Atok.prototype._resolveRules = function (name) {
   var self = this
   // Check and set the continue values
   var rules = name ? this._savedRules[name].rules : this._rules
-  var groupStartPrev = this._groupStartPrev
 
   function getErrorData (i) {
-    return ( self.currentRule ? '@' + self.currentRule : ' ' )
+    return ( self.currentRule() ? '@' + self.currentRule() : ' ' )
       + (arguments.length > 0
           ? '[' + i + ']'
           : ''

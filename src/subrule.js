@@ -169,6 +169,8 @@ exports.firstSubRule = function (rule, props, encoding) {
   if (rule === null || rule === undefined)
     throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
 
+  // var loop = props.ignore && props.continue[0] === -1 && !props.next[0] ? '_loop' : ''
+  // var type = typeOf(rule) + loop
   var type = typeOf(rule)
 
   switch (type) {

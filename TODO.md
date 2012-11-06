@@ -1,5 +1,10 @@
 # TODO
 
+## 0.5.0
+
+* Compile rule sets to JS code
+
+
 ## 0.4.0
 
 * looping rules optimization

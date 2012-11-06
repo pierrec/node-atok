@@ -105,4 +105,27 @@ describe('Tokenizer General Methods', function () {
       })
     })
   })
+
+  describe('#currentRule', function () {
+    describe('with no rule set', function () {
+      var p = new Tokenizer(options)
+      it('should return null', function (done) {
+        p.addRule('a', 'first')
+        assert.equal( p.currentRule(), null )
+        done()
+      })
+    })
+
+    describe('with a rule set', function () {
+      var p = new Tokenizer(options)
+      it('should return the rule set name', function (done) {
+        p.addRule('a', 'first')
+        p.saveRuleSet('test')
+        // loadRuleSet() required as saveRuleSet() does a clearRule()
+        p.loadRuleSet('test')
+        assert.equal( p.currentRule(), 'test' )
+        done()
+      })
+    })
+  })
 })

@@ -45,6 +45,7 @@ describe('Tokenizer Supported Methods', function () {
   , 'flush'
   , 'debug'
   , 'slice'
+  , 'currentRule'
   ]
 
   var p = new Tokenizer

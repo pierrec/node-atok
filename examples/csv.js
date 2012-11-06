@@ -45,7 +45,7 @@ function stringHandler (token, idx) {
 }
 function rawStringHandler (token, idx) {
   addLine(idx)
-  data[ data.length-1 ].push(token)
+  data[ data.length-1 ].push( token.toString() )
 }
 function emptyHandler (token, idx) {
   addLine(idx)
@@ -55,7 +55,7 @@ function numberHandler (token, idx) {
   addLine(idx)
   var num = Number(token)
   // Valid Number?
-  data[ data.length-1 ].push( isFinite(num) ? num : token )
+  data[ data.length-1 ].push( isFinite(num) ? num : token.toString() )
 }
 
 // Define the main parser rules

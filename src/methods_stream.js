@@ -139,25 +139,25 @@ Atok.prototype._tokenize = function () {
   p = this._firstRule
   this._resetRule = false
 
-  while ( p !== null && this.offset < this.length ) {
+  while ( p && this.offset < this.length ) {
     props = p.props
 
     // Return the size of the matched data (0 is valid!)
-    //TODO matched = p.first.test(this.buffer, this.offset) - this.offset
     matched = p.test(this.buffer, this.offset)
 
     if ( matched < 0 ) {
-      p = p.nextFail
+      // End of the rule set, end the loop
+      if (!p.nextFail) break
 
       // Next rule exists, carry on
-      if (p) continue
-
-      // End of the rule set, end the loop
-      break
+      p = p.nextFail
+      continue
     }
 
     // Is the token to be processed?
-    if ( !props.ignore ) {
+    if ( props.ignore ) {
+      p = p.next
+    } else {
       // Emit the data by default, unless the handler is set
       token = props.quiet
         ? matched - (p.single ? 0 : p.last.length) - p.first.length
@@ -179,11 +179,7 @@ Atok.prototype._tokenize = function () {
       } else {
         p = p.next
       }
-      // p = this._resetRule ? this._firstRule : p.next
-    } else {
-      p = p.next
     }
-
 
     this.offset += matched
 
@@ -199,7 +195,7 @@ Atok.prototype._tokenize = function () {
   }
 
   // Keep track of the rule we are at
-  this._firstRule = p || this._firstRule
+  if (p) this._firstRule = p
 
   // Truncate the buffer if possible: min(offset, markedOffset)
   if (this.markedOffset < 0) {

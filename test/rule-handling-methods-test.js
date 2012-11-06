@@ -507,6 +507,20 @@ describe('Tokenizer RuleSet Methods', function () {
         p.write('ab')
       })
     })
+
+    describe('on success', function () {
+      var p = new Tokenizer(options)
+      it('should set the next rule', function (done) {
+        p.addRule('a', 'first')
+        p.saveRuleSet('myRules')
+        p.clearRule()
+        p.next('myRules')
+        p.addRule('a', 'first')
+        p.write('ab')
+        assert.equal(p.currentRule(), 'myRules')
+        done()
+      })
+    })
   })
 
   // Delete a rule set

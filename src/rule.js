@@ -20,12 +20,11 @@ module.exports = Rule
  * @constructor
  * @api private
  */
-function Rule (subrules, type, handler, atok) {
+function Rule (subrules, type, handler, props, groupProps, encoding) {
   var self = this
   var n = subrules.length
 
-  this.atok = atok
-  this.props = atok.getProps()
+  this.props = props
 
   this.debug = false
 
@@ -33,9 +32,11 @@ function Rule (subrules, type, handler, atok) {
   this.subrules = subrules
 
   // Required by Atok#_resolveRules
-  this.group = atok._group
-  this.groupStart = atok._groupStart
-  this.groupEnd = atok._groupEnd
+  for (var p in groupProps)
+    this[p] = groupProps[p]
+  // this.group = atok._group
+  // this.groupStart = atok._groupStart
+  // this.groupEnd = atok._groupEnd
 
   // Runtime values for continue props
   this.continue = this.props.continue[0]
@@ -55,7 +56,7 @@ function Rule (subrules, type, handler, atok) {
 
   // First subrule
   var subrule = this.first = n > 0
-    ? SubRule.firstSubRule( subrules[0], this.props, atok._encoding )
+    ? SubRule.firstSubRule( subrules[0], this.props, encoding )
     // Special case: no rule given -> passthrough
     : SubRule.emptySubRule
 
@@ -77,7 +78,7 @@ function Rule (subrules, type, handler, atok) {
   var prev = subrule
   // Many subrules or none
   for (var i = 1; i < n; i++) {
-    subrule = SubRule.SubRule( subrules[i], this.props, atok._encoding )
+    subrule = SubRule.SubRule( subrules[i], this.props, encoding )
     prev.next = subrule
     prev = subrule
     if (this.length < subrule.length) this.length = subrule.length
@@ -121,9 +122,8 @@ function wrapDebug (rule, id, atok) {
     return rule._test(buf, offset)
   }
 }
-Rule.prototype.setDebug = function (debug) {
+Rule.prototype.setDebug = function (debug, atok) {
   var self = this
-  var atok = this.atok
 
   // Rule already in debug mode
   if (this.debug === debug) return
@@ -173,15 +173,8 @@ Rule.prototype.setDebug = function (debug) {
  *
  * @api private
  */
-Rule.prototype.clone = function () {
-  var self = this
-  // Instantiate a dummy rule
-  var rule = new Rule(this.subrules, this.type, this.handler, this.atok)
-
-  // Overwrite its props
-  Object.keys(self).forEach(function (k) {
-    rule[k] = self[k]
-  })
-
+Rule.prototype.clone = function (name) {
+  var rule = new Rule(this.subrules, this.type, this.handler, this.props, this)
+  rule.currentRule = name
   return rule
 }

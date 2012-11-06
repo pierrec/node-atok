@@ -24,14 +24,13 @@ describe('Tokenizer Properties Methods', function () {
     })
 
     // This makes non sense but is possible...
-    false&&describe('on empty buffer', function () {
+    describe('on empty buffer', function () {
       var p = new Tokenizer(options)
       var flag = false
 
       it('should ignore the handler', function (done) {
         p.ignore(true)
-        p.addRule(1, 'consume data')
-        p.addRule(0, function (token, idx, type) {
+        p.addRule(1, 0, function (token, idx, type) {
           flag = true
         })
         p.write('a')

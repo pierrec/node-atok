@@ -3,15 +3,13 @@
 
 ## Overview
 
-Atok is a fast, easy and flexible tokenizer designed for use with [node.js](http://nodejs.org). It is based around the [Stream](http://nodejs.org/docs/latest/api/streams.html) concept and is implemented as a read/write one.
+Atok is a fast, easy and dynamic tokenizer designed for use with [node.js](http://nodejs.org). It is based around the [Stream](http://nodejs.org/docs/latest/api/streams.html) concept and is implemented as a read/write one.
 
 It was originally inspired by [node-tokenizer](https://github.com/floby/node-tokenizer), but quickly grew into its own form as I wanted it to be RegExp agnostic so it could be used on node Buffer intances and more importantly *faster*.
 
 Atok is built using [ekam](https://github.com/pierrec/node-ekam) as it abuses includes and dynamic method generation.
 
 Atok is the fundation for the [atok-parser](https://github.com/pierrec/node-atok-parser), which provides the environment for quickly building efficient and easier to maintain parsers.
-
-This is a work in progress as Buffer data is still converted into String before being processed. Removing this drawback is planned for the next version (0.4.0).
 
 
 ## Core concepts
@@ -20,7 +18,7 @@ First let's see some definitions. In atok's terms:
 
 * a `subrule` is an atomic check against the current data. It can be represented by a user defined function (rarely), a string or a number, or an array of those, as well as specific objects defining a range of values for instance (e.g. { start: 'a', end: 'z' } is equivalent to /[a-z]/ in RegExp)
 * a `rule` is an __ordered__ combination of subrules. Each subrule is evaluated in order and if any fails, the whole rule is considered failed. If all of them are valid, then the handler supplied at rule instanciation is triggered, or if none was supplied, a data event is emitted instead.
-* a `ruleSet` is a list of `rules` that are saved under a given name. Using `ruleSets` is useful when writting a parser to break down its complexity into smaller, easier to solve chunks.
+* a `ruleSet` is a list of `rules` that are saved under a given name. Using `ruleSets` is useful when writting a parser to break down its complexity into smaller, easier to solve chunks. RuleSets can be created or altered __on the fly__ by any of its handlers.
 * a `property` is an option applicable to the current rules being created.
     * properties are set using their own methods. For instance, a `rule` may load a different `ruleSet` upon match using `next()`
     * properties are defined before the rules they need to be applied to. E.g. atok.next('rules2').addRule(...)

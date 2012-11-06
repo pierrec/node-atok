@@ -18,8 +18,6 @@
 //if(keepRules)
   if (!keepRules) {
 //endif
-    // this.currentRule = { get: function (ruleSet) { return this._firstRule.currentRule }, set: function () { throw new Error('Atok: Cannot set currentRule') } }       // Name of the current rule
-    this.currentRule = null       // Name of the current rule
     this._rules = []              // Rules to be checked against
     this._defaultHandler = null   // Matched token default handler
     this._savedRules = {}         // Saved rules

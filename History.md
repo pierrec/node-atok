@@ -1,4 +1,4 @@
-0.4.0 / 2012-10-30
+0.4.0 / 2012-11-06
 ==================
 
 * Major internal refactoring in defining and running rules and subrules:
@@ -8,12 +8,12 @@
   * `Atok#write(data)`
     * `data` (_String_ | _Buffer_): always pass either type. Use `Atok#setEncoding()` when using strings (default=utf-8).
   * `Atok#addRule(pattern...type)`
-    * `pattern` (_String_ | _Buffer_): Buffers can be used instead of strings, except for {start,end} and {firstOf} patterns.
+    * `pattern` (_String_ | _Buffer_): Buffers can be used instead of strings, except for {start,end} and {firstOf} subrules.
 * Behaviour changes:
   * Subrules defined as a Number now do not apply the following ones to the matched token. Use another Atok instance to emulate previous behaviour.
   * {firstOf} subrules cannot be in first position. Use addRule('', {firstOf}) instead.
-  * Custom subrules returning 0 __must__ set continue() properly to avoid potential infinite loops.
-  * All rules are cleared after a saveRuleSet()
+  * Function subrules returning 0 __must__ set continue() properly to avoid potential infinite loops.
+  * currentRule property is now a method
 
 0.3.2 / 2012-09-16
 ==================

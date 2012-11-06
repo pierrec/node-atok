@@ -14,7 +14,6 @@ describe('Tokenizer Supported Properties', function () {
   , writable: isBoolean
   , readable: isBoolean
   , ending: isBoolean
-  , currentRule: function (v) { return v === null || isString(v) }
   }
 
   function isNumber () {

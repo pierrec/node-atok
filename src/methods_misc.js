@@ -22,14 +22,6 @@ Atok.prototype.clear = function (keepRules) {
  * @api public
  */
 Atok.prototype.slice = function (start, end) {
-  // switch (arguments.length) {
-  //   case 0:
-  //     start = this.offset
-  //   case 1:
-  //     end = this.length
-  // }
-
-  // return this.buffer.substr(start, end - start)
   return this.buffer.slice(start, end)
 }
 /**
@@ -81,12 +73,12 @@ Atok.prototype.debug = function (flag) {
   this.debugMode = _debug
 
   // Apply debug mode to all defined rules...
+  var self = this
   this._rulesForEach(function (rule) {
-    rule.setDebug(_debug)
+    rule.setDebug(_debug, self)
   })
 
   // Apply debug mode to some methods
-  var self = this
   ;[ 'loadRuleSet' ].forEach(function (method) {
     if (_debug) {
       var prevMethod = self[method]
@@ -116,4 +108,13 @@ Atok.prototype._rulesForEach = function (fn) {
   Object.keys(saved).forEach(function (ruleSet) {
     saved[ruleSet].rules.forEach(fn)
   })
+}
+/**
+ * Get the current rule set name
+ *
+ * @return {String} rule set name
+ * @api public
+ */
+Atok.prototype.currentRule = function () {
+  return this._firstRule ? this._firstRule.currentRule : null
 }
