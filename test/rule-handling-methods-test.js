@@ -369,20 +369,6 @@ describe('Tokenizer RuleSet Methods', function () {
         done()
       })
     })
-
-    describe('with a name', function () {
-      var p = new Tokenizer(options)
-      it('should clear all rules', function (done) {
-        p.addRule('a', 'first')
-        p.saveRuleSet('test')
-        p.addRule('a', 'second')
-        p.on('data', function (token, idx, type) {
-          assert.equal(type, 'second')
-          done()
-        })
-        p.write('a')
-      })
-    })
   })
 
   // Load a set of rules
