@@ -1,3 +1,10 @@
+0.4.1 / 2012-11-08
+==================
+
+* Fixed missing buffertool dependency in package.json
+* Better setEncoding behavior
+* Added/fixed tests
+
 0.4.0 / 2012-11-06
 ==================
 
