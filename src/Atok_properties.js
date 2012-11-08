@@ -7,7 +7,7 @@
   // Private properties
   this._firstRule = null        // Initial rule to be triggered
   this._resetRule = false       // Rule set was changed
-  this._stringDecoder = new StringDecoder(this._encoding)
+  this._stringDecoder = this._encoding ? new StringDecoder(this._encoding) : null
   this._rulesToResolve = false  // Rules need to be resolved (continue() prop)
   this._rulesToLink = false     // Rules need to be relinked (after a rule set change)
   this._group = -1

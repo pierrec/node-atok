@@ -15,18 +15,20 @@ Atok.prototype.write = function (data) {
 
   if (!data || data.length === 0) return true
 
+  // Setting the encoding by default when receiving a string
+  if ( typeof data === 'string' && !this._encoding ) this.setEncoding('utf-8')
+
   // Buffer the incoming data...
   if (this.length > 0) {
     // Process strings and Buffers separately
-    // Once a type has been written to the stream, it must stay the same thereon
-    if (typeof data === 'string') {
-      this.buffer += this._stringDecoder.write(data)
+    if ( this._encoding ) {
+      this.buffer += this._stringDecoder.write( data.toString() )
     } else {
       this.buffer = this.buffer.concat(data)
       // this.buffer = Buffer.concat( [ this.buffer, data ], this.length )
     }
   } else {
-    this.buffer = data
+    this.buffer = this._encoding ? data.toString() : data
   }
   this.length = this.buffer.length
 

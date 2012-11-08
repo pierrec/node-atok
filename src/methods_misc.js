@@ -45,14 +45,20 @@ Atok.prototype.flush = function () {
  * @api public
  */
 Atok.prototype.setEncoding = function (enc) {
-  switch (enc) {
+  switch ( String(enc) ) {
+    case 'null':
+    case 'undefined':
+      this._encoding = null
+    break
     case 'UTF-8':
     case 'utf-8':
     case 'utf8':
     default:
       this._encoding = 'UTF-8'
   }
-  this._stringDecoder = new StringDecoder(this._encoding)
+  this._stringDecoder = this._encoding
+    ? new StringDecoder(this._encoding)
+    : null
 
   return this
 }
