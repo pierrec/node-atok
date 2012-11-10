@@ -12,7 +12,7 @@ function_SubRule.prototype.test = function (buf, offset) {
 
 	if (typeof res !== 'number' || res < 0) return -1
 
-	this.length = res
+	if (this.length !== 0) this.length = res
 
 	return	this.next.test(buf, offset + res)
 }

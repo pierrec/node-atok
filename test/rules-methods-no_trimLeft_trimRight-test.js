@@ -333,17 +333,42 @@ describe('Tokenizer Rules Methods with trimLeft disabled', function () {
       })
     })
 /*
+fn
+'a', fn
 [fn1, fn2]
 [fn1, fn2], 'a'
 [fn1, fn2], ['a','b']
 **/
     describe('First: Array Second: "..."', function () {
+      function fn (s, start) {
+        return s[start] === 'a' && s[start+1] === 'b' ? 2 : -1
+      }
       function fn1 (s, start) {
         return s[start] === 'a' ? 1 : -1
       }
       function fn2 (s, start) {
         return s[start] === 'b' ? 1 : -1
       }
+
+      describe('#addRule(fn)', function () {
+        it('should return ab', function (done) {
+          p.addRule(fn, function (token, idx, type) {
+            assert.equal(token, 'ab')
+            done()
+          })
+          p.write('ab')
+        })
+      })
+
+      describe('#addRule("a", fn)', function () {
+        it('should return a', function (done) {
+          p.addRule('a', fn2, function (token, idx, type) {
+            assert.equal(token, 'a')
+            done()
+          })
+          p.write('ab')
+        })
+      })
 
       describe('#addRule([fn1,fn2])', function () {
         var i = 0
