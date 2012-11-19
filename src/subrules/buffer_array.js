@@ -11,12 +11,13 @@ function buffer_arraySubRule (buf, str) {
 buffer_arraySubRule.prototype.test = function (buf, offset) {
 	var isString = typeof buf === 'string'
 	var list = isString ? this.str : this.buf
+	var delta = buf.length - offset
 
 	for (var j = 0, len = list.length; j < len; j++) {
 		var p = list[j]
 		var n = p.length
 
-		if (buf.length < offset + n) continue
+		if (delta < n) continue
 
 		var i = buf.indexOf(p, offset)
 

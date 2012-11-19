@@ -16,9 +16,10 @@ range_array_object_firstSubRule.prototype.test = function (buf, offset) {
 
 	if (isString) {
 		for (var i = 0; i < n; i++) {
+			var c = buf.charCodeAt(offset)
 			if (
-				buf.charCodeAt(offset) >= start[i]
-			&&	buf.charCodeAt(offset) <= end[i]
+				c >= start[i]
+			&&	c <= end[i]
 			) {
 				this.idx = i
 				return this.next.test(buf, offset + 1)
@@ -26,9 +27,10 @@ range_array_object_firstSubRule.prototype.test = function (buf, offset) {
 		}
 	} else {
 		for (var i = 0; i < n; i++) {
+			var c = buf[offset]
 			if (
-				buf[offset] >= start[i]
-			&&	buf[offset] <= end[i]
+				c >= start[i]
+			&&	c <= end[i]
 			) {
 				this.idx = i
 				return this.next.test(buf, offset + 1)

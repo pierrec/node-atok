@@ -8,19 +8,9 @@ function rangestart_object_firstSubRule (start) {
 }
 
 rangestart_object_firstSubRule.prototype.test = function (buf, offset) {
-	var isString = typeof buf === 'string'
+	var c = typeof buf === 'string' ? buf.charCodeAt(offset) : buf[offset]
 
-	if (isString) {
-		if (
-			buf.charCodeAt(offset) < this.start
-		)
-			return -1
-	} else {
-		if (
-			buf[offset] < this.start
-		)
-			return -1
-	}
-
-	return this.next.test(buf, offset + 1)
+	return c < this.start
+		? -1
+		: this.next.test(buf, offset + 1)
 }
