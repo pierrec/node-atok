@@ -3,6 +3,7 @@ function number_arraySubRule (list) {
 	this.idx = -1
 	this.length = 1
 	this.next = lastSubRule
+	this.prev = null
 	// Specific properties
 	// Filter out zero values
 	this.list = list.filter(function (v) { return v !== 0 })

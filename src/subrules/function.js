@@ -3,6 +3,7 @@ function function_SubRule (fn) {
 	this.idx = -1
 	this.length = -2
 	this.next = lastSubRule
+	this.prev = null
 	// Specific properties
 	this.fn = fn
 }

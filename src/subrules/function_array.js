@@ -3,6 +3,7 @@ function function_arraySubRule (list) {
 	this.idx = -1
 	this.length = -2
 	this.next = lastSubRule
+	this.prev = null
 	// Specific properties
 	this.list = list
 }

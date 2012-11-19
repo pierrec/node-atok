@@ -80,6 +80,7 @@ function Rule (subrules, type, handler, props, groupProps, encoding) {
   for (var i = 1; i < n; i++) {
     subrule = SubRule.SubRule( subrules[i], this.props, encoding )
     prev.next = subrule
+    subrule.prev = prev // Useful in some edge cases
     prev = subrule
     if (this.length < subrule.length) this.length = subrule.length
   }

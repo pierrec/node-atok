@@ -3,6 +3,7 @@ function zero_SubRule () {
 	this.idx = -1
 	this.length = 0
 	this.next = lastSubRule
+	this.prev = null
 }
 
 zero_SubRule.prototype.test = function (buf, offset) {

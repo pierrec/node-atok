@@ -3,6 +3,7 @@ function number_SubRule (n) {
 	this.idx = -1
 	this.length = n
 	this.next = lastSubRule
+	this.prev = null
 	// Specific properties
 	this.n = n
 }

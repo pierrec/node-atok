@@ -3,6 +3,7 @@ function noop_SubRule () {
 	this.idx = -1
 	this.length = 0
 	this.next = lastSubRule
+	this.prev = null
 }
 
 noop_SubRule.prototype.test = function (buf, offset) {

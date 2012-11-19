@@ -3,6 +3,7 @@ function firstof_object_SubRule (buf, str) {
 	this.idx = -1
 	this.length = 1
 	this.next = lastSubRule
+	this.prev = null
 	// Specific properties
 	this.buf = buf
 	this.str = str
