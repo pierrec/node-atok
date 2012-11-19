@@ -165,13 +165,13 @@ function toFirstOf (list, encoding) {
         : []
 }
 
-exports.firstSubRule = function (rule, props, encoding) {
+exports.firstSubRule = function (rule, props, encoding, single) {
   if (rule === null || rule === undefined)
     throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
 
-  // var loop = props.ignore && props.continue[0] === -1 && !props.next[0] ? '_loop' : ''
-  // var type = typeOf(rule) + loop
   var type = typeOf(rule)
+  var loop = single && props.ignore && props.continue[0] === -1 && !props.next[0]
+  var isString = false
 
   switch (type) {
     case 'zero':
@@ -190,10 +190,15 @@ exports.firstSubRule = function (rule, props, encoding) {
       return new number_SubRule(rule)
 
     case 'string':
-      return new buffer_firstSubRule( new Buffer(rule, encoding), toCodes(rule) )
-
+      isString = true
     case 'buffer':
-      return new buffer_firstSubRule( rule, toCodes( rule.toString(encoding) ) )
+      return new (loop
+          ? buffer_loop_firstSubRule
+          : buffer_firstSubRule
+        )(
+            isString ? new Buffer(rule, encoding) : rule
+          , isString ? toCodes(rule) : toCodes( rule.toString(encoding) )
+          )
 
     // Arrays
     case 'function_array':
@@ -203,18 +208,19 @@ exports.firstSubRule = function (rule, props, encoding) {
       return new number_arraySubRule(rule)
 
     case 'string_array':
-      return new buffer_array_firstSubRule(
-            rule.map( function (i) { return new Buffer(i, encoding) } )
-          , rule.map(toCodes)
-          )
-
+      isString = true
     case 'buffer_array':
-      return rule.length > 0
-        ? new buffer_array_firstSubRule(
-            rule
-          , rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
+      return new ( loop
+              ? buffer_array_loop_firstSubRule
+              : buffer_array_firstSubRule
+            )(
+            isString
+              ? rule.map( function (i) { return new Buffer(i, encoding) } )
+              : rule
+          , isString
+              ? rule.map(toCodes)
+              : rule.map( function (i) { return toCodes( i.toString(encoding) ) } )
           )
-        : null
 
     // {start, end}
     case 'range_object':
@@ -226,7 +232,11 @@ exports.firstSubRule = function (rule, props, encoding) {
       if (typeof end === 'number' && typeof start !== 'number') start = start[0]
 
       if (typeof start === 'number')
-        return new range_object_firstSubRule(start, end)
+        return new (loop
+            ? range_loop_object_firstSubRule
+            : range_object_firstSubRule
+          )
+          (start, end)
 
       if (start.length === 0 || start.length !== end.length)
         throw new Error('Tokenizer#addRule: Invalid Range: bad sizes: '
@@ -234,13 +244,21 @@ exports.firstSubRule = function (rule, props, encoding) {
           + ' end=' + end.length
         )
 
-      return new range_array_object_firstSubRule(start, end)
+      return new ( loop
+            ? range_array_loop_object_firstSubRule
+            : range_array_object_firstSubRule
+          )
+          (start, end)
 
     case 'rangestart_object':
       var start = toRanges(rule.start)
 
       if (typeof start === 'number')
-        return new rangestart_object_firstSubRule(start)
+        return new (loop
+            ? rangestart_loop_object_firstSubRule
+            : rangestart_object_firstSubRule
+          )
+          (start)
 
       if (start.length === 0)
         throw new Error('Tokenizer#addRule: Invalid Range: empty start')
@@ -251,7 +269,11 @@ exports.firstSubRule = function (rule, props, encoding) {
       var end = toRanges(rule.end)
 
       if (typeof end === 'number')
-        return new rangeend_object_firstSubRule(end)
+        return new (loop
+            ? rangeend_loop_object_firstSubRule
+            : rangeend_object_firstSubRule
+          )
+          (end)
 
       if (end.length === 0)
         throw new Error('Tokenizer#addRule: Invalid Range: empty end')
@@ -273,6 +295,7 @@ exports.SubRule = function (rule, props, encoding) {
     throw new Error('Tokenizer#addRule: Invalid rule ' + rule + ' (function/string/integer/array only)')
 
   var type = typeOf(rule)
+  var isString = false
 
   switch (type) {
     case 'zero':
@@ -306,18 +329,16 @@ exports.SubRule = function (rule, props, encoding) {
       return new number_arraySubRule(rule)
 
     case 'string_array':
-      return new ( props.escape ? buffer_escaped_arraySubRule : buffer_arraySubRule )
-      (
-        rule.map( function (i) { return new Buffer(i, encoding) } )
-      , rule
-      , props.escape
-      )
-
+      isString = true
     case 'buffer_array':
       return new ( props.escape ? buffer_escaped_arraySubRule : buffer_arraySubRule )
       (
-        rule
-      , rule.map( function (i) { return i.toString(encoding) } )
+        isString
+          ? rule.map( function (i) { return new Buffer(i, encoding) } )
+          : rule
+      , isString
+          ? rule
+          : rule.map( function (i) { return i.toString(encoding) } )
       , props.escape
       )
 
