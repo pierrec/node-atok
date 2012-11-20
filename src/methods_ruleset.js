@@ -280,7 +280,7 @@ Atok.prototype._resolveRules = function (name) {
         // Jumping to the last rule is valid
         if (j === n && count === m - 1) return
 
-        if (j < 0 || j > n)
+        if (j < 0 || j >= n)
           self._error( new Error('Atok#_resolveRules: ' + prop + '() value out of bounds: ' + cont + getErrorData(i)) )
 
         // Only process rules bound to a group below the current one
