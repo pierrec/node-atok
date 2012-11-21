@@ -1,7 +1,9 @@
-0.4.2 / 2012-11-19
+0.4.2 / 2012-11-20
 ==================
 
 * Added loop optimizations (.ignore(true).continue(-1))
+* Added prev property to subrules (accessible from a custom function subrule)
+* Fixed out of bound check when grouping rules
 
 0.4.1 / 2012-11-08
 ==================

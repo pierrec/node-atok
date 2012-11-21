@@ -2,12 +2,14 @@
 
 ## 0.5.0
 
+* Revisit the way trimLeft() and trimRight() is performed
+* Make subrule [...] behave like {firstOf} and remove {firstOf} support
 * Compile rule sets to JS code
 
 
 ## 0.4.0
 
-* looping rules optimization
+* firstOf optimizations (no slice -> straight compares / regexp on strings)
 
 
 ## 0.3.1

@@ -145,8 +145,8 @@ function toRanges (list) {
 function toFirstOf (list, encoding) {
   return typeof list === 'string'
     ? [
-        list.split('')
-      , list.split('').map( function (i) { return new Buffer(i, encoding) } )
+        list.split('').map( function (i) { return new Buffer(i, encoding) } )
+      , list.split('')
       ]
     : typeof list[0] === 'string'
       ? [
