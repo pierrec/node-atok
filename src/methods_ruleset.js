@@ -444,6 +444,7 @@ Atok.prototype.groupRule = function (flag) {
  * @api private
  */
 Atok.prototype._linkRules = function () {
+  var self = this
   var _savedRules = this._savedRules
   var rules = this._rules
 
@@ -466,7 +467,7 @@ Atok.prototype._linkRules = function () {
     var ruleSet = arr[0]
     var rule = _savedRules[ ruleSet ]
     if (!rule)
-        this._error( new Error('Atok#_linkRules: missing rule set: ' + ruleSet ) )
+        self._error( new Error('Atok#_linkRules: missing rule set: ' + ruleSet ) )
 
     return _savedRules[ ruleSet ].rules[ arr[1] ]
   }
