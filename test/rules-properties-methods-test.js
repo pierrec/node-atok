@@ -476,6 +476,26 @@ describe('Tokenizer Properties Methods', function () {
       })
     })
 
+    describe('with an index pointing to the end of the rule set', function () {
+      var p = new Tokenizer(options)
+      it('should complete', function (done) {
+        p.continue(0)
+        p.addRule(1, 'consume')
+        p.write('a')
+        done()
+      })
+    })
+
+    describe('with an index on failure pointing to the end of the rule set', function () {
+      var p = new Tokenizer(options)
+      it('should complete', function (done) {
+        p.continue(-1, 0)
+        p.addRule('a', 'consume')
+        p.write('b')
+        done()
+      })
+    })
+
     describe('with an invalid positive index', function () {
       var p = new Tokenizer(options)
       it('should throw on saveRuleSet()', function (done) {

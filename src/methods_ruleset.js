@@ -365,10 +365,13 @@ Atok.prototype._resolveRules = function (name) {
     var rule = rules[i]
 
     // Zero length rules
+
     if ( rule.length === 0
       && (n === 1
         || (
-            rules[ i + 1 + rule.continue ].length === 0
+          // continue may point to the end of the list
+              i + 1 + rule.continue < n
+          && rules[ i + 1 + rule.continue ].length === 0
           // continueOnFail may point to the end of the list
           && i + 1 + rule.continueOnFail < n
           && rules[ i + 1 + rule.continueOnFail ].length === 0
